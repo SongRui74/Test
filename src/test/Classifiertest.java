@@ -14,8 +14,11 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.trees.J48;
+import weka.clusterers.ClusterEvaluation;
+import weka.clusterers.SimpleKMeans;
 import weka.core.*;
 import weka.core.converters.*;
+import weka.experiment.InstanceQuery;
 /**
  *
  * @author dell-pc
@@ -24,8 +27,33 @@ public class Classifiertest {
     
     public JTextArea txtJ48 = new JTextArea();
     public JTextArea txtNB = new JTextArea();
-           
     
+    public void TestCluster() throws Exception{
+        InstanceQuery query = new InstanceQuery();
+        query.setUsername("song");
+        query.setPassword("123456");
+        query.setQuery("select * from test");
+        Instances data = query.retrieveInstances();
+        /**
+         * 实现聚类
+         */
+        String[] option=new String[4];  //设置相应的参数  
+        option[0]="-N"; //聚类数  
+        option[1]="4";  
+        option[2]="-I"; //最大迭代次数  
+        option[3]="500";  
+        SimpleKMeans kmeans = new SimpleKMeans(); // new instance of clusterer  
+        kmeans.setOptions(option); // set the options  
+        kmeans.buildClusterer(data); // build the clusterer 
+        
+        /** 
+         * 评价聚类，使用ClusterEvaluation 
+         */  
+        ClusterEvaluation eval = new ClusterEvaluation();  
+        eval.setClusterer(kmeans);  
+        eval.evaluateClusterer(new Instances(data));  
+        System.out.println(eval.clusterResultsToString()); 
+    }
     
     //C4.5算法
     public void J48test() throws IOException, Exception{
