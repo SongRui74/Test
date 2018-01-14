@@ -22,11 +22,11 @@ public class Test {
     
     public static void main(String[] args) throws Exception{
         
-        Classifiertest test = new Classifiertest();
-        test.TestCluster();
+    //    Classifiertest test = new Classifiertest();
+     //   test.TestCluster();
         
-       //   Standfordnlp t = new Standfordnlp();
-       //   t.RemarkFeedbackTree();
+        Standfordnlp t = new Standfordnlp();
+        t.RemarkFeedbackTree();
      //  new MyPanel(); 
       //  Test data = new Test();        
     //    data.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
