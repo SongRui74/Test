@@ -43,7 +43,7 @@ public class Standfordnlp {
     private String userName = "song"; 
     private String userPwd = "123456"; 
     private Connection conn;    
-    private String table_name = "test2";
+    private String table_name = "cpy_test";
     
     /**
      * 将评论ast标记到数据库表中
@@ -57,14 +57,14 @@ public class Standfordnlp {
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             Statement stmt2 = conn.createStatement();
-            //  System.out.println("Connection Successful!");
-            rs=stmt.executeQuery("SELECT Review_Content,old_ast FROM "+table_name);          
+            //  System.out.println("Connection Successful!");           
             
+            rs=stmt.executeQuery("SELECT Review_Content,old_ast FROM "+table_name);  
             rs.first();//读取数据库第一行记录  
             
-            Tree tree = StringtoTree(rs.getString("Review_Content"));
-            int i = TreetoInt(tree);
-         //   int i = 0;//测试写入数据数值
+        //    Tree tree = StringtoTree(rs.getString("Review_Content"));
+        //    int i = TreetoInt(tree);
+            int i = 0;//测试写入数据数值
             String sql;
             String str = SqlSingleQuote(rs.getString("Review_Content")); //处理单引号
             sql="UPDATE "+ table_name +" SET old_ast = " + i + " where Review_Content = '"+ str +"'";
@@ -88,6 +88,7 @@ public class Standfordnlp {
             }
             rs.close();
             stmt.close(); 
+            stmt2.close();
             conn.close();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
@@ -143,14 +144,14 @@ public class Standfordnlp {
             sql = "SELECT * FROM "+ table_name +" WHERE Review_Content = '" + old_content + "'"; 
             ResultSet rstemp = st.executeQuery(sql);
             rstemp.first();
-            String[] content_info = new String[6];            
+            String[] content_info = new String[5];            
             content_info[0] = rstemp.getString("APP_ID");
             content_info[1] = rstemp.getString("Reviewer_Name");
             content_info[2] = rstemp.getString("Rating");
             content_info[3] = rstemp.getString("Review_Title");
         //    content_info[4] = rstemp.getString("Review_Content");
             content_info[4] = rstemp.getString("classes");
-            content_info[5] = rstemp.getString("old_ast");            
+            content_info[5] = "1";            
             //处理单引号
             for (int i = 0;i<content_info.length;i++) {
                 content_info[i] = SqlSingleQuote(content_info[i]);
@@ -217,11 +218,8 @@ public class Standfordnlp {
              // traversing the words in the current sentence
              // a CoreLabel is a CoreMap with additional token-specific methods
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-                // this is the text of the token
                 String word = token.get(TextAnnotation.class);
-                // this is the POS tag of the token
                 String pos = token.get(PartOfSpeechAnnotation.class);
-                // this is the NER label of the token
                 String ne = token.get(NamedEntityTagAnnotation.class);
                 String lemma = token.get(LemmaAnnotation.class);
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
@@ -247,7 +245,7 @@ public class Standfordnlp {
         return 1;
     }
     
-    
+    /*测试standfordnlp函数
     public void Nlp() {
         // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER, parsing, and coreference resolution
         Properties props = new Properties();
@@ -295,4 +293,5 @@ public class Standfordnlp {
         // Both sentence and token offsets start at 1!
         Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);
     }
+    */
 }
