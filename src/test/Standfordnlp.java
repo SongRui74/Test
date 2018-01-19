@@ -29,10 +29,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -136,11 +137,45 @@ public class Standfordnlp {
         return tree;
     }
     
-    public int TreetoInt(Tree tree){
-        if(tree.isEmpty())
-            return 0;
-        return 1;
+    /**
+     * 深度优先遍历语法树
+     * @param tree 
+     */
+    public void DFS(Tree tree){
+        Stack s = new Stack();
+        Tree t = tree;
+        s.add(t);
+        while(!s.isEmpty()){
+            t = (Tree) s.pop();
+            System.out.println(t.toString());
+            List children  = t.getChildrenAsList();
+            if(children != null && !children.isEmpty()){
+                for (Object child : children) {
+                    s.push(child);
+                }
+            }
+        }
     }
+    
+    /**
+     * 计算当前节点的hash值
+     * @param tree 
+     */
+    public void CalHash(Tree tree){
+        Tree t = tree;
+        Map<Tree,Integer> hashtree = new HashMap<>();
+        Tree tree_key;//存放当前节点
+        int tree_value;//存放当前节点的哈希值
+        List Node = t.getChildrenAsList(); //获取当前节点的所有孩子节点
+        for(int i = 0;i<Node.size();i++){
+            tree_key = (Tree) Node.get(i);
+            System.out.println(tree_key.toString()+"\t");
+            tree_value = tree_key.hashCode();
+            System.out.println(tree_value);
+            hashtree.put(tree_key, tree_value);//lang.NullPointerException
+            System.out.println(hashtree.toString());
+            }
+        }
     
     /*测试standfordnlp函数
     public void Nlp() {
