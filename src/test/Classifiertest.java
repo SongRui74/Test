@@ -32,7 +32,7 @@ public class Classifiertest {
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
         query.setPassword("123456");
-        query.setQuery("select * from test");
+        query.setQuery("select * from test2");
         Instances data = query.retrieveInstances();
         /**
          * 实现聚类
@@ -41,7 +41,7 @@ public class Classifiertest {
         option[0]="-N"; //聚类数  
         option[1]="4";  
         option[2]="-I"; //最大迭代次数  
-        option[3]="500";  
+        option[3]="500"; 
         SimpleKMeans kmeans = new SimpleKMeans(); // new instance of clusterer  
         kmeans.setOptions(option); // set the options  
         kmeans.buildClusterer(data); // build the clusterer 

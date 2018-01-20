@@ -184,6 +184,29 @@ public class Standfordnlp {
         return ast_str;
     }
     
+    /**
+     * 计算语法树相似度
+     */
+    public Float Similarity(String a, String b){
+        float sim = 0;
+        String[] aa = a.split("\\,");
+        String[] bb = b.split("\\,");
+        int count = 0;
+        for(int i = 0; i < aa.length; i++){
+            String m = aa[i];
+            for(int j = 0; j < bb.length; j++){
+                String n = bb[j];
+                if(m.equals(n)){
+                    count++;
+                }
+            }
+        }
+        int same = count;
+        int sum = aa.length + bb.length -count;
+        sim = (float)same/sum;
+        System.out.println(sim+"="+same+"/"+sum);
+        return sim;
+    }
     /*测试standfordnlp函数
     public void Nlp() {
         // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER, parsing, and coreference resolution
