@@ -20,18 +20,17 @@ public class Test {
         
     //    Classifiertest test = new Classifiertest();
      //   test.TestCluster();
-   /*     SQL s = new SQL();
+        SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
-        String col = "old_ast";
-        String type = "int null";
-     //   s.AddColumn(table_name,col, type);//添加列
+        String col = "ast";
+        String type = "varchar(max)";
+        s.AddColumn(table_name,col, type);//添加列
         Standfordnlp t = new Standfordnlp();
         t.RemarkFeedbackTree(table_name,col);//标记ast
-    */
-        Standfordnlp t = new Standfordnlp();
-        Tree tree = t.StringtoTree("App doesn't work.");
-        t.DFS(tree);
+        
+    //    Tree tree = t.FeedbacktoTree("App doesn't work.");
+    //    t.TreetoString(tree);
  //       t.CalHash(tree);
      //  new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);

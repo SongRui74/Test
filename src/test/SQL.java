@@ -184,11 +184,11 @@ public class SQL {
     /**
      * 更改数据库查询语句
      */
-    public String UpdateSql(ResultSet rs,String table_name,String col,int new_value){
+    public String UpdateSql(ResultSet rs,String table_name,String col,String new_value){
         String sql = null;
         try {
             String str = SqlSingleQuote(rs.getString("Review_Content"));
-            sql = "UPDATE "+ table_name +" SET " + col + " = " + new_value + " where Review_Content = '"+ str +"'";
+            sql = "UPDATE "+ table_name +" SET " + col + " = '" + new_value + "' where Review_Content = '"+ str +"'";
         } catch (SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
