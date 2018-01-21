@@ -202,9 +202,8 @@ public class Standfordnlp {
             }
         }
         int same = count;
-        int sum = aa.length + bb.length -count;
-        sim = (float)same/sum;
-        System.out.println(sim+"="+same+"/"+sum);
+        int min = Math.min(aa.length, bb.length);
+        sim = (float)same/min;
         return sim;
     }
     /*测试standfordnlp函数

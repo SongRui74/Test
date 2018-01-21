@@ -37,11 +37,13 @@ public class Classifiertest {
         /**
          * 实现聚类
          */
-        String[] option=new String[4];  //设置相应的参数  
+        String[] option=new String[6];  //设置相应的参数  
         option[0]="-N"; //聚类数  
         option[1]="4";  
-        option[2]="-I"; //最大迭代次数  
-        option[3]="500"; 
+        option[2]="-A"; //距离算法
+        option[3]="weka.core.EuclideanDistance";
+        option[4]="-I"; //最大迭代次数  
+        option[5]="500"; 
         SimpleKMeans kmeans = new SimpleKMeans(); // new instance of clusterer  
         kmeans.setOptions(option); // set the options  
         kmeans.buildClusterer(data); // build the clusterer 
