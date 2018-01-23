@@ -24,11 +24,42 @@ import java.util.logging.Logger;
  * @author dell-pc
  */
 public class SQL {
-    private String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
-    private String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
-    private String userName = "song"; 
-    private String userPwd = "123456"; 
+    private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
+    private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
+    private final String userName = "song"; 
+    private final String userPwd = "123456"; 
     private Connection conn;    
+    
+    /**
+     * 获取表中数据数量
+     * @param table
+     * @return 
+     */
+    public int GetDataNum(String table){
+        int num = 0;
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);
+            
+            Statement stmt = conn.createStatement();
+            ResultSet rs;
+            String sql = null;
+            String tempcol = "a";
+            sql = "select count(*) as "+ tempcol + " from "+ table;
+            rs = stmt.executeQuery(sql);
+            rs.next();
+            num = rs.getInt(tempcol);
+            
+            stmt.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return num;
+    }
+    
     
     /**
      * 增加列

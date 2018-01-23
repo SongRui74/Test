@@ -14,14 +14,18 @@ import java.sql.*;
  */
 public class Test {
     
-    private static String table_name = "cpy_test";
+    private static String table_name = "test2";
          
     public static void main(String[] args) throws Exception{
         
-        Classifiertest test = new Classifiertest();
-        test.TestCluster();
-    /*    SQL s = new SQL();
-        s.SqltoShort(table_name);//批量将长文本化为单句
+        SQL s = new SQL();
+        s.GetDataNum(table_name);
+        KMeansCluster km = new KMeansCluster();
+        km.ImportData(table_name);
+        km.ChooseCenter(table_name);
+        km.Iteration();
+        km.ResultOut(table_name);
+    /*    s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
         String col = "ast";
         String type = "varchar(max)";
@@ -35,7 +39,7 @@ public class Test {
         tree = t.FeedbacktoTree("The app can't open.");
         String b = t.TreetoString(tree);
         t.Similarity(a, b);
-     *///  new MyPanel();        
+    */ //  new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
         

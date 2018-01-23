@@ -41,10 +41,10 @@ import java.util.logging.Logger;
 
 
 public class Standfordnlp {
-    private String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
-    private String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
-    private String userName = "song"; 
-    private String userPwd = "123456"; 
+    private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
+    private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
+    private final String userName = "song"; 
+    private final String userPwd = "123456"; 
     private Connection conn;    
     
     /**
@@ -65,14 +65,12 @@ public class Standfordnlp {
             
             Tree tree = FeedbacktoTree(rs.getString("Review_Content"));//将评论解析为语法树
             String ast = TreetoString(tree);//将语法树解析为字符串
-        //    int i = TreetoInt(tree);
-        //    int i = 0;//测试写入数据数值        
+            
             String sql;
             SQL s = new SQL();
             String str = s.SqlSingleQuote(rs.getString("Review_Content")); //处理单引号
             sql="UPDATE "+ table_name +" SET " + col + " = '" + ast + "' where Review_Content = '"+ str +"'";
             stmt2.executeUpdate(sql);   //执行sql语句标记ast
-        //    System.out.println(rs.getString("Review_Content")+'\t'+rs.getString("old_ast"));
                 
             //循环标记ast
             while(rs.next()){                                            
