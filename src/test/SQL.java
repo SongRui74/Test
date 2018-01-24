@@ -214,6 +214,11 @@ public class SQL {
     }    
     /**
      * 更改数据库查询语句
+     * @param rs
+     * @param table_name 表名
+     * @param col 列名
+     * @param new_value 新值
+     * @return 
      */
     public String UpdateSql(ResultSet rs,String table_name,String col,String new_value){
         String sql = null;
@@ -238,8 +243,11 @@ public class SQL {
     
     /**
      * bat格式评论文件写入数据库
+     * @param readpath  文件路径
+     * @param table  数据库表名
+     * @param n  属性个数
      */
-    public String ReviewsToDB(String readpath,String table,int n) throws IOException, ClassNotFoundException, SQLException{    //文件路径，数据库表名，属性个数
+    public String ReviewsToDB(String readpath,String table,int n) throws IOException, ClassNotFoundException, SQLException{   
         Class.forName(driverName);
         conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
         Statement stmt = conn.createStatement();

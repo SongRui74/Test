@@ -6,6 +6,7 @@
 
 package test;
 
+import edu.stanford.nlp.trees.Tree;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -23,7 +24,6 @@ import java.util.logging.Logger;
 class point{
     public String t = null; //语法树
     public int flag = -1;  //标记
-//    public String c = "unknown"; //对应的类别
     
     public String getT(){
         return t;
@@ -31,14 +31,6 @@ class point{
     public void setT(String t){
         this.t = t;
     }
-    /*
-    public String getC(){
-        return c;
-    }
-    public void setC(String c){
-        this.c = c;
-    }
-    */
 }
 
 public class KMeansCluster {
@@ -67,6 +59,7 @@ public class KMeansCluster {
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             
+            //列名记得修改为变量！！！！！！！！！！！！！！！！！！！！！！！！！！
             rs=stmt.executeQuery("SELECT ast FROM "+table_name);
             rs.first();//读取数据库第一行记录
             for(int i = 0;i < num ;i++){   
@@ -90,44 +83,39 @@ public class KMeansCluster {
     public void ChooseCenter(String table_name){
         int num = s.GetDataNum(table_name);//数据集数量
         Scanner cin = new Scanner(System.in);
-        System.out.print("请输入初始化聚类中心个数（随机产生）：");
-        int center = cin.nextInt();
+    //    System.out.print("请输入初始化聚类中心个数（随机产生）：");
+    //    int center = cin.nextInt();
+        int center = 4;
         this.old_center = new point[center]; //存放聚类中心
         this.new_center = new point[center];
         
         Random rand = new Random();
- //       int[] temp = new int[center];
-        for(int i = 0; i < center;i++){
+        //产生不重复的随机数
+        int[] temp = new int[center];
+        int count = 0;
+        while(count < center){
             int thistemp = rand.nextInt(num);
+            boolean flag = true;
+            for(int i = 0;i < center; i++){
+                if(thistemp == temp[i]){
+                    flag = false;
+                    break;
+                }
+            }
+            if(flag){
+                temp[count] = thistemp;
+                count++;
+            }
+        }
+        //生成聚类中心      
+        for(int i = 0; i < center;i++){
+            int thistemp = temp[i];
             old_center[i] = new point();
             old_center[i].t = data[thistemp].t;
             old_center[i].flag = 0; //0表示聚类中心
         }
-  /*      temp[0] = rand.nextInt(num);
-        old_center[0] = new point();
-        old_center[0].t = data[temp[0]].t;
-        old_center[0].flag = 0;
         
-        //避免有重复的聚类中心
-        for(int i =1;i < center;i++){
-            int flag = 0;
-            int thistemp = rand.nextInt(num);
-            for(int j = 0;j < i;j++){
-                if(temp[i] == thistemp){
-                    flag = 1;//有重复
-                    break;
-                }
-            }
-            if(flag == 1){
-                i--;
-            }
-            else{
-                old_center[i] = new point();
-                old_center[i].t = data[thistemp].t;
-                old_center[i].flag = 0; //0表示聚类中心
-            }
-        }
-   */     System.out.println("初始聚类中心：");
+        System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
             System.out.println(old_center[i].t);
         }
@@ -152,7 +140,7 @@ public class KMeansCluster {
     }
     
     /**
-     * 重新计算聚类中心
+     * 重新计算聚类中心  ？？？？相似度最小的两棵树取交集
      */
     public void CalCenter(){
         for(int i = 0;i < old_center.length;i++){
@@ -191,7 +179,7 @@ public class KMeansCluster {
     }
     
     /**
-     * 更新原始的聚类中心
+     * 更新原始的聚类中心   
      */
     public void RenewOldCenter(point[] old, point[] news) {
         for (int i = 0; i < old.length; i++) {
@@ -209,7 +197,7 @@ public class KMeansCluster {
      //       this.CalCenter();//重新计算聚类中心
      //       this.RenewOldCenter(old_center, new_center);//更新聚类中心
         }
-        System.out.println("迭代完毕！！！");
+        System.out.println("聚类结束！！！");
     }
     /**
      * 输出聚类中心

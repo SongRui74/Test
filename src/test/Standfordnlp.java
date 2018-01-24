@@ -29,6 +29,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,8 +46,21 @@ public class Standfordnlp {
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
     private final String userName = "song"; 
     private final String userPwd = "123456"; 
-    private Connection conn;    
+    private Connection conn; 
+    public List<Map<Tree, Integer>> node_hash_list = new ArrayList<Map<Tree, Integer>>();    
     
+    /**
+     * 获取评论解析后语法树的每个节点及其hash值
+     * @return 
+     */
+    public List<Map<Tree, Integer>> getNodeHashList(){
+        for (Map<Tree, Integer> m : node_hash_list){ 
+            for (Tree k : m.keySet()){ 
+                System.out.println(k + " ： " + m.get(k)); 
+            }  
+        }
+        return node_hash_list;
+    }
     /**
      * 将评论ast标记到数据库表中
      */
@@ -107,12 +121,8 @@ public class Standfordnlp {
         Annotation document = new Annotation(str);
         // run all Annotators on this text
         pipeline.annotate(document);
-        // these are all the sentences in this document
-        // a CoreMap is essentially a Map that uses class objects as keys and has values with custom types
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
-             // traversing the words in the current sentence
-             // a CoreLabel is a CoreMap with additional token-specific methods
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
                 String pos = token.get(PartOfSpeechAnnotation.class);
@@ -120,17 +130,11 @@ public class Standfordnlp {
                 String lemma = token.get(LemmaAnnotation.class);
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
-            // this is the parse tree of the current sentence
             tree = sentence.get(TreeAnnotation.class);
-        //    tree.pennPrint();
-            // this is the Stanford dependency graph of the current sentence
+            tree.pennPrint();
             SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
         //    dependencies.toString();
         }
-        // This is the coreference link graph
-        // Each chain stores a set of mentions that link to each other,
-        // along with a method for getting the most representative mention
-        // Both sentence and token offsets start at 1!
         Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);        
         return tree;
     }
@@ -157,8 +161,10 @@ public class Standfordnlp {
                 }
             }
         }
+        /*将结果记录存放于list中*/
+        node_hash_list.add(hash);
         /*将hash值依次取出放入数组中*/
-        String[] ast = new String[hash.size()];
+        String[] ast = new String[hash.size()]; //节点对应的hash值数组
         int i = 0;
         Set entries = hash.entrySet( );
         if(entries != null){
@@ -202,6 +208,7 @@ public class Standfordnlp {
         int same = count;
         int min = Math.min(aa.length, bb.length);
         sim = (float)same/min;
+        System.out.println("相似度为："+same +"/" +min + "=" +sim);      
         return sim;
     }
     /*测试standfordnlp函数
