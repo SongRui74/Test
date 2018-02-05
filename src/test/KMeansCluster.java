@@ -12,6 +12,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -45,6 +47,12 @@ public class KMeansCluster {
     point[] new_center = null;//新的聚类中心
     int IterNum = 1;//迭代次数
     SQL s = new SQL();
+    
+    
+    point[][] pop = null;//种群
+    int[] count;//种群规模
+    Map<point,Float>[] bestmap = new HashMap[old_center.length]; //记录各种群最优解
+    
     /**
      * 导入数据
      */
@@ -140,7 +148,7 @@ public class KMeansCluster {
     }
     
     /**
-     * 重新计算聚类中心  ？？？？相似度最小的两棵树取交集
+     * 重新计算聚类中心  ？？？？遗传算法？？？？？？？？？？
      */
     public void CalCenter(){
         for(int i = 0;i < old_center.length;i++){
@@ -154,8 +162,7 @@ public class KMeansCluster {
     }
     /**
      * 相似度计算，两棵树之间的距离函数
-     */
-    
+     */    
     public Float Similarity(point a, point b){
         float sim = 0;
         String t1 = a.t;
@@ -189,7 +196,7 @@ public class KMeansCluster {
     }
     
     /**
-     * 迭代
+     * 迭代，新旧质心的相似度稳定时则停止迭代**********************
      */
     public void Iteration(){
         for(int i = 0;i < IterNum;i++){
@@ -204,7 +211,7 @@ public class KMeansCluster {
      */
     public void ResultOut(String table_name){
         int num = s.GetDataNum(table_name);
-        int[] count = new int[old_center.length];
+        count = new int[old_center.length];
         for(int i =0;i < old_center.length ; i++){
             System.out.println("聚类中心："+old_center[i].t);
             for (int j = 0; j < data.length; j++) {
@@ -216,5 +223,118 @@ public class KMeansCluster {
             float per = (float)100*count[i]/num;
             System.out.println("Cluster"+i+"：  "+ count[i] +"    所占比例： "+ per +"%");
         }
+    }
+    
+/*遗传算法找新质心
+    1、初始种群。种群为当前簇，染色体为字符串所代表的树
+    2、计算适应度。通过两棵树的相似度计算距离，求一个染色体到各个染色体路径之和
+    3、选择。找到和最大的染色体（新质心候选）。
+    4、完成迭代次数结束执行8。否则执行5
+    5、交叉。设交叉率为60%，父母间挑选较短的染色体，随机某个节点进行交换。
+    6、变异。设变异率为1%，随机挑选染色体中某个树节点，进行删除。
+    7、执行2
+    8、记录所有迭代中<路径和最小>的染色体作为新质心。
+*/
+    
+    /**
+     * 定义初始种群
+     */
+    public void InitPop(){
+        count = new int[old_center.length];//存放各种群的规模
+        for(int i =0;i < old_center.length ; i++){
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    count[i]++;  //统计各种群的规模                  
+                }
+            }
+            pop[i] = new point[count[i]]; //创建种群
+            for (int j = 0; j < data.length; j++) { //初始化种群
+                if (data[j].flag == (i + 1)) {
+                    pop[i][j].t = data[j].t; 
+                    pop[i][j].flag = data[j].flag;
+                }
+            }
+        }
+        
+    }
+    /**
+     * 轮盘赌法选择
+     */
+    
+    public void Select(){
+        float dist = -1;
+        point best = new point();
+        for(int i = 0; i < old_center.length ; i++){
+            float[][] d = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的适应值
+            float[][] p = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的选择概率
+            float[][] q = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的累计概率
+            float[] sum = new float[old_center.length];//记录种群的适应值之和
+            for(int j = 0; j < pop[i].length ; j++){
+                for(int k = 0; k < pop[i].length; k++){
+                    d[i][j] += Similarity(pop[i][j],pop[i][k]);//计算适应值，即一个种群中每个染色体到其他染色体的距离并求和
+                }
+                if(d[i][j] > dist){     //记录最大值
+                    best.t = pop[i][j].t;
+                    best.flag = pop[i][j].flag;
+                }
+                sum[i] += d[i][j]; //累计每个种群中所有个体适应值之和
+            }
+            
+            bestmap[i].put(best, sum[i]);//记录种群最优解
+            
+            for(int j = 0; j < pop[i].length; j++){ //轮盘赌概率计算
+                p[i][j] = d[i][j] / sum[i];
+                if(j == 0){
+                    q[i][j] = p[i][j];
+                }
+                else{
+                    q[i][j] = q[i][j-1] + p[i][j];
+                }
+            }
+            for(int j = 0; j < pop[i].length; j++){ //选择概率高的染色体进入下一代
+                double r = Math.random();
+                if( r <= q[i][0]){
+                    pop[i][j].t = pop[i][0].t;
+                    pop[i][j].flag = -1;
+                }
+                else{
+                    for(int k = 1; k < pop[i].length; k++){
+                        if(r < q[i][k]){
+                            pop[i][j].t = pop[i][k].t;
+                            pop[i][j].flag = -1;
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+    /**
+     * 交叉,交叉率60%
+     */
+    public void Cross(){
+        Random rand = new Random(); 
+        for(int i = 0; i < old_center.length ; i++){
+            String a = null;
+            String b = null;
+            for(int j = 0; j < pop[i].length; j++){
+                if(Math.random() < 0.60){
+                    int ran = Math.min(pop[i][j].t.length(), pop[i][j+1].t.length());
+                    int pos = rand.nextInt(ran) + 1;
+                }
+            }
+        }
+    }
+    /**
+     * 变异
+     */ 
+    public void Mutation(){
+    
+    }
+    /**
+     * 生成新的质心
+     */
+    public void GenCenter(){
+    //定义迭代次数10
     }
 }
