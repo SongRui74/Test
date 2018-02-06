@@ -45,13 +45,16 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    int IterNum = 1;//迭代次数
+    int IterNum = 2;//迭代次数
     SQL s = new SQL();
     
     
-    point[][] pop = null;//种群
+    point[][] pop;//种群
     int[] count;//种群规模
-    Map<point,Float>[] bestmap = new HashMap[old_center.length]; //记录各种群最优解
+    double crossrate = 0.60;//交叉率
+    double mutarate = 0.01;//突变率    
+    float[] bestfitness;//最优解，即最大距离和
+    point[] best; //最优染色体
     
     /**
      * 导入数据
@@ -91,9 +94,8 @@ public class KMeansCluster {
     public void ChooseCenter(String table_name){
         int num = s.GetDataNum(table_name);//数据集数量
         Scanner cin = new Scanner(System.in);
-    //    System.out.print("请输入初始化聚类中心个数（随机产生）：");
-    //    int center = cin.nextInt();
-        int center = 4;
+        System.out.print("请输入初始化聚类中心个数（随机产生）：");
+        int center = cin.nextInt();
         this.old_center = new point[center]; //存放聚类中心
         this.new_center = new point[center];
         
@@ -146,20 +148,29 @@ public class KMeansCluster {
             data[i].flag = lable+1;
         }
     }
-    
+        
     /**
-     * 重新计算聚类中心  ？？？？遗传算法？？？？？？？？？？
+     * 生成新的质心
      */
-    public void CalCenter(){
+    public void GenCenter(){
+        //定义迭代次数10
+        InitPop();
+        for(int i = 0; i < 10; i++){
+            Select();
+            Cross();
+            Mutation();
+            System.out.println("//////////"+i+"次遗传完成");
+        }
+        //记录新的质心
+        System.out.println("新质心：");
         for(int i = 0;i < old_center.length;i++){
-            point newcore = new point();
-           // 新的聚类中心
+            System.out.println(best[i].t);
             new_center[i] = new point();
-            new_center[i].t = newcore.t;
+            new_center[i].t = best[i].t;
             new_center[i].flag = 0; 
         }
-        
     }
+    
     /**
      * 相似度计算，两棵树之间的距离函数
      */    
@@ -196,13 +207,14 @@ public class KMeansCluster {
     }
     
     /**
-     * 迭代，新旧质心的相似度稳定时则停止迭代**********************
+     * 迭代，新旧质心的相似度稳定时则停止迭代**********************未完成
      */
     public void Iteration(){
         for(int i = 0;i < IterNum;i++){
             this.Classified();//各数据归类
-     //       this.CalCenter();//重新计算聚类中心
-     //       this.RenewOldCenter(old_center, new_center);//更新聚类中心
+            this.GenCenter();//重新计算聚类中心
+            this.RenewOldCenter(old_center, new_center);//更新聚类中心
+            System.out.println(i+"次聚类完成");
         }
         System.out.println("聚类结束！！！");
     }
@@ -226,7 +238,7 @@ public class KMeansCluster {
     }
     
 /*遗传算法找新质心
-    1、初始种群。种群为当前簇，染色体为字符串所代表的树
+    1、初始种群。种群为当前簇，染色体为字符串所代表的树，基因为树的节点，即字符串中的逗号间隔的一个数字
     2、计算适应度。通过两棵树的相似度计算距离，求一个染色体到各个染色体路径之和
     3、选择。找到和最大的染色体（新质心候选）。
     4、完成迭代次数结束执行8。否则执行5
@@ -241,6 +253,7 @@ public class KMeansCluster {
      */
     public void InitPop(){
         count = new int[old_center.length];//存放各种群的规模
+        pop = new point[old_center.length][];
         for(int i =0;i < old_center.length ; i++){
             for (int j = 0; j < data.length; j++) {
                 if (data[j].flag == (i + 1)) {
@@ -248,23 +261,34 @@ public class KMeansCluster {
                 }
             }
             pop[i] = new point[count[i]]; //创建种群
-            for (int j = 0; j < data.length; j++) { //初始化种群
-                if (data[j].flag == (i + 1)) {
-                    pop[i][j].t = data[j].t; 
-                    pop[i][j].flag = data[j].flag;
+            
+            }
+        
+        for(int i =0;i < old_center.length ; i++){
+            for(int k = 0; k < count[i]; k++){
+                pop[i][k] = new point();
+                for (int j = 0; j < data.length; j++) { //初始化种群
+                    if (data[j].flag == (i + 1)) {
+                        pop[i][k].t = data[j].t; 
+                        pop[i][k].flag = data[j].flag;
+                    }
                 }
             }
         }
-        
+        System.out.println("初始化完成");
     }
     /**
      * 轮盘赌法选择
      */
     
     public void Select(){
-        float dist = -1;
-        point best = new point();
+        bestfitness = new float[old_center.length];
+        best = new point[old_center.length];
+        
         for(int i = 0; i < old_center.length ; i++){
+            bestfitness[i] = Float.MIN_VALUE;
+            best[i] = new point();
+            
             float[][] d = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的适应值
             float[][] p = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的选择概率
             float[][] q = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的累计概率
@@ -273,14 +297,13 @@ public class KMeansCluster {
                 for(int k = 0; k < pop[i].length; k++){
                     d[i][j] += Similarity(pop[i][j],pop[i][k]);//计算适应值，即一个种群中每个染色体到其他染色体的距离并求和
                 }
-                if(d[i][j] > dist){     //记录最大值
-                    best.t = pop[i][j].t;
-                    best.flag = pop[i][j].flag;
+                if(d[i][j] > bestfitness[i]){     //记录最大值
+                    bestfitness[i] = d[i][j];
+                    best[i].t = pop[i][j].t;
+                    best[i].flag = pop[i][j].flag;
                 }
                 sum[i] += d[i][j]; //累计每个种群中所有个体适应值之和
             }
-            
-            bestmap[i].put(best, sum[i]);//记录种群最优解
             
             for(int j = 0; j < pop[i].length; j++){ //轮盘赌概率计算
                 p[i][j] = d[i][j] / sum[i];
@@ -306,35 +329,95 @@ public class KMeansCluster {
                     }
                 }
             }
-            
         }
+        System.out.println("选择完成");
     }
     /**
-     * 交叉,交叉率60%
+     * 交叉
      */
     public void Cross(){
         Random rand = new Random(); 
         for(int i = 0; i < old_center.length ; i++){
-            String a = null;
-            String b = null;
-            for(int j = 0; j < pop[i].length; j++){
-                if(Math.random() < 0.60){
-                    int ran = Math.min(pop[i][j].t.length(), pop[i][j+1].t.length());
+            String a = "";
+            String b = "";
+            for(int j = 0; j < pop[i].length-1; j++){
+                if(Math.random() < crossrate){
+                    String[] aa = pop[i][j].t.split("\\,"); //染色体分解为基因
+                    String[] bb = pop[i][j+1].t.split("\\,");
+                    
+                    int ran = Math.min(aa.length, bb.length); //从较短的染色体中选择交叉点
                     int pos = rand.nextInt(ran) + 1;
+                    
+                    for(int k = 0; k < pos; k++){  //从pos点交叉数组并拼接为字符串
+                        String t1 = aa[k] + ",";
+                        a = a + t1;
+                        String t2 = bb[k] + ",";
+                        b = b + t2;
+                    }
+                    for(int k = pos; k < bb.length; k++){ 
+                        String t1 = bb[k] + ",";
+                        a = a + t1;
+                    }
+                    for(int k = pos; k < aa.length; k++){  
+                        String t2 = aa[k] + ",";
+                        b = b + t2;
+                    }
+                    pop[i][j].t = a;     //更新染色体
+                    pop[i][j+1].t = b;
                 }
             }
         }
+        System.out.println("交叉完成");
     }
     /**
      * 变异
      */ 
     public void Mutation(){
+        Random rand = new Random(); 
+        for(int i = 0; i < old_center.length; i++){
+            String a = "";  //变异后的染色体中的字符串
+            String b = "";
+            
+            int r1 = 0;  //待变异的染色体编号
+            int r2 = 0;
+            
+            //种群判空
+            if(pop[i].length == 0){  
+                continue;
+            }
+            else{
+                r1 = rand.nextInt(pop[i].length); //选出随机两条染色体
+                r2 = rand.nextInt(pop[i].length);
+            }   
+            if(Math.random() < mutarate){
+                String[] aa = pop[i][r1].t.split("\\,"); //染色体分解为基因
+                String[] bb = pop[i][r2].t.split("\\,"); 
+                
+                int ran = Math.min(aa.length, bb.length); //从较短的染色体中选择变异点
+                int pos = rand.nextInt(ran);
+                                
+                for(int k = 0; k < pos; k++){  //变异pos位置的节点，将r1染色体pos位置的节点删除，插入r2中的pos位置，得到两条变异染色体
+                    String t1 = aa[k] + ",";
+                    a = a + t1;
+                    String t2 = bb[k] + ",";
+                    b = b + t2;
+                }
+                String temp = aa[pos] + ",";  //删除a中pos位置的节点
+                b = b + temp; //插入b中
+                
+                for(int k = pos+1; k < aa.length; k++){ 
+                    String t1 = aa[k] + ",";
+                    a = a + t1;
+                }
+                for(int k = pos; k < bb.length; k++){  
+                    String t2 = aa[k] + ",";
+                    b = b + t2;
+                }
+                pop[i][r1].t = a;     //更新染色体
+                pop[i][r2].t = b;
+            }
+        }
+        System.out.println("变异完成");
+    }
     
-    }
-    /**
-     * 生成新的质心
-     */
-    public void GenCenter(){
-    //定义迭代次数10
-    }
 }
