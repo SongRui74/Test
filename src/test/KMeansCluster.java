@@ -45,7 +45,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    int IterNum = 2;//迭代次数
+    int IterNum = 1000;//遗传迭代次数
     SQL s = new SQL();
     
     
@@ -153,9 +153,16 @@ public class KMeansCluster {
      * 生成新的质心
      */
     public void GenCenter(){
-        //定义迭代次数10
+        bestfitness = new float[old_center.length]; //记录最优适应度
+        best = new point[old_center.length]; //记录最优染色体
+        
+        for(int i = 0 ; i < old_center.length; i++){
+            bestfitness[i] = -1;
+            best[i] = new point();
+        }
+        
         InitPop();
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < IterNum; i++){
             Select();
             Cross();
             Mutation();
@@ -207,10 +214,10 @@ public class KMeansCluster {
     }
     
     /**
-     * 迭代，新旧质心的相似度稳定时则停止迭代**********************未完成
+     * 迭代，新旧质心的相似度稳定时则停止迭代
      */
     public void Iteration(){
-        for(int i = 0;i < IterNum;i++){
+        for(int i = 0;i < 100 ;i++){
             this.Classified();//各数据归类
             this.GenCenter();//重新计算聚类中心
             this.RenewOldCenter(old_center, new_center);//更新聚类中心
@@ -218,6 +225,16 @@ public class KMeansCluster {
         }
         System.out.println("聚类结束！！！");
     }
+/*    public void Iteration(){
+        for(int i = 0;i < 100 ;i++){
+            this.Classified();//各数据归类
+            this.GenCenter();//重新计算聚类中心
+            this.RenewOldCenter(old_center, new_center);//更新聚类中心
+            System.out.println(i+"次聚类完成");
+        }
+        System.out.println("聚类结束！！！");
+    }
+    */
     /**
      * 输出聚类中心
      */
@@ -238,14 +255,14 @@ public class KMeansCluster {
     }
     
 /*遗传算法找新质心
-    1、初始种群。种群为当前簇，染色体为字符串所代表的树，基因为树的节点，即字符串中的逗号间隔的一个数字
+    1、初始化种群。种群为当前簇，染色体为字符串所代表的树，基因为树的节点，即字符串中的逗号间隔的一个数字
     2、计算适应度。通过两棵树的相似度计算距离，求一个染色体到各个染色体路径之和
-    3、选择。找到和最大的染色体（新质心候选）。
+    3、选择。找到和最大的染色体（新质心）。
     4、完成迭代次数结束执行8。否则执行5
     5、交叉。设交叉率为60%，父母间挑选较短的染色体，随机某个节点进行交换。
-    6、变异。设变异率为1%，随机挑选染色体中某个树节点，进行删除。
+    6、变异。设变异率为1%，随机挑选两个染色体，找较短一条染色体中某个树节点，进行删除，插入到另一条染色体中。
     7、执行2
-    8、记录所有迭代中<路径和最小>的染色体作为新质心。
+    8、记录每个种群中<路径和最大>的染色体作为新质心。
 */
     
     /**
@@ -265,13 +282,13 @@ public class KMeansCluster {
             }
         
         for(int i =0;i < old_center.length ; i++){
-            for(int k = 0; k < count[i]; k++){
-                pop[i][k] = new point();
-                for (int j = 0; j < data.length; j++) { //初始化种群
-                    if (data[j].flag == (i + 1)) {
-                        pop[i][k].t = data[j].t; 
-                        pop[i][k].flag = data[j].flag;
-                    }
+            int k = 0;
+            for (int j = 0; j < data.length; j++) { //初始化种群
+                if (data[j].flag == (i + 1)) {
+                    pop[i][k] = new point();
+                    pop[i][k].t = data[j].t; 
+                    pop[i][k].flag = data[j].flag;
+                    k++;
                 }
             }
         }
@@ -282,20 +299,22 @@ public class KMeansCluster {
      */
     
     public void Select(){
-        bestfitness = new float[old_center.length];
-        best = new point[old_center.length];
+        
+        float[][] d = new float[old_center.length][]; //记录种群中每条染色体的适应值
+        float[][] p = new float[old_center.length][]; //记录种群中每条染色体的选择概率
+        float[][] q = new float[old_center.length][]; //记录种群中每条染色体的累计概率
+        float[] sum = new float[old_center.length];//记录种群的适应值之和
         
         for(int i = 0; i < old_center.length ; i++){
-            bestfitness[i] = Float.MIN_VALUE;
-            best[i] = new point();
             
-            float[][] d = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的适应值
-            float[][] p = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的选择概率
-            float[][] q = new float[old_center.length][pop[i].length]; //记录种群中每条染色体的累计概率
-            float[] sum = new float[old_center.length];//记录种群的适应值之和
+            d[i] = new float[pop[i].length]; //记录种群中每条染色体的适应值
+            p[i] = new float[pop[i].length]; //记录种群中每条染色体的选择概率
+            q[i] = new float[pop[i].length]; //记录种群中每条染色体的累计概率
+                        
             for(int j = 0; j < pop[i].length ; j++){
                 for(int k = 0; k < pop[i].length; k++){
-                    d[i][j] += Similarity(pop[i][j],pop[i][k]);//计算适应值，即一个种群中每个染色体到其他染色体的距离并求和
+                    if(pop[i][j] != pop[i][k])
+                        d[i][j] += Similarity(pop[i][j],pop[i][k]);//计算适应值，即一个种群中每个染色体到其他染色体的距离并求和
                 }
                 if(d[i][j] > bestfitness[i]){     //记录最大值
                     bestfitness[i] = d[i][j];
@@ -318,13 +337,14 @@ public class KMeansCluster {
                 double r = Math.random();
                 if( r <= q[i][0]){
                     pop[i][j].t = pop[i][0].t;
-                    pop[i][j].flag = -1;
+                    pop[i][j].flag = pop[i][0].flag;
                 }
                 else{
                     for(int k = 1; k < pop[i].length; k++){
                         if(r < q[i][k]){
                             pop[i][j].t = pop[i][k].t;
-                            pop[i][j].flag = -1;
+                            pop[i][j].flag = pop[i][k].flag;
+                            break;
                         }
                     }
                 }
@@ -338,10 +358,11 @@ public class KMeansCluster {
     public void Cross(){
         Random rand = new Random(); 
         for(int i = 0; i < old_center.length ; i++){
-            String a = "";
-            String b = "";
             for(int j = 0; j < pop[i].length-1; j++){
                 if(Math.random() < crossrate){
+                    String a = "";
+                    String b = "";
+                    
                     String[] aa = pop[i][j].t.split("\\,"); //染色体分解为基因
                     String[] bb = pop[i][j+1].t.split("\\,");
                     
@@ -374,10 +395,7 @@ public class KMeansCluster {
      */ 
     public void Mutation(){
         Random rand = new Random(); 
-        for(int i = 0; i < old_center.length; i++){
-            String a = "";  //变异后的染色体中的字符串
-            String b = "";
-            
+        for(int i = 0; i < old_center.length; i++){            
             int r1 = 0;  //待变异的染色体编号
             int r2 = 0;
             
@@ -390,6 +408,9 @@ public class KMeansCluster {
                 r2 = rand.nextInt(pop[i].length);
             }   
             if(Math.random() < mutarate){
+                String a = "";  //变异后的染色体中的字符串
+                String b = "";
+                
                 String[] aa = pop[i][r1].t.split("\\,"); //染色体分解为基因
                 String[] bb = pop[i][r2].t.split("\\,"); 
                 
@@ -410,7 +431,7 @@ public class KMeansCluster {
                     a = a + t1;
                 }
                 for(int k = pos; k < bb.length; k++){  
-                    String t2 = aa[k] + ",";
+                    String t2 = bb[k] + ",";
                     b = b + t2;
                 }
                 pop[i][r1].t = a;     //更新染色体

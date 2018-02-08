@@ -19,8 +19,8 @@ public class Test {
          
     public static void main(String[] args) throws Exception{
         
-        SQL s = new SQL();
-        s.GetDataNum(table_name);
+      //  SQL s = new SQL();
+      //  s.GetDataNum(table_name);
         KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
