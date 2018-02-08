@@ -15,7 +15,7 @@ import java.util.Random;
  */
 public class Test {
     
-    private static String table_name = "test2";
+    private static String table_name = "cpy_test";
          
     public static void main(String[] args) throws Exception{
         

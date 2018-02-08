@@ -45,12 +45,13 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    int IterNum = 1000;//遗传迭代次数
+    double stopsim = 0.60; //迭代停止时的新旧质心相似程度
     SQL s = new SQL();
     
     
     point[][] pop;//种群
     int[] count;//种群规模
+    int IterNum = 20;//遗传迭代次数
     double crossrate = 0.60;//交叉率
     double mutarate = 0.01;//突变率    
     float[] bestfitness;//最优解，即最大距离和
@@ -216,14 +217,33 @@ public class KMeansCluster {
     /**
      * 迭代，新旧质心的相似度稳定时则停止迭代
      */
+    int clustercount = 1;
     public void Iteration(){
-        for(int i = 0;i < 100 ;i++){
-            this.Classified();//各数据归类
-            this.GenCenter();//重新计算聚类中心
-            this.RenewOldCenter(old_center, new_center);//更新聚类中心
-            System.out.println(i+"次聚类完成");
+        int stop = -1;  //迭代停止的标志
+        float dist = 0;  //新旧质心相似度
+        this.Classified();//各数据归类
+        this.GenCenter();//重新计算聚类中心
+        for(int i = 0;i < old_center.length; i++){
+            dist = this.Similarity(old_center[i], new_center[i]);
+            System.out.println("第"+i+"个新旧质心相似度："+dist);
+            if(dist > stopsim){   //每个质心都满足停止条件
+                stop = 0;
+            }
+            else{
+                stop = 1;
+                break;
+            }
         }
-        System.out.println("聚类结束！！！");
+        if(stop == 0){
+            System.out.println(clustercount+"次聚类完成");
+            System.out.println("聚类结束！！！");
+        }
+        else{        
+            this.RenewOldCenter(old_center, new_center);//更新聚类中心
+            System.out.println(clustercount+"次聚类完成");
+            clustercount++;
+            Iteration();
+        }
     }
 /*    public void Iteration(){
         for(int i = 0;i < 100 ;i++){
