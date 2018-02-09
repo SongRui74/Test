@@ -6,14 +6,11 @@
 
 package test;
 
-import edu.stanford.nlp.trees.Tree;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -45,13 +42,13 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 0.60; //迭代停止时的新旧质心相似程度
+    double stopsim = 0.50; //迭代停止时的新旧质心相似程度
     SQL s = new SQL();
     
     
     point[][] pop;//种群
     int[] count;//种群规模
-    int IterNum = 20;//遗传迭代次数
+    int IterNum = 5;//遗传迭代次数
     double crossrate = 0.60;//交叉率
     double mutarate = 0.01;//突变率    
     float[] bestfitness;//最优解，即最大距离和
@@ -125,7 +122,23 @@ public class KMeansCluster {
             old_center[i].t = data[thistemp].t;
             old_center[i].flag = 0; //0表示聚类中心
         }
+    /*
+        old_center[0] = new point();
+        old_center[0].t = "2163760,69024,66784,66784,13314,109209429,109211285,109211285,3562253,3562253,";
+        old_center[0].flag = 0;
         
+        old_center[1] = new point();
+        old_center[1].t = "1024,3521,2152482,116103,14280,2793,118571,-1179159878,5076352,2521265,2793,103147177,103149417,114801,5010,13778,5557,109619263,925237,109617811,96801,3173137,2464644,49698,49698,2536259,7397,7397,1627042783,3559070,50993,2538131,1627102540,3556878,";
+        old_center[1].flag = 0;
+        
+        old_center[2] = new point();
+        old_center[2].t = "2166177,97921,19777,76802,83460,20227324,81740,2470132,109267,13522,488720,-1176644349,-1176642493,-1176642493,2535942,95969,95201,96801,96673,97,4257,106723,80805,-891123449,-891125689,7975,3559070,3370,8062800,3371,2289,2472401,2006505,3556878,";
+        old_center[2].flag = 0;
+        
+        old_center[3] = new point();
+        old_center[3].t = "104710332,3999231,1411,113323842,2563,116103,79559,748307027,73,561696886,5076352,81740,2163760,5010,74899,75602,-979209418,-979207434,113321685,488720,748383427,561774310,116961,3555,7397,118571,114801,104712844,2006061,2538131,759154,";
+        old_center[3].flag = 0;
+    */    
         System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
             System.out.println(old_center[i].t);
@@ -140,6 +153,9 @@ public class KMeansCluster {
             float dist = 999;
             int lable = -1;
             for(int j = 0;j < old_center.length;j++){
+                if(old_center[j].t == null){ //种群为空导致质心为空
+                    continue;
+                }
                 float distance = Similarity(data[i],old_center[j]);
                 if(distance < dist){
                     dist = distance;
@@ -162,7 +178,7 @@ public class KMeansCluster {
             best[i] = new point();
         }
         
-        InitPop();
+        InitPop();  //初始化种群
         for(int i = 0; i < IterNum; i++){
             Select();
             Cross();
@@ -172,10 +188,11 @@ public class KMeansCluster {
         //记录新的质心
         System.out.println("新质心：");
         for(int i = 0;i < old_center.length;i++){
-            System.out.println(best[i].t);
             new_center[i] = new point();
             new_center[i].t = best[i].t;
-            new_center[i].flag = 0; 
+            new_center[i].flag = 0;
+            if(new_center[i].t != null)
+                System.out.println("第"+i+"个质心为："+new_center[i].t);
         }
     }
     
@@ -224,9 +241,12 @@ public class KMeansCluster {
         this.Classified();//各数据归类
         this.GenCenter();//重新计算聚类中心
         for(int i = 0;i < old_center.length; i++){
+            if( new_center[i].t == null){
+                continue;
+            }
             dist = this.Similarity(old_center[i], new_center[i]);
             System.out.println("第"+i+"个新旧质心相似度："+dist);
-            if(dist > stopsim){   //每个质心都满足停止条件
+            if(dist >= stopsim){   //每个质心都满足停止条件
                 stop = 0;
             }
             else{
@@ -312,7 +332,7 @@ public class KMeansCluster {
                 }
             }
         }
-        System.out.println("初始化完成");
+    //    System.out.println("初始化完成");
     }
     /**
      * 轮盘赌法选择
@@ -326,6 +346,10 @@ public class KMeansCluster {
         float[] sum = new float[old_center.length];//记录种群的适应值之和
         
         for(int i = 0; i < old_center.length ; i++){
+            
+            if(pop[i].length == 0){ //种群为空
+                continue;
+            }
             
             d[i] = new float[pop[i].length]; //记录种群中每条染色体的适应值
             p[i] = new float[pop[i].length]; //记录种群中每条染色体的选择概率
@@ -370,7 +394,7 @@ public class KMeansCluster {
                 }
             }
         }
-        System.out.println("选择完成");
+    //    System.out.println("选择完成");
     }
     /**
      * 交叉
@@ -378,6 +402,9 @@ public class KMeansCluster {
     public void Cross(){
         Random rand = new Random(); 
         for(int i = 0; i < old_center.length ; i++){
+            if(pop[i].length == 0){ //种群判空
+                continue;
+            }
             for(int j = 0; j < pop[i].length-1; j++){
                 if(Math.random() < crossrate){
                     String a = "";
@@ -408,7 +435,7 @@ public class KMeansCluster {
                 }
             }
         }
-        System.out.println("交叉完成");
+    //    System.out.println("交叉完成");
     }
     /**
      * 变异
@@ -458,7 +485,7 @@ public class KMeansCluster {
                 pop[i][r2].t = b;
             }
         }
-        System.out.println("变异完成");
+    //    System.out.println("变异完成");
     }
     
 }
