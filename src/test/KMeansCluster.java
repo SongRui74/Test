@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 class point{
     public String t = null; //语法树
+    public String c = null; //类别
     public int flag = -1;  //标记
     
     public String getT(){
@@ -29,6 +30,13 @@ class point{
     }
     public void setT(String t){
         this.t = t;
+    }
+    
+    public String getC(){
+        return c;
+    }
+    public void setC(String c){
+        this.c = c;
     }
 }
 
@@ -69,12 +77,14 @@ public class KMeansCluster {
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             
             //列名记得修改为变量！！！！！！！！！！！！！！！！！！！！！！！！！！
-            rs=stmt.executeQuery("SELECT ast FROM "+table_name);
+            rs=stmt.executeQuery("SELECT ast,classes FROM "+table_name);
             rs.first();//读取数据库第一行记录
             for(int i = 0;i < num ;i++){   
                 data[i] = new point();// 对象创建
                 String ast = rs.getString("ast");
+                String classes = rs.getString("classes");
                 data[i].setT(ast);
+                data[i].setC(classes);
                 rs.next();
             }
             rs.close();
@@ -120,25 +130,10 @@ public class KMeansCluster {
             int thistemp = temp[i];
             old_center[i] = new point();
             old_center[i].t = data[thistemp].t;
+            old_center[i].c = data[thistemp].c;
             old_center[i].flag = 0; //0表示聚类中心
         }
-    /*
-        old_center[0] = new point();
-        old_center[0].t = "2163760,69024,66784,66784,13314,109209429,109211285,109211285,3562253,3562253,";
-        old_center[0].flag = 0;
-        
-        old_center[1] = new point();
-        old_center[1].t = "1024,3521,2152482,116103,14280,2793,118571,-1179159878,5076352,2521265,2793,103147177,103149417,114801,5010,13778,5557,109619263,925237,109617811,96801,3173137,2464644,49698,49698,2536259,7397,7397,1627042783,3559070,50993,2538131,1627102540,3556878,";
-        old_center[1].flag = 0;
-        
-        old_center[2] = new point();
-        old_center[2].t = "2166177,97921,19777,76802,83460,20227324,81740,2470132,109267,13522,488720,-1176644349,-1176642493,-1176642493,2535942,95969,95201,96801,96673,97,4257,106723,80805,-891123449,-891125689,7975,3559070,3370,8062800,3371,2289,2472401,2006505,3556878,";
-        old_center[2].flag = 0;
-        
-        old_center[3] = new point();
-        old_center[3].t = "104710332,3999231,1411,113323842,2563,116103,79559,748307027,73,561696886,5076352,81740,2163760,5010,74899,75602,-979209418,-979207434,113321685,488720,748383427,561774310,116961,3555,7397,118571,114801,104712844,2006061,2538131,759154,";
-        old_center[3].flag = 0;
-    */    
+       
         System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
             System.out.println(old_center[i].t);
@@ -190,6 +185,7 @@ public class KMeansCluster {
         for(int i = 0;i < old_center.length;i++){
             new_center[i] = new point();
             new_center[i].t = best[i].t;
+            new_center[i].c = best[i].c;
             new_center[i].flag = 0;
             if(new_center[i].t != null)
                 System.out.println("第"+i+"个质心为："+new_center[i].t);
@@ -227,6 +223,7 @@ public class KMeansCluster {
     public void RenewOldCenter(point[] old, point[] news) {
         for (int i = 0; i < old.length; i++) {
             old[i].t = news[i].t;
+            old[i].c = news[i].c;
             old[i].flag = 0;// 表示为聚类中心的标志。
         }
     }
@@ -265,32 +262,40 @@ public class KMeansCluster {
             Iteration();
         }
     }
-/*    public void Iteration(){
-        for(int i = 0;i < 100 ;i++){
-            this.Classified();//各数据归类
-            this.GenCenter();//重新计算聚类中心
-            this.RenewOldCenter(old_center, new_center);//更新聚类中心
-            System.out.println(i+"次聚类完成");
-        }
-        System.out.println("聚类结束！！！");
-    }
-    */
     /**
      * 输出聚类中心
      */
     public void ResultOut(String table_name){
         int num = s.GetDataNum(table_name);
-        count = new int[old_center.length];
+        count = new int[old_center.length];        
         for(int i =0;i < old_center.length ; i++){
             System.out.println("聚类中心："+old_center[i].t);
+            int Demand = 0;
+            int Invalid = 0;
+            int Overview = 0;
+            int Specific = 0;
             for (int j = 0; j < data.length; j++) {
                 if (data[j].flag == (i + 1)) {
                     count[i]++;
+                    if(data[j].getC().equals("Demand"))
+                        Demand++;
+                    if(data[j].getC().equals("Invalid"))
+                        Invalid++;
+                    if(data[j].getC().equals("Overview"))
+                        Overview++;
+                    if(data[j].getC().equals("Specific"))
+                        Specific++;
                 //    System.out.println(data[j].t);                    
                 }
             }
             float per = (float)100*count[i]/num;
-            System.out.println("Cluster"+i+"：  "+ count[i] +"    所占比例： "+ per +"%");
+            float dem = (float)100*Demand/count[i];
+            float inv = (float)100*Invalid/count[i];
+            float ove = (float)100*Overview/count[i];
+            float spe = (float)100*Specific/count[i];
+            System.out.println("Cluster"+i+"：  "+ count[i] +"    所占比例： "+ per +"%"+
+                               "\n"+"Demand类别个数及比例："+Demand+"\t"+dem+"%\nInvalid类别个数及比例："+Invalid+"\t"+inv+
+                               "%\nOverview类别个数及比例："+Overview+"\t"+ove+"%\nSpecific类别个数及比例："+Specific+"\t"+spe+"%");
         }
     }
     
@@ -327,6 +332,7 @@ public class KMeansCluster {
                 if (data[j].flag == (i + 1)) {
                     pop[i][k] = new point();
                     pop[i][k].t = data[j].t; 
+                    pop[i][k].c = data[j].c; 
                     pop[i][k].flag = data[j].flag;
                     k++;
                 }
@@ -363,6 +369,7 @@ public class KMeansCluster {
                 if(d[i][j] > bestfitness[i]){     //记录最大值
                     bestfitness[i] = d[i][j];
                     best[i].t = pop[i][j].t;
+                    best[i].c = pop[i][j].c;
                     best[i].flag = pop[i][j].flag;
                 }
                 sum[i] += d[i][j]; //累计每个种群中所有个体适应值之和
@@ -381,12 +388,14 @@ public class KMeansCluster {
                 double r = Math.random();
                 if( r <= q[i][0]){
                     pop[i][j].t = pop[i][0].t;
+                    pop[i][j].c = pop[i][0].c;
                     pop[i][j].flag = pop[i][0].flag;
                 }
                 else{
                     for(int k = 1; k < pop[i].length; k++){
                         if(r < q[i][k]){
                             pop[i][j].t = pop[i][k].t;
+                            pop[i][j].c = pop[i][k].c;
                             pop[i][j].flag = pop[i][k].flag;
                             break;
                         }

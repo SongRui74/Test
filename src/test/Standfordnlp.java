@@ -133,7 +133,7 @@ public class Standfordnlp {
             tree = sentence.get(TreeAnnotation.class);
             tree.pennPrint();
             SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-        //    dependencies.toString();
+            //dependencies.toString();
         }
         Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);        
         return tree;
@@ -211,7 +211,7 @@ public class Standfordnlp {
         System.out.println("相似度为："+same +"/" +min + "=" +sim);      
         return sim;
     }
-    /*测试standfordnlp函数
+   /* 测试standfordnlp函数
     public void Nlp() {
         // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER, parsing, and coreference resolution
         Properties props = new Properties();
@@ -259,5 +259,5 @@ public class Standfordnlp {
         // Both sentence and token offsets start at 1!
         Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);
     }
-    */
+   */ 
 }

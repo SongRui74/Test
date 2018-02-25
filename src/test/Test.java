@@ -15,12 +15,10 @@ import java.util.Random;
  */
 public class Test {
     
-    private static String table_name = "test1000";
+    private static String table_name = "test500";
          
     public static void main(String[] args) throws Exception{
-        
-      //  SQL s = new SQL();
-      //  s.GetDataNum(table_name);
+     
         KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
@@ -36,7 +34,7 @@ public class Test {
         t.RemarkFeedbackTree(table_name,col);//标记ast
     */
     /*    Standfordnlp t = new Standfordnlp(); 
-        String s = "App doesn't work.";
+        String s = " Great app";
         s = s.toLowerCase();
         Tree tree = t.FeedbacktoTree(s);
         System.out.println("1）\"App doesn't work.\"的语法树");
@@ -54,7 +52,7 @@ public class Test {
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
         
-    }   
+    }
 }
  
    
