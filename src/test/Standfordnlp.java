@@ -74,29 +74,18 @@ public class Standfordnlp {
             Statement stmt2 = conn.createStatement();
             //  System.out.println("Connection Successful!");           
             
-            rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);  
-            rs.first();//读取数据库第一行记录  
-            
-            Tree tree = FeedbacktoTree(rs.getString("Review_Content"));//将评论解析为语法树
-            String ast = TreetoString(tree);//将语法树解析为字符串
-            
+            rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);      
             String sql;
             SQL s = new SQL();
-            String str = s.SqlSingleQuote(rs.getString("Review_Content")); //处理单引号
-            sql="UPDATE "+ table_name +" SET " + col + " = '" + ast + "' where Review_Content = '"+ str +"'";
-            stmt2.executeUpdate(sql);   //执行sql语句标记ast
-                
             //循环标记ast
             while(rs.next()){                                            
                 /*解析每条文本的AST*/
-                tree = FeedbacktoTree(rs.getString("Review_Content"));               
+                Tree tree = FeedbacktoTree(rs.getString("Review_Content"));               
                 /*将AST转化为数值形式*/
-                ast = TreetoString(tree);               
+                String ast = TreetoString(tree);               
                 /*写入数据库中*/
                 sql = s.UpdateSql(rs,table_name,col,ast);
                 stmt2.executeUpdate(sql);
-            //    System.out.println(sql);
-            //    System.out.println(rs.getString("Review_Content")+'\t'+rs.getString("old_ast")+'\t'+i);
             }
             rs.close();
             stmt.close(); 
@@ -131,7 +120,7 @@ public class Standfordnlp {
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
             tree = sentence.get(TreeAnnotation.class);
-            tree.pennPrint();
+          //  tree.pennPrint();
             SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
             //dependencies.toString();
         }

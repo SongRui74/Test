@@ -31,6 +31,53 @@ public class SQL {
     private Connection conn;    
     
     /**
+     * 获取评论单词数目
+     */
+    public int NumberofWords(String str){
+        int num = 0;
+        String s[] = str.split(" |\\.|\\?|,|!|\\\"");
+        for(int i = 0;i<s.length;i++){
+            if(s[i].length() == 0)
+                num++;
+        }
+        num = s.length-num;
+        return num;
+    }
+    /**
+     * 标记评论单词总数
+     * @param table 
+     */
+    public void RemarkNumberofWords(String table_name,String col){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();
+            //  System.out.println("Connection Successful!");           
+            
+            rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);  
+                
+            //循环标记ast
+            while(rs.next()){                                            
+                /*统计每条文本的单词数目*/
+                int num = this.NumberofWords(rs.getString("Review_Content"));          
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+        /**
      * 获取表中数据数量
      * @param table
      * @return 
@@ -187,13 +234,12 @@ public class SQL {
             content_info[3] = rstemp.getString("Review_Title");
         //    content_info[4] = rstemp.getString("Review_Content");
             content_info[4] = rstemp.getString("classes");
-        //    content_info[5] = "1";            
             //处理单引号
             for (int i = 0;i<content_info.length;i++) {
                 content_info[i] = SqlSingleQuote(content_info[i]);
             }            
-            /*以句号分割评论，并将分割后的评论依次插入数据库中*/
-            String[] new_contents = old_content.split("\\.");
+            /*以句号叹号问号分割评论，并将分割后的评论依次插入数据库中*/
+            String[] new_contents = old_content.split("\\.|!|\\?");
             
             sql = "UPDATE "+ table_name +" SET Review_Content = '"+ new_contents[0] +"' WHERE Review_Content = '" + old_content + "'";
             st2.executeUpdate(sql);
@@ -203,7 +249,7 @@ public class SQL {
                         + content_info[3] + "','"+ new_contents[i] +"', '"
                         + content_info[4] +"')";
                 st2.executeUpdate(sql);
-            }
+            }                        
             st.close();
             st2.close();
             rstemp.close();
@@ -220,7 +266,7 @@ public class SQL {
      * @param new_value 新值
      * @return 
      */
-    public String UpdateSql(ResultSet rs,String table_name,String col,String new_value){
+    public String UpdateSql(ResultSet rs,String table_name,String col,Object new_value){
         String sql = null;
         try {
             String str = SqlSingleQuote(rs.getString("Review_Content"));

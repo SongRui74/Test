@@ -15,23 +15,31 @@ import java.util.Random;
  */
 public class Test {
     
-    private static String table_name = "test500";
+    private static final String table_name = "test416";
          
     public static void main(String[] args) throws Exception{
-     
+              
         KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
         km.Iteration();
         km.ResultOut(table_name);
     
-        /*    s.SqltoShort(table_name);//批量将长文本化为单句
+    
+    /*    SQL s = new SQL();
+        s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
         String col = "ast";
         String type = "varchar(max)";
-        s.AddColumn(table_name,col, type);//添加列
+        s.AddColumn(table_name,col, type);//添加语法树列
         Standfordnlp t = new Standfordnlp();
         t.RemarkFeedbackTree(table_name,col);//标记ast
+    */
+    /*    SQL s = new SQL();
+        String col = "num";
+        String type = "int";
+        s.AddColumn(table_name,col, type);//添加单词数目列
+        s.RemarkNumberofWords(table_name, col);//标记单词数
     */
     /*    Standfordnlp t = new Standfordnlp(); 
         String s = " Great app";
