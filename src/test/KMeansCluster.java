@@ -56,7 +56,7 @@ public class KMeansCluster {
     
     point[][] pop;//种群
     int[] count;//种群规模
-    int IterNum = 10;//遗传迭代次数
+    int IterNum = 100;//遗传迭代次数
     double crossrate = 0.60;//交叉率
     double mutarate = 0.01;//突变率    
     float[] bestfitness;//最优解，即最大距离和

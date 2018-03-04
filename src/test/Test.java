@@ -5,10 +5,6 @@
  */
 package test;
 
-import edu.stanford.nlp.trees.Tree;
-import java.io.*;
-import java.sql.*;
-import java.util.Random;
 /**
  *
  * @author dell-pc
@@ -40,7 +36,7 @@ public class Test {
         String type = "int";
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
-    */
+    
     /*    Standfordnlp t = new Standfordnlp(); 
         String s = " Great app";
         s = s.toLowerCase();

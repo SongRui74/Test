@@ -74,7 +74,7 @@ public class Standfordnlp {
             Statement stmt2 = conn.createStatement();
             //  System.out.println("Connection Successful!");           
             
-            rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);      
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);      
             String sql;
             SQL s = new SQL();
             //循环标记ast
@@ -108,7 +108,6 @@ public class Standfordnlp {
         props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation document = new Annotation(str);
-        // run all Annotators on this text
         pipeline.annotate(document);
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
@@ -200,53 +199,4 @@ public class Standfordnlp {
         System.out.println("相似度为："+same +"/" +min + "=" +sim);      
         return sim;
     }
-   /* 测试standfordnlp函数
-    public void Nlp() {
-        // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER, parsing, and coreference resolution
-        Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        
-        // read some text in the text variable
-        String text = "Add your text here:Beijing sings Lenovo.i'm very fine.thx!!!!!!!!!!";
-        
-        // create an empty Annotation just with the given text
-        Annotation document = new Annotation(text);
-        
-        // run all Annotators on this text
-        pipeline.annotate(document);
-        
-        // these are all the sentences in this document
-        // a CoreMap is essentially a Map that uses class objects as keys and has values with custom types
-        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-        
-        System.out.println("word\tpos\tlemma\tner");
-        for(CoreMap sentence: sentences) {
-             // traversing the words in the current sentence
-             // a CoreLabel is a CoreMap with additional token-specific methods
-            for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-                // this is the text of the token
-                String word = token.get(TextAnnotation.class);
-                // this is the POS tag of the token
-                String pos = token.get(PartOfSpeechAnnotation.class);
-                // this is the NER label of the token
-                String ne = token.get(NamedEntityTagAnnotation.class);
-                String lemma = token.get(LemmaAnnotation.class);
-                
-                System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
-            }
-            // this is the parse tree of the current sentence
-            Tree tree = sentence.get(TreeAnnotation.class);
-            tree.pennPrint();
-            // this is the Stanford dependency graph of the current sentence
-            SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-            dependencies.toString();
-        }
-        // This is the coreference link graph
-        // Each chain stores a set of mentions that link to each other,
-        // along with a method for getting the most representative mention
-        // Both sentence and token offsets start at 1!
-        Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);
-    }
-   */ 
 }

@@ -31,6 +31,41 @@ public class SQL {
     private Connection conn;    
     
     /**
+     * 标记文本属性特征
+     * @param table 
+     */
+    public void RemarkTextFeature(String table_name,String col){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            //循环标记ast
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                /******************待改**************/
+                int num = this.NumberofWords(rs.getString("Review_Content"));          
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }   
+    
+    /**
      * 获取评论单词数目
      */
     public int NumberofWords(String str){
@@ -54,12 +89,10 @@ public class SQL {
             Statement stmt;
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-            Statement stmt2 = conn.createStatement();
-            //  System.out.println("Connection Successful!");           
+            Statement stmt2 = conn.createStatement();       
             
-            rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);  
-                
-            //循环标记ast
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);                  
+            //循环标记num
             while(rs.next()){                                            
                 /*统计每条文本的单词数目*/
                 int num = this.NumberofWords(rs.getString("Review_Content"));          
@@ -179,7 +212,6 @@ public class SQL {
     
     }
     
-    
     /**
      * 批量将评论拆分为单句
      */
@@ -270,7 +302,8 @@ public class SQL {
         String sql = null;
         try {
             String str = SqlSingleQuote(rs.getString("Review_Content"));
-            sql = "UPDATE "+ table_name +" SET " + col + " = '" + new_value + "' where Review_Content = '"+ str +"'";
+            String id = rs.getString("APP_ID");
+            sql = "UPDATE "+ table_name +" SET " + col + " = '" + new_value + "' where Review_Content = '"+ str +"' and APP_ID = '"+ id +"'";
         } catch (SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
