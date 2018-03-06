@@ -13,7 +13,7 @@ import edu.stanford.nlp.trees.Tree;
  */
 public class Test {
     
-    private static final String table_name = "test416";
+    private static final String table_name = "test100";
          
     public static void main(String[] args) throws Exception{
               
@@ -29,10 +29,11 @@ public class Test {
         s.DealNullData(table_name);//删除无英文字母的无效评论
         String col = "ast";
         String type = "varchar(max)";
+        s.DelColumn(table_name, col);
         s.AddColumn(table_name,col, type);//添加语法树列
         Standfordnlp t = new Standfordnlp();
         t.RemarkFeedbackTree(table_name,col);//标记ast
-    */
+    
     /*    SQL s = new SQL();
         String col = "num";
         String type = "int";
@@ -40,18 +41,20 @@ public class Test {
         s.RemarkNumberofWords(table_name, col);//标记单词数
     */
         Standfordnlp t = new Standfordnlp(); 
-        String s = "App don't work.";
+        String s = "\"\" If you're considering updating, don't do it!\"";
         Tree tree = t.FeedbacktoTree(s);
         System.out.println("1）\"App don't work.\"的语法树");
-        String a = t.TreetoString(tree);
+        t.TreetoString(tree);
+        t.getNodeHashList();
+    /*    String a = t.TreetoString(tree);
         
-        s = "The app can't open.";
+        s = "App don't work.";
         tree = t.FeedbacktoTree(s);
         System.out.println("2）\"The app can't open\"的语法树");
         String b = t.TreetoString(tree);
         t.Similarity(a, b);
         t.getNodeHashList();
-       
+    */   
      //  new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);

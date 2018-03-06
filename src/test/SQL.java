@@ -209,9 +209,39 @@ public class SQL {
         } catch (SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
-    
     }
-    
+    /**
+     * 处理数据中的无用符号
+     */
+    public void DealSymbol(String table){
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("select * from " + table +" where Review_Content like '%\"%'");  
+            
+            //循环修改数据
+            while(rs.next()){                                            
+                /*统计每条文本的单词数目*/
+                int num = this.NumberofWords(rs.getString("Review_Content"));          
+                /*写入数据库中*/
+                String sql = "";
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     /**
      * 批量将评论拆分为单句
      */

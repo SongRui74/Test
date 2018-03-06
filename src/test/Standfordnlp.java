@@ -167,46 +167,61 @@ public class Standfordnlp {
      * @param tree 
      */
     public String TreetoString(Tree tree){
-        /*树的各节点hash值计算*/
-        List pos = new ArrayList(); //存放词性节点list
-        Tree t = tree;
-        List leaves = t.getLeaves(); //获取树的叶子节点
+        /*树的各节点hash值计算*/        
+        List leaves = tree.getLeaves(); //获取树的叶子节点
         /*对词性节点进行hash值标注*/
         for (Iterator it = leaves.iterator(); it.hasNext();) {
             Tree left = (Tree) it.next();
-            if(left.parent(tree).label().value().equals("JJ")){
+            if(left.parent(tree).label().value().equals("JJ")
+                    ||left.parent(tree).label().value().equals("JJR")
+                    ||left.parent(tree).label().value().equals("JJS")){
                 map.put(left.parent(tree), 3);
             }
-            else if(left.parent(tree).label().value().equals("NN")){
+            else if(left.parent(tree).label().value().equals("MD")){
                 map.put(left.parent(tree), 5);
             }
-            else if(left.parent(tree).label().value().equals("VBZ")){
+            else if(left.parent(tree).label().value().equals("NN")
+                    ||left.parent(tree).label().value().equals("NNS")
+                    ||left.parent(tree).label().value().equals("NNP")
+                    ||left.parent(tree).label().value().equals("NNPS")){
                 map.put(left.parent(tree), 7);
             }
-            else if(left.parent(tree).label().value().equals("VB")){
+            else if(left.parent(tree).label().value().equals("POS")){
                 map.put(left.parent(tree), 11);
             }
+            else if(left.parent(tree).label().value().equals("RB")
+                    ||left.parent(tree).label().value().equals("RBR")
+                    ||left.parent(tree).label().value().equals("RBS")){
+                map.put(left.parent(tree), 13);
+            }
+            else if(left.parent(tree).label().value().equals("VB")
+                    ||left.parent(tree).label().value().equals("VBD")
+                    ||left.parent(tree).label().value().equals("VBG")
+                    ||left.parent(tree).label().value().equals("VBN")
+                    ||left.parent(tree).label().value().equals("VBP")
+                    ||left.parent(tree).label().value().equals("VBZ")){
+                map.put(left.parent(tree), 17);
+            }
             else{
-                map.put(left.parent(tree), 2);
+                map.put(left.parent(tree), 1);
             }            
-            pos.add(left.parent(tree));
         }
-        int num = t.size()-1-leaves.size();//需要计算的节点数目（减去ROOT和所有叶子节点）
-        leaves.clear(); //释放叶子节点list
+        int num = tree.size()-1-leaves.size();//需要计算的节点数目（减去ROOT和所有叶子节点）
+        leaves.clear(); //释放叶子节点list 
+        
+        List list = this.GetAllNode(tree); //存放待计算hash值节点list
         /*计算其他未标注的节点并记录*/
         while(map.size() != num){
-            for (Iterator it = pos.iterator(); it.hasNext();) {
-                Tree left = (Tree) it.next();
-                if(this.isInMap(left,left.parent(tree))){//若left所有兄弟节点都存在于map中，则计算他们的父节点的hash值并记录
-                    int value = this.CalHash(left,left.parent(tree));
-                    map.put(left.parent(tree), value);
+            for (int i = 0; i < list.size(); i++) {
+                Tree node = (Tree) list.get(i);
+                if(map.containsKey(node)){
+                    if(this.isInMap(node,node.parent(tree))){//若left所有兄弟节点都存在于map中，则计算他们的父节点的hash值并记录
+                        int value = this.CalHash(node,node.parent(tree));
+                        map.put(node.parent(tree), value);
+                    }
                 }
             }        
-        }        
-        //结果输出
-        for (Tree k : map.keySet()){ 
-            System.out.println(k + " ： " + map.get(k)); 
-        }
+        } 
         /*将结果记录存放于list中*/
         node_hash_list.add(map);
         /*将hash值依次取出放入数组中*/
@@ -222,8 +237,8 @@ public class Standfordnlp {
                 ast[i] = val;
                 i++;
             }
-        }        
-        map.clear();//清空map
+        }     
+        map = new HashMap();//清空map中的数值
         /*数组转化为字符串便于存入数据库中*/
         String ast_str = new String();
         StringBuffer sb = new StringBuffer();
@@ -234,7 +249,23 @@ public class Standfordnlp {
         ast_str = sb.toString();
         return ast_str;
     }
-    
+    /**
+     * 获取树中除叶子节点外的其他所有节点
+     * @param tree
+     * @return 树中除叶子节点外的其他节点list
+     */
+    public List GetAllNode(Tree tree){
+        List list = tree.subTreeList();
+        Tree temp;
+        for(int i = 0 ; i < list.size() ; i++) {
+            temp = (Tree) list.get(i);
+            if(temp.isLeaf()){
+                list.remove(i);
+            }
+        }
+        list.remove(tree);
+        return list;
+    }
     /**
      * 计算语法树相似度
      */
@@ -253,9 +284,11 @@ public class Standfordnlp {
             }
         }
         int same = count;
-        int min = Math.min(aa.length, bb.length);
-        sim = (float)same/min;
-        System.out.println("相似度为："+same +"/" +min + "=" +sim);      
+    //    int min = Math.min(aa.length, bb.length);
+    //   int max = Math.max(aa.length, bb.length);
+        int sum = aa.length + bb.length;
+        sim = (float)same/sum;
+        System.out.println("相似度为："+same +"/" +sum + "=" +sim);      
         return sim;
     }
 }
