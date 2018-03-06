@@ -50,13 +50,13 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 0.60; //迭代停止时的新旧质心相似程度
+    double stopsim = 0.50; //迭代停止时的新旧质心相似程度
     SQL s = new SQL();
     
     
     point[][] pop;//种群
     int[] count;//种群规模
-    int IterNum = 100;//遗传迭代次数
+    int IterNum = 20;//遗传迭代次数
     double crossrate = 0.60;//交叉率
     double mutarate = 0.01;//突变率    
     float[] bestfitness;//最优解，即最大距离和

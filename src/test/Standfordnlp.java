@@ -48,6 +48,7 @@ public class Standfordnlp {
     private final String userPwd = "123456"; 
     private Connection conn; 
     public List<Map<Tree, Integer>> node_hash_list = new ArrayList<Map<Tree, Integer>>();    
+    private Map<Tree,Integer> map = new HashMap<>(); //存放需记录的树节点和对应的hash值  
     
     /**
      * 获取评论解析后语法树的每个节点及其hash值
@@ -111,16 +112,16 @@ public class Standfordnlp {
         pipeline.annotate(document);
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
-            for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+        /*    for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
                 String pos = token.get(PartOfSpeechAnnotation.class);
                 String ne = token.get(NamedEntityTagAnnotation.class);
                 String lemma = token.get(LemmaAnnotation.class);
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
-            tree = sentence.get(TreeAnnotation.class);
-          //  tree.pennPrint();
-            SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+        */    tree = sentence.get(TreeAnnotation.class);
+            tree.pennPrint();
+        //    SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
             //dependencies.toString();
         }
         Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);        
@@ -128,33 +129,90 @@ public class Standfordnlp {
     }
     
     /**
+     * 判断某节点的兄弟节点hash值是否均已知
+     * @param tree
+     * @return 
+     */
+    public boolean isInMap(Tree tree,Tree root){
+        List s = tree.siblings(root);
+        if(s != null ){
+            for(int i = 0; i < s.size(); i++){
+                Tree temp = (Tree) s.get(i);
+                if(!map.containsKey(temp)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }    
+    /**
+     * 计算父节点hash值
+     * @param tree
+     * @return 
+     */
+    public int CalHash(Tree tree,Tree root){
+        int value = 1;
+        List s = tree.siblings(root);
+        if(s != null){
+            for(int i = 0; i < s.size(); i++){
+                Tree temp = (Tree) s.get(i);
+                value *= map.get(temp);
+            }
+        }
+        value *= map.get(tree);
+        return value;
+    }    
+    /**
      * 将语法树解析为hash值数组并转化为字符串
      * @param tree 
      */
     public String TreetoString(Tree tree){
-        Stack s = new Stack();
-        Tree t_key = tree; //存放当前节点
-        int t_value;  //存放当前节点hash值
-        s.add(t_key);
-        Map<Tree,Integer> hash = new HashMap<>();
-        /*深度优先搜索AST并计算节点hash值存入map中*/
-        while(!s.isEmpty()){
-            t_key = (Tree) s.pop();
-            t_value = t_key.hashCode();
-            hash.put(t_key, t_value);
-            List children  = t_key.getChildrenAsList();
-            if(children != null && !children.isEmpty()){
-                for (Object child : children) {
-                    s.push(child);
-                }
+        /*树的各节点hash值计算*/
+        List pos = new ArrayList(); //存放词性节点list
+        Tree t = tree;
+        List leaves = t.getLeaves(); //获取树的叶子节点
+        /*对词性节点进行hash值标注*/
+        for (Iterator it = leaves.iterator(); it.hasNext();) {
+            Tree left = (Tree) it.next();
+            if(left.parent(tree).label().value().equals("JJ")){
+                map.put(left.parent(tree), 3);
             }
+            else if(left.parent(tree).label().value().equals("NN")){
+                map.put(left.parent(tree), 5);
+            }
+            else if(left.parent(tree).label().value().equals("VBZ")){
+                map.put(left.parent(tree), 7);
+            }
+            else if(left.parent(tree).label().value().equals("VB")){
+                map.put(left.parent(tree), 11);
+            }
+            else{
+                map.put(left.parent(tree), 2);
+            }            
+            pos.add(left.parent(tree));
+        }
+        int num = t.size()-1-leaves.size();//需要计算的节点数目（减去ROOT和所有叶子节点）
+        leaves.clear(); //释放叶子节点list
+        /*计算其他未标注的节点并记录*/
+        while(map.size() != num){
+            for (Iterator it = pos.iterator(); it.hasNext();) {
+                Tree left = (Tree) it.next();
+                if(this.isInMap(left,left.parent(tree))){//若left所有兄弟节点都存在于map中，则计算他们的父节点的hash值并记录
+                    int value = this.CalHash(left,left.parent(tree));
+                    map.put(left.parent(tree), value);
+                }
+            }        
+        }        
+        //结果输出
+        for (Tree k : map.keySet()){ 
+            System.out.println(k + " ： " + map.get(k)); 
         }
         /*将结果记录存放于list中*/
-        node_hash_list.add(hash);
+        node_hash_list.add(map);
         /*将hash值依次取出放入数组中*/
-        String[] ast = new String[hash.size()]; //节点对应的hash值数组
+        String[] ast = new String[map.size()]; //节点对应的hash值数组
         int i = 0;
-        Set entries = hash.entrySet( );
+        Set entries = map.entrySet( );
         if(entries != null){
             Iterator iterator = entries.iterator( );
             while(iterator.hasNext( )) {
@@ -164,7 +222,8 @@ public class Standfordnlp {
                 ast[i] = val;
                 i++;
             }
-        }
+        }        
+        map.clear();//清空map
         /*数组转化为字符串便于存入数据库中*/
         String ast_str = new String();
         StringBuffer sb = new StringBuffer();
