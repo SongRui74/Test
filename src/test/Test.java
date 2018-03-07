@@ -13,17 +13,16 @@ import edu.stanford.nlp.trees.Tree;
  */
 public class Test {
     
-    private static final String table_name = "test100";
+    private static final String table_name = "test416";
          
     public static void main(String[] args) throws Exception{
               
-    /*    KMeansCluster km = new KMeansCluster();
+        KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
         km.Iteration();
         km.ResultOut(table_name);
-    */
-    
+        
     /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
@@ -40,17 +39,17 @@ public class Test {
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
     */
-        Standfordnlp t = new Standfordnlp(); 
+    /*    Standfordnlp t = new Standfordnlp(); 
         String s = "\"\" If you're considering updating, don't do it!\"";
         Tree tree = t.FeedbacktoTree(s);
         System.out.println("1）\"App don't work.\"的语法树");
-        t.TreetoString(tree);
-        t.getNodeHashList();
-    /*    String a = t.TreetoString(tree);
+    //    t.TreetoString(tree);
+    //    t.getNodeHashList();
+        String a = t.TreetoString(tree);
         
         s = "App don't work.";
         tree = t.FeedbacktoTree(s);
-        System.out.println("2）\"The app can't open\"的语法树");
+        System.out.println("2）\"great app\"的语法树");
         String b = t.TreetoString(tree);
         t.Similarity(a, b);
         t.getNodeHashList();

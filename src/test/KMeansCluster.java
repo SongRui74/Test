@@ -50,7 +50,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 0.50; //迭代停止时的新旧质心相似程度
+    double stopsim = 0.80; //迭代停止时的新旧质心相似程度
     SQL s = new SQL();
     
     
@@ -63,7 +63,8 @@ public class KMeansCluster {
     point[] best; //最优染色体
     
     /**
-     * 导入数据
+     * 从某表中导入数据
+     * @param table_name 表名
      */
     public void ImportData(String table_name){
         try {
@@ -98,6 +99,7 @@ public class KMeansCluster {
     }
     /**
      * 选择聚类中心
+     * @param table_name 表名
      */
     public void ChooseCenter(String table_name){
         int num = s.GetDataNum(table_name);//数据集数量
@@ -194,6 +196,9 @@ public class KMeansCluster {
     
     /**
      * 相似度计算，两棵树之间的距离函数
+     * @param a 染色体a
+     * @param b 染色体b
+     * @return 两染色体所代表的树的相似度
      */    
     public Float Similarity(point a, point b){
         float sim = 0;
@@ -201,24 +206,30 @@ public class KMeansCluster {
         String t2 = b.t;
         String[] aa = t1.split("\\,");
         String[] bb = t2.split("\\,");
-        int count = 0;
+        int temp = 0;
         for(int i = 0; i < aa.length; i++){
             String m = aa[i];
+            if(m.equals("1")){
+                continue;
+            }
             for(int j = 0; j < bb.length; j++){
                 String n = bb[j];
                 if(m.equals(n)){
-                    count++;
+                    temp++;
                 }
             }
         }
-        int same = count;
-        int min = Math.min(aa.length, bb.length);
-        sim = (float)same/min;
+        int same = temp;
+        int sum = aa.length + bb.length;
+    //    int min = Math.min(aa.length, bb.length);
+        sim = (float)same/sum;
         return sim;
     }
     
     /**
-     * 更新原始的聚类中心   
+     * 更新原始的聚类中心
+     * @param old
+     * @param news   
      */
     public void RenewOldCenter(point[] old, point[] news) {
         for (int i = 0; i < old.length; i++) {
@@ -264,6 +275,7 @@ public class KMeansCluster {
     }
     /**
      * 输出聚类中心
+     * @param table_name
      */
     public void ResultOut(String table_name){
         int num = s.GetDataNum(table_name);

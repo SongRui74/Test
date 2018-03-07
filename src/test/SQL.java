@@ -32,7 +32,8 @@ public class SQL {
     
     /**
      * 标记文本属性特征
-     * @param table 
+     * @param table_name 表名
+     * @param col 列名
      */
     public void RemarkTextFeature(String table_name,String col){
         try {             
@@ -67,6 +68,8 @@ public class SQL {
     
     /**
      * 获取评论单词数目
+     * @param str 一条用户评论
+     * @return 返回评论单词数目
      */
     public int NumberofWords(String str){
         int num = 0;
@@ -80,7 +83,8 @@ public class SQL {
     }
     /**
      * 标记评论单词总数
-     * @param table 
+     * @param table_name 表名
+     * @param col 列名
      */
     public void RemarkNumberofWords(String table_name,String col){
         try {             
@@ -112,8 +116,8 @@ public class SQL {
     }
         /**
      * 获取表中数据数量
-     * @param table
-     * @return 
+     * @param table 表名
+     * @return 返回表中数据数量
      */
     public int GetDataNum(String table){
         int num = 0;
@@ -191,6 +195,7 @@ public class SQL {
     
     /**
      * 处理不含英文文本的数据
+     * @param table
      */
     public void DealNullData(String table){
         try {
@@ -209,41 +214,10 @@ public class SQL {
         } catch (SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    /**
-     * 处理数据中的无用符号
-     */
-    public void DealSymbol(String table){
-        try {
-            Class.forName(driverName);
-            conn = DriverManager.getConnection(dbURL, userName, userPwd);
-            Statement stmt;
-            ResultSet rs;
-            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-            Statement stmt2 = conn.createStatement();       
-            
-            rs=stmt.executeQuery("select * from " + table +" where Review_Content like '%\"%'");  
-            
-            //循环修改数据
-            while(rs.next()){                                            
-                /*统计每条文本的单词数目*/
-                int num = this.NumberofWords(rs.getString("Review_Content"));          
-                /*写入数据库中*/
-                String sql = "";
-                stmt2.executeUpdate(sql);
-            }
-            rs.close();
-            stmt.close(); 
-            stmt2.close();
-            conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    }    
     /**
      * 批量将评论拆分为单句
+     * @param table_name
      */
     public void SqltoShort(String table_name){
         try {
@@ -278,6 +252,8 @@ public class SQL {
     
     /**
      * 长文本化为单句
+     * @param rs
+     * @param table_name
      */
     public void LongTexttoShort(ResultSet rs,String table_name){
         try {
@@ -326,7 +302,7 @@ public class SQL {
      * @param table_name 表名
      * @param col 列名
      * @param new_value 新值
-     * @return 
+     * @return 返回一条sql语句
      */
     public String UpdateSql(ResultSet rs,String table_name,String col,Object new_value){
         String sql = null;
@@ -341,6 +317,8 @@ public class SQL {
     }
     /**
      * 处理评论中的单引号，便于sql语句顺利执行
+     * @param str 一条未处理的评论
+     * @return 返回已处理单引号的评论
      */
     public String SqlSingleQuote(String str){
         if(str.contains("'")){
@@ -355,6 +333,10 @@ public class SQL {
      * @param readpath  文件路径
      * @param table  数据库表名
      * @param n  属性个数
+     * @return 
+     * @throws java.io.IOException
+     * @throws java.lang.ClassNotFoundException
+     * @throws java.sql.SQLException
      */
     public String ReviewsToDB(String readpath,String table,int n) throws IOException, ClassNotFoundException, SQLException{   
         Class.forName(driverName);
@@ -393,6 +375,10 @@ public class SQL {
      }
     /**
      * bat格式Apps描述文件写入数据库
+     * @param readpath
+     * @param table
+     * @param n
+     * @throws java.io.IOException
      */  
     public String AppsToDB(String readpath,String table,int n) throws IOException, ClassNotFoundException, SQLException{    //文件路径，数据库表名，属性个数
         Class.forName(driverName);

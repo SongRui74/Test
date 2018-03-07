@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +46,7 @@ public class Standfordnlp {
     private final String userName = "song"; 
     private final String userPwd = "123456"; 
     private Connection conn; 
-    public List<Map<Tree, Integer>> node_hash_list = new ArrayList<Map<Tree, Integer>>();    
+    public List<Map<Tree, Integer>> node_hash_list = new ArrayList<>();    
     private Map<Tree,Integer> map = new HashMap<>(); //存放需记录的树节点和对应的hash值  
     
     /**
@@ -64,6 +63,8 @@ public class Standfordnlp {
     }
     /**
      * 将评论ast标记到数据库表中
+     * @param table_name 表名
+     * @param col 所添加的列名
      */
     public void RemarkFeedbackTree(String table_name,String col){
         try {             
@@ -102,6 +103,8 @@ public class Standfordnlp {
     
     /**
      * 利用Standfordnlp分析用户评论,得到语法树
+     * @param str 一条用户评论
+     * @return  返回句法树
      */
     public Tree FeedbacktoTree(String str){  
         Tree tree = null;
@@ -120,7 +123,7 @@ public class Standfordnlp {
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
         */    tree = sentence.get(TreeAnnotation.class);
-            tree.pennPrint();
+        //    tree.pennPrint();
         //    SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
             //dependencies.toString();
         }
@@ -130,11 +133,12 @@ public class Standfordnlp {
     
     /**
      * 判断某节点的兄弟节点hash值是否均已知
-     * @param tree
-     * @return 
+     * @param node 所判断的节点
+     * @param root 所判断节点所在树的根节点
+     * @return  均已知则返回ture，否则为false
      */
-    public boolean isInMap(Tree tree,Tree root){
-        List s = tree.siblings(root);
+    public boolean isInMap(Tree node,Tree root){
+        List s = node.siblings(root);
         if(s != null ){
             for(int i = 0; i < s.size(); i++){
                 Tree temp = (Tree) s.get(i);
@@ -146,25 +150,27 @@ public class Standfordnlp {
         return true;
     }    
     /**
-     * 计算父节点hash值
-     * @param tree
-     * @return 
+     * 计算该节点的父节点hash值
+     * @param node 待计算节点的子节点
+     * @param root 待计算节点所在树的根节点
+     * @return  待计算节点hash值
      */
-    public int CalHash(Tree tree,Tree root){
+    public int CalHash(Tree node,Tree root){
         int value = 1;
-        List s = tree.siblings(root);
+        List s = node.siblings(root);
         if(s != null){
             for(int i = 0; i < s.size(); i++){
                 Tree temp = (Tree) s.get(i);
                 value *= map.get(temp);
             }
         }
-        value *= map.get(tree);
+        value *= map.get(node);
         return value;
     }    
     /**
      * 将语法树解析为hash值数组并转化为字符串
-     * @param tree 
+     * @param tree  评论的句法树
+     * @return  经解析后转化的字符串
      */
     public String TreetoString(Tree tree){
         /*树的各节点hash值计算*/        
@@ -172,52 +178,54 @@ public class Standfordnlp {
         /*对词性节点进行hash值标注*/
         for (Iterator it = leaves.iterator(); it.hasNext();) {
             Tree left = (Tree) it.next();
-            if(left.parent(tree).label().value().equals("JJ")
-                    ||left.parent(tree).label().value().equals("JJR")
-                    ||left.parent(tree).label().value().equals("JJS")){
-                map.put(left.parent(tree), 3);
+            switch (left.parent(tree).label().value()) {
+                case "JJ":
+                case "JJR":
+                case "JJS":
+                    map.put(left.parent(tree), 3);
+                    break;
+                case "MD":
+                    map.put(left.parent(tree), 5);
+                    break;
+                case "NN":
+                case "NNS":
+                case "NNP":
+                case "NNPS":
+                    map.put(left.parent(tree), 7);
+                    break;
+                case "POS":
+                    map.put(left.parent(tree), 11);
+                    break;
+                case "RB":
+                case "RBR":
+                case "RBS":
+                    map.put(left.parent(tree), 13);
+                    break;
+                case "VB":
+                case "VBD":
+                case "VBG":
+                case "VBN":
+                case "VBP":
+                case "VBZ":
+                    map.put(left.parent(tree), 17);
+                    break;
+                default:
+                    map.put(left.parent(tree), 1);
+                    break;
             }
-            else if(left.parent(tree).label().value().equals("MD")){
-                map.put(left.parent(tree), 5);
-            }
-            else if(left.parent(tree).label().value().equals("NN")
-                    ||left.parent(tree).label().value().equals("NNS")
-                    ||left.parent(tree).label().value().equals("NNP")
-                    ||left.parent(tree).label().value().equals("NNPS")){
-                map.put(left.parent(tree), 7);
-            }
-            else if(left.parent(tree).label().value().equals("POS")){
-                map.put(left.parent(tree), 11);
-            }
-            else if(left.parent(tree).label().value().equals("RB")
-                    ||left.parent(tree).label().value().equals("RBR")
-                    ||left.parent(tree).label().value().equals("RBS")){
-                map.put(left.parent(tree), 13);
-            }
-            else if(left.parent(tree).label().value().equals("VB")
-                    ||left.parent(tree).label().value().equals("VBD")
-                    ||left.parent(tree).label().value().equals("VBG")
-                    ||left.parent(tree).label().value().equals("VBN")
-                    ||left.parent(tree).label().value().equals("VBP")
-                    ||left.parent(tree).label().value().equals("VBZ")){
-                map.put(left.parent(tree), 17);
-            }
-            else{
-                map.put(left.parent(tree), 1);
-            }            
         }
-        int num = tree.size()-1-leaves.size();//需要计算的节点数目（减去ROOT和所有叶子节点）
         leaves.clear(); //释放叶子节点list 
         
         List list = this.GetAllNode(tree); //存放待计算hash值节点list
         /*计算其他未标注的节点并记录*/
-        while(map.size() != num){
-            for (int i = 0; i < list.size(); i++) {
-                Tree node = (Tree) list.get(i);
+        while(!list.isEmpty()){
+            for (Iterator it = list.iterator(); it.hasNext();) {
+                Tree node = (Tree) it.next();
                 if(map.containsKey(node)){
                     if(this.isInMap(node,node.parent(tree))){//若left所有兄弟节点都存在于map中，则计算他们的父节点的hash值并记录
                         int value = this.CalHash(node,node.parent(tree));
                         map.put(node.parent(tree), value);
+                        it.remove();  //计算完成后从list中删除node节点
                     }
                 }
             }        
@@ -227,11 +235,11 @@ public class Standfordnlp {
         /*将hash值依次取出放入数组中*/
         String[] ast = new String[map.size()]; //节点对应的hash值数组
         int i = 0;
-        Set entries = map.entrySet( );
+        Set entries = map.entrySet();
         if(entries != null){
-            Iterator iterator = entries.iterator( );
-            while(iterator.hasNext( )) {
-                Map.Entry entry =(Map.Entry) iterator.next( );
+            Iterator iterator = entries.iterator();
+            while(iterator.hasNext()) {
+                Map.Entry entry =(Map.Entry) iterator.next();
                 int value = (int) entry.getValue();
                 String val = Integer.toString(value);
                 ast[i] = val;
@@ -250,9 +258,9 @@ public class Standfordnlp {
         return ast_str;
     }
     /**
-     * 获取树中除叶子节点外的其他所有节点
+     * 获取树中除叶子节点外的其他所有有父亲的节点
      * @param tree
-     * @return 树中除叶子节点外的其他节点list
+     * @return 树中除叶子节点和Root外的其他节点list
      */
     public List GetAllNode(Tree tree){
         List list = tree.subTreeList();
@@ -268,6 +276,9 @@ public class Standfordnlp {
     }
     /**
      * 计算语法树相似度
+     * @param a 语法树所代表的字符串a
+     * @param b 语法树所代表的字符串b
+     * @return 两棵语法树的相似度
      */
     public Float Similarity(String a, String b){
         float sim = 0;
@@ -276,6 +287,9 @@ public class Standfordnlp {
         int count = 0;
         for(int i = 0; i < aa.length; i++){
             String m = aa[i];
+            if(m.equals("1")){
+                continue;
+            }
             for(int j = 0; j < bb.length; j++){
                 String n = bb[j];
                 if(m.equals(n)){
@@ -284,8 +298,6 @@ public class Standfordnlp {
             }
         }
         int same = count;
-    //    int min = Math.min(aa.length, bb.length);
-    //   int max = Math.max(aa.length, bb.length);
         int sum = aa.length + bb.length;
         sim = (float)same/sum;
         System.out.println("相似度为："+same +"/" +sum + "=" +sim);      
