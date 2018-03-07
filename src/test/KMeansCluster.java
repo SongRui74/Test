@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  */
 class point{
     public String t = null; //语法树
+    public String r = null; //用户评论
     public String c = null; //类别
     public int flag = -1;  //标记
     
@@ -37,6 +38,13 @@ class point{
     }
     public void setC(String c){
         this.c = c;
+    }
+    
+    public String getR(){
+        return r;
+    }
+    public void setR(String r){
+        this.r = r;
     }
 }
 
@@ -56,7 +64,7 @@ public class KMeansCluster {
     
     point[][] pop;//种群
     int[] count;//种群规模
-    int IterNum = 20;//遗传迭代次数
+    int IterNum = 10;//遗传迭代次数
     double crossrate = 0.60;//交叉率
     double mutarate = 0.01;//突变率    
     float[] bestfitness;//最优解，即最大距离和
@@ -77,15 +85,16 @@ public class KMeansCluster {
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             
-            //列名记得修改为变量！！！！！！！！！！！！！！！！！！！！！！！！！！
-            rs=stmt.executeQuery("SELECT ast,classes FROM "+table_name);
+            rs=stmt.executeQuery("SELECT ast,classes,Review_Content FROM "+table_name);
             rs.first();//读取数据库第一行记录
             for(int i = 0;i < num ;i++){   
                 data[i] = new point();// 对象创建
                 String ast = rs.getString("ast");
                 String classes = rs.getString("classes");
+                String content = rs.getString("Review_Content");
                 data[i].setT(ast);
                 data[i].setC(classes);
+                data[i].setR(content);
                 rs.next();
             }
             rs.close();
@@ -132,6 +141,7 @@ public class KMeansCluster {
             int thistemp = temp[i];
             old_center[i] = new point();
             old_center[i].t = data[thistemp].t;
+            old_center[i].r = data[thistemp].r;
             old_center[i].c = data[thistemp].c;
             old_center[i].flag = 0; //0表示聚类中心
         }
@@ -180,13 +190,14 @@ public class KMeansCluster {
             Select();
             Cross();
             Mutation();
-            System.out.println("//////////"+i+"次遗传完成");
+        //    System.out.println("//////////"+i+"次遗传完成");
         }
         //记录新的质心
         System.out.println("新质心：");
         for(int i = 0;i < old_center.length;i++){
             new_center[i] = new point();
             new_center[i].t = best[i].t;
+            new_center[i].r = best[i].r;
             new_center[i].c = best[i].c;
             new_center[i].flag = 0;
             if(new_center[i].t != null)
@@ -234,6 +245,7 @@ public class KMeansCluster {
     public void RenewOldCenter(point[] old, point[] news) {
         for (int i = 0; i < old.length; i++) {
             old[i].t = news[i].t;
+            old[i].r = news[i].r;
             old[i].c = news[i].c;
             old[i].flag = 0;// 表示为聚类中心的标志。
         }
@@ -308,6 +320,34 @@ public class KMeansCluster {
             System.out.println("Cluster"+i+"：  "+ count[i] +"    所占比例： "+ per +"%"+
                                "\n"+"Demand类别个数及比例："+Demand+"\t"+dem+"%\nInvalid类别个数及比例："+Invalid+"\t"+inv+
                                "%\nOverview类别个数及比例："+Overview+"\t"+ove+"%\nSpecific类别个数及比例："+Specific+"\t"+spe+"%");
+            System.out.println("*******************Demand类具体用户评论*****************");
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    if(data[j].getC().equals("Demand"))
+                        System.out.println(data[j].r);                    
+                }
+            }
+            System.out.println("*******************Invalid类具体用户评论*****************");
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    if(data[j].getC().equals("Invalid"))
+                        System.out.println(data[j].r);                    
+                }
+            }
+            System.out.println("*******************Overview类具体用户评论*****************");
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    if(data[j].getC().equals("Overview"))
+                        System.out.println(data[j].r);                    
+                }
+            }
+            System.out.println("*******************Specific类具体用户评论*****************");
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    if(data[j].getC().equals("Specific"))
+                        System.out.println(data[j].r);                    
+                }
+            }
         }
     }
     
