@@ -42,19 +42,18 @@ public class Test {
     */
         Standfordnlp t = new Standfordnlp(); 
         String s = "App don't work.";
-        t.FeedbacktoTree(s);
-    /*    System.out.println("1）\"App don't work.\"的语法树");
+    //    t.FeedbacktoTree(s);
+    //    System.out.println("1）\"App don't work.\"的语法树");
         t.FeedbacktoDep(s);
         System.out.println("1）\"App don't work.\"的依存关系");
-        
+        t.LCA(s, "work", "do");
+    /*    
         String s2 = "App can't work.";
         t.FeedbacktoTree(s2);
         System.out.println("1）\"App can't work.\"的语法树");
         t.FeedbacktoDep(s2);
         System.out.println("1）\"App can't work.\"的依存关系");
-        
-        List a = t.CalSimi(s, s2);
-        t.lout(a);
+                
     //    t.getNodeHashList();
     /*    String a = t.TreetoString(tree);
         

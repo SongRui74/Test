@@ -152,13 +152,71 @@ public class Standfordnlp {
         return list;
     }
     
-    public boolean SameAncestor(String str, String dep, String gov){
+    /**
+     * 获取单词对应的节点
+     * @param tree 评论对应的语法树
+     * @param word 单词 
+     * @return 树节点
+     */
+    public Tree GetNode(Tree tree,String word){
+        List list = tree.getLeaves();
+        Tree t = null;
+        Tree temp;
+        for(int i = 0 ; i < list.size() ; i++) {
+            temp = (Tree) list.get(i);
+            if(temp.label().value().equals(word)){
+                t = temp;
+            }
+        }
+        return t;
+    }
+    
+    public String lowestCommonAncestor(Tree root,Tree d,Tree g){
+        String ancestor = null;
+        List path1 = root.dominationPath(d);
+        List path2 = root.dominationPath(g);
+        if(path1 == null || path2 == null){
+            return null;
+        }
+        else{
+            for(int i = path1.size()-1; i >= 0;i--){
+                Tree t1 = (Tree) path1.get(i);
+                String val1 = t1.label().value();
+                for(int j = path2.size()-1; j >= 0; j--){
+                    Tree t2 = (Tree) path2.get(j);
+                    String val2 = t2.label().value();
+                    if(val1.equals(val2)){
+                        ancestor = val1;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        System.out.println(ancestor);
+        return ancestor;
+    }
+    
+    /**
+     * 获取两单词节点的LCA（处理评论和单词，将其转化为树节点）
+     * @param str 一条评论
+     * @param dep 一个依存关系中dep的节点label
+     * @param gov 一个依存关系中gov的节点label
+     * @return 
+     */
+    public boolean LCA(String str,String dep, String gov){
+        //将评论解析成语法树
         Tree tree = this.FeedbacktoTree(str);
+        //找到单词对应的节点
+        Tree d = this.GetNode(tree, dep);
+        Tree g = this.GetNode(tree, gov);     
+        //找到LCA
+        this.lowestCommonAncestor(tree, d, g);
         return true;
     }
     
     /**
-     * 计算两评论相似度
+     * 计算两条评论相似度
      * @param str1 评论一
      * @param str2 评论二
      * @return 两条评论的相似度
@@ -217,14 +275,7 @@ public class Standfordnlp {
         }
         return simi;
     }
- 
-    public void lout(List<String[]> a){
-        for(int i = 0; i < a.size(); i++) {
-            String[] s = a.get(i);
-            System.out.println(s[0] + "\t" + s[1]);
-        }
-    }
-    
+     
    /**
      * 判断某节点的兄弟节点hash值是否均已知
      * @param node 所判断的节点
