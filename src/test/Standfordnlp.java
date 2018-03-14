@@ -17,10 +17,12 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.parser.lexparser.TreeBinarizer;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.semgraph.SemanticGraph;
-import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
@@ -123,15 +125,107 @@ public class Standfordnlp {
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
         */    tree = sentence.get(TreeAnnotation.class);
-        //    tree.pennPrint();
-        //    SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-            //dependencies.toString();
-        }
-        Map<Integer, CorefChain> graph = document.get(CorefChainAnnotation.class);        
+            tree.pennPrint();
+        }       
         return tree;
     }
     
     /**
+     * 利用Standfordnlp分析用户评论,得到依存关系
+     * @param str 一条用户评论
+     * @return  返回依存关系list
+     */
+    public List FeedbacktoDep(String str){  
+        Properties props = new Properties();
+        //分词（tokenize）、分句（ssplit）、词性标注（pos）、词形还原（lemma）、命名实体识别（ner）、语法解析（parse）、情感分析（sentiment）、指代消解（coreference resolution）
+        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+        Annotation document = new Annotation(str);
+        pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        List list = new ArrayList(); //只有一句话 暂且定义一个list
+        for(CoreMap sentence: sentences) {
+            SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+            list = dependencies.edgeListSorted(); //依存关系list
+            System.out.println(dependencies.toList());
+        }
+        return list;
+    }
+    
+    public boolean SameAncestor(String str, String dep, String gov){
+        Tree tree = this.FeedbacktoTree(str);
+        return true;
+    }
+    
+    /**
+     * 计算两评论相似度
+     * @param str1 评论一
+     * @param str2 评论二
+     * @return 两条评论的相似度
+     */
+    public List CalSimi(String str1, String str2){        
+        List list1 = this.FeedbacktoDep(str1);
+        List list2 = this.FeedbacktoDep(str2);
+        
+        List<String[]> simi = new ArrayList();
+        
+        for(int i = 0; i < list1.size(); i++){
+            SemanticGraphEdge s1 = (SemanticGraphEdge) list1.get(i);
+            String deppos1 = s1.getDependent().tag();
+            String deplem1 = s1.getDependent().lemma();
+            String govpos1 = s1.getGovernor().tag();
+            String govlem1 = s1.getGovernor().lemma();
+            String relation1 = s1.getRelation().toString();
+            String dep1 = s1.getDependent().word();
+            String gov1 = s1.getGovernor().word();
+            for(int j = 0; j < list2.size(); j++){
+                SemanticGraphEdge s2 = (SemanticGraphEdge) list2.get(j);
+                String deppos2 = s2.getDependent().tag();
+                String deplem2 = s2.getDependent().lemma();
+                String govpos2 = s2.getGovernor().tag();
+                String govlem2 = s2.getGovernor().lemma();
+                String relation2 = s2.getRelation().toString();
+                String dep2 = s2.getDependent().word();
+                String gov2 = s2.getGovernor().word();
+                if(relation1.equals(relation2)){ //关系相同时
+                    if(deplem1.equals(deplem2)){ //dependency原形相同
+                        if(govlem1.equals(govlem2)){ //governor原形相同
+                            String[] rela_value = {relation1,"5"};
+                            simi.add(rela_value);
+                        }
+                        else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
+                            String[] rela_value = {relation1,"4"};
+                            simi.add(rela_value);
+                        }
+                        else{  //governor不同
+                            String[] rela_value = {relation1,"3"};
+                            simi.add(rela_value);
+                        }
+                    } 
+                    else if(govlem1.equals(govlem2)){ //governor原形相同
+                        if(deppos1.equals(deppos2)){ //dependency原形不同，词性相同
+                            String[] rela_value = {relation1,"4"};
+                            simi.add(rela_value);
+                        }
+                        else{ //dependency不同
+                            String[] rela_value = {relation1,"3"};
+                            simi.add(rela_value);
+                        }
+                    }
+                }
+            }
+        }
+        return simi;
+    }
+ 
+    public void lout(List<String[]> a){
+        for(int i = 0; i < a.size(); i++) {
+            String[] s = a.get(i);
+            System.out.println(s[0] + "\t" + s[1]);
+        }
+    }
+    
+   /**
      * 判断某节点的兄弟节点hash值是否均已知
      * @param node 所判断的节点
      * @param root 所判断节点所在树的根节点

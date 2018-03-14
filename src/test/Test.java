@@ -6,6 +6,7 @@
 package test;
 
 import edu.stanford.nlp.trees.Tree;
+import java.util.List;
 
 /**
  *
@@ -13,16 +14,16 @@ import edu.stanford.nlp.trees.Tree;
  */
 public class Test {
     
-    private static final String table_name = "test416";
+    private static final String table_name = "test2";
          
     public static void main(String[] args) throws Exception{
               
-        KMeansCluster km = new KMeansCluster();
+    /*    KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
         km.Iteration();
         km.ResultOut(table_name);
-        
+    */   
     /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
@@ -39,13 +40,23 @@ public class Test {
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
     */
-    /*    Standfordnlp t = new Standfordnlp(); 
-        String s = "\"\" If you're considering updating, don't do it!\"";
-        Tree tree = t.FeedbacktoTree(s);
-        System.out.println("1）\"App don't work.\"的语法树");
-    //    t.TreetoString(tree);
+        Standfordnlp t = new Standfordnlp(); 
+        String s = "App don't work.";
+        t.FeedbacktoTree(s);
+    /*    System.out.println("1）\"App don't work.\"的语法树");
+        t.FeedbacktoDep(s);
+        System.out.println("1）\"App don't work.\"的依存关系");
+        
+        String s2 = "App can't work.";
+        t.FeedbacktoTree(s2);
+        System.out.println("1）\"App can't work.\"的语法树");
+        t.FeedbacktoDep(s2);
+        System.out.println("1）\"App can't work.\"的依存关系");
+        
+        List a = t.CalSimi(s, s2);
+        t.lout(a);
     //    t.getNodeHashList();
-        String a = t.TreetoString(tree);
+    /*    String a = t.TreetoString(tree);
         
         s = "App don't work.";
         tree = t.FeedbacktoTree(s);
