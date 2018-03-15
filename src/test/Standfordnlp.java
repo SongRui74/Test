@@ -249,10 +249,7 @@ public class Standfordnlp {
     public List CalSimi(String str1, String str2){        
         List list1 = this.FeedbacktoDep(str1);  //解析为依存关系list
         List list2 = this.FeedbacktoDep(str2);
-        
-        Tree tree1 = this.FeedbacktoTree(str1);
-        Tree tree2 = this.FeedbacktoTree(str2);
-        
+                
         List<String[]> simi = new ArrayList();  //存放依存关系相似度
         
         for(int i = 0; i < list1.size(); i++){
@@ -264,6 +261,10 @@ public class Standfordnlp {
             String relation1 = s1.getRelation().toString();  //评论一dependent与governor关系
             String dep1 = s1.getDependent().word(); //评论一dependent单词
             String gov1 = s1.getGovernor().word();
+                        
+            String[] rela_value = {relation1,"0"};  //记录关系及数值
+            int temp = -99; //记录相同关系中的最大值，即匹配度最高的关系
+            
             for(int j = 0; j < list2.size(); j++){
                 SemanticGraphEdge s2 = (SemanticGraphEdge) list2.get(j);
                 String deppos2 = s2.getDependent().tag();
@@ -272,83 +273,129 @@ public class Standfordnlp {
                 String govlem2 = s2.getGovernor().lemma();
                 String relation2 = s2.getRelation().toString();
                 String dep2 = s2.getDependent().word();
-                String gov2 = s2.getGovernor().word();
-                //分别获取LCA节点
-                String anc1 = this.LCA(tree1, dep1, gov1);
-                String anc2 = this.LCA(tree2, dep2, gov2);
-                //分别获取距离LCA的路径之和
-                int path1 = this.Path(tree1, dep1, gov1);
-                int path2 = this.Path(tree2, dep2, gov2);
-                int dist = Math.abs(path1-path2); //计算两路径距离差
+                String gov2 = s2.getGovernor().word();                
+                                
                 if(relation1.equals(relation2)){ //关系相同时
                     if(deplem1.equals(deplem2)){ //dependency原形相同
                         if(govlem1.equals(govlem2)){ //governor原形相同
+                            //解析为语法树
+                            Tree tree1 = this.FeedbacktoTree(str1); 
+                            Tree tree2 = this.FeedbacktoTree(str2);
+                            //分别获取LCA节点
+                            String anc1 = this.LCA(tree1, dep1, gov1);
+                            String anc2 = this.LCA(tree2, dep2, gov2);
                             if(anc1.equals(anc2)){ //LCA相同
+                                //分别获取距离LCA的路径之和
+                                int path1 = this.Path(tree1, dep1, gov1);
+                                int path2 = this.Path(tree2, dep2, gov2);
+                                int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){ //距离相同
-                                    String[] rela_value = {relation1,"5"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "5";
+                                //    simi.add(rela_value);
                                 }
                                 else if(dist <= 5){ //距离相近，降低关系值
-                                    String[] rela_value = {relation1,"3"};
-                                    simi.add(rela_value);
+                                    //若已计算过此关系
+                                    rela_value[1] = "3";
+                                //    simi.add(rela_value);
                                 }
                             }
                         }
                         else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
+                            //解析为语法树
+                            Tree tree1 = this.FeedbacktoTree(str1); 
+                            Tree tree2 = this.FeedbacktoTree(str2);
+                            //分别获取LCA节点
+                            String anc1 = this.LCA(tree1, dep1, gov1);
+                            String anc2 = this.LCA(tree2, dep2, gov2);
                             if(anc1.equals(anc2)){ //LCA相同
+                                //分别获取距离LCA的路径之和
+                                int path1 = this.Path(tree1, dep1, gov1);
+                                int path2 = this.Path(tree2, dep2, gov2);
+                                int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    String[] rela_value = {relation1,"4"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "4";
+                                //    simi.add(rela_value);
                                 }
                                 else if(dist <= 5){
-                                    String[] rela_value = {relation1,"2"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "2";
+                                //    simi.add(rela_value);
                                 }
                             }
                         }
                         else{  //governor不同
+                            //解析为语法树
+                            Tree tree1 = this.FeedbacktoTree(str1); 
+                            Tree tree2 = this.FeedbacktoTree(str2);
+                            //分别获取LCA节点
+                            String anc1 = this.LCA(tree1, dep1, gov1);
+                            String anc2 = this.LCA(tree2, dep2, gov2);
                             if(anc1.equals(anc2)){
+                                //分别获取距离LCA的路径之和
+                                int path1 = this.Path(tree1, dep1, gov1);
+                                int path2 = this.Path(tree2, dep2, gov2);
+                                int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    String[] rela_value = {relation1,"3"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "3";
+                                //    simi.add(rela_value);
                                 }
                                 else if(dist <= 5){
-                                    String[] rela_value = {relation1,"1"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "1";
+                                //    simi.add(rela_value);
                                 }
                             }
                         }
                     } 
                     else if(govlem1.equals(govlem2)){ //governor原形相同
                         if(deppos1.equals(deppos2)){ //dependency原形不同，词性相同
+                            //解析为语法树
+                            Tree tree1 = this.FeedbacktoTree(str1); 
+                            Tree tree2 = this.FeedbacktoTree(str2);
+                            //分别获取LCA节点
+                            String anc1 = this.LCA(tree1, dep1, gov1);
+                            String anc2 = this.LCA(tree2, dep2, gov2);
                             if(anc1.equals(anc2)){
+                                //分别获取距离LCA的路径之和
+                                int path1 = this.Path(tree1, dep1, gov1);
+                                int path2 = this.Path(tree2, dep2, gov2);
+                                int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    String[] rela_value = {relation1,"4"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "4";
+                                //    simi.add(rela_value);
                                 }
                                 else if(dist <= 5){
-                                    String[] rela_value = {relation1,"2"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "2";
+                                //    simi.add(rela_value);
                                 }
                             }
                         }
                         else{ //dependency不同
+                            //解析为语法树
+                            Tree tree1 = this.FeedbacktoTree(str1); 
+                            Tree tree2 = this.FeedbacktoTree(str2);
+                            //分别获取LCA节点
+                            String anc1 = this.LCA(tree1, dep1, gov1);
+                            String anc2 = this.LCA(tree2, dep2, gov2);
                             if(anc1.equals(anc2)){
+                                //分别获取距离LCA的路径之和
+                                int path1 = this.Path(tree1, dep1, gov1);
+                                int path2 = this.Path(tree2, dep2, gov2);
+                                int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    String[] rela_value = {relation1,"3"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "3";
+                                //    simi.add(rela_value);
                                 }
                                 else if(dist <= 5){
-                                    String[] rela_value = {relation1,"1"};
-                                    simi.add(rela_value);
+                                    rela_value[1] = "1";
+                                //    simi.add(rela_value);
                                 }
                             }
                         }
                     }
                 }
             }
+            simi.add(rela_value); //添加到相似度列表中
         }
-        
+        //去掉重复
         for(int k = 0;k<simi.size();k++){
             String[] a = simi.get(k);
             System.out.println(a[0]+"\t"+a[1]);
