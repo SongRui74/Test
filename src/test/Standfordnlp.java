@@ -392,6 +392,12 @@ public class Standfordnlp {
                         }
                     }
                 }
+                //保存匹配度最高的关系数值
+                int val = Integer.parseInt(rela_value[1]);
+                if(val > temp){
+                    temp = val;
+                }              
+                rela_value[1] = Integer.toString(val);
             }
             simi.add(rela_value); //添加到相似度列表中
         }
