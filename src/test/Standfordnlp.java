@@ -52,7 +52,7 @@ public class Standfordnlp {
     private Map<Tree,Integer> map = new HashMap<>(); //存放需记录的树节点和对应的hash值  
     
     /**
-     * 获取评论解析后语法树的每个节点及其hash值
+     * (舍)获取评论解析后语法树的每个节点及其hash值
      * @return 
      */
     public List<Map<Tree, Integer>> getNodeHashList(){
@@ -64,7 +64,7 @@ public class Standfordnlp {
         return node_hash_list;
     }
     /**
-     * 将评论ast标记到数据库表中
+     * (舍)将评论ast标记到数据库表中
      * @param table_name 表名
      * @param col 所添加的列名
      */
@@ -125,7 +125,7 @@ public class Standfordnlp {
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
         */    tree = sentence.get(TreeAnnotation.class);
-            tree.pennPrint();
+        //    tree.pennPrint();
         }       
         return tree;
     }
@@ -170,8 +170,19 @@ public class Standfordnlp {
         }
         return t;
     }
-    
-    public String lowestCommonAncestor(Tree root,Tree d,Tree g){
+      
+    /**
+     * 获取两单词节点的LCA（处理评论和单词，将其转化为树节点）
+     * @param root 一条评论的语法树
+     * @param dep 一个依存关系中dep的节点label
+     * @param gov 一个依存关系中gov的节点label
+     * @return 
+     */
+    public String LCA(Tree root,String dep, String gov){
+        //找到单词对应的节点
+        Tree d = this.GetNode(root, dep);
+        Tree g = this.GetNode(root, gov);     
+        //找到LCA
         String ancestor = null;
         List path1 = root.dominationPath(d);
         List path2 = root.dominationPath(g);
@@ -179,40 +190,54 @@ public class Standfordnlp {
             return null;
         }
         else{
-            for(int i = path1.size()-1; i >= 0;i--){
+            for(int i = 0; i < path1.size();i++){
                 Tree t1 = (Tree) path1.get(i);
-                String val1 = t1.label().value();
-                for(int j = path2.size()-1; j >= 0; j--){
+                for(int j = 0; j < path2.size(); j++){
                     Tree t2 = (Tree) path2.get(j);
-                    String val2 = t2.label().value();
-                    if(val1.equals(val2)){
-                        ancestor = val1;
+                    if(t1.toString().equals(t2.toString())){
+                        ancestor = t1.label().value();
                         break;
                     }
                 }
-                break;
             }
         }
-        System.out.println(ancestor);
+    //    System.out.println(ancestor+"\t"+ dep +"\t"+gov);
         return ancestor;
     }
     
     /**
-     * 获取两单词节点的LCA（处理评论和单词，将其转化为树节点）
-     * @param str 一条评论
+     * 获取两单词节点到LCA的距离之和
+     * @param root 一条评论的语法树
      * @param dep 一个依存关系中dep的节点label
      * @param gov 一个依存关系中gov的节点label
      * @return 
      */
-    public boolean LCA(String str,String dep, String gov){
-        //将评论解析成语法树
-        Tree tree = this.FeedbacktoTree(str);
+    public int Path(Tree root,String dep, String gov){
         //找到单词对应的节点
-        Tree d = this.GetNode(tree, dep);
-        Tree g = this.GetNode(tree, gov);     
-        //找到LCA
-        this.lowestCommonAncestor(tree, d, g);
-        return true;
+        Tree d = this.GetNode(root, dep);
+        Tree g = this.GetNode(root, gov);     
+        
+        List path1 = root.dominationPath(d);
+        List path2 = root.dominationPath(g);
+        int count = 0;//记录重复的祖先节点个数
+        if(path1 == null || path2 == null){
+            return 0;
+        }
+        else{
+            for(int i = 0; i < path1.size(); i++){
+                Tree t1 = (Tree) path1.get(i);
+                for(int j = 0; j < path2.size(); j++){
+                    Tree t2 = (Tree) path2.get(j);
+                    if(t1.toString().equals(t2.toString())){
+                        count++;
+                        break;
+                    }
+                }
+            }
+        }
+        //删除重复的祖先节点计算路径
+        int path = path1.size()-1 + path2.size()-1 - 2*(count-1);//路径为节点数-1
+        return path;
     }
     
     /**
@@ -222,19 +247,22 @@ public class Standfordnlp {
      * @return 两条评论的相似度
      */
     public List CalSimi(String str1, String str2){        
-        List list1 = this.FeedbacktoDep(str1);
+        List list1 = this.FeedbacktoDep(str1);  //解析为依存关系list
         List list2 = this.FeedbacktoDep(str2);
         
-        List<String[]> simi = new ArrayList();
+        Tree tree1 = this.FeedbacktoTree(str1);
+        Tree tree2 = this.FeedbacktoTree(str2);
+        
+        List<String[]> simi = new ArrayList();  //存放依存关系相似度
         
         for(int i = 0; i < list1.size(); i++){
             SemanticGraphEdge s1 = (SemanticGraphEdge) list1.get(i);
-            String deppos1 = s1.getDependent().tag();
-            String deplem1 = s1.getDependent().lemma();
+            String deppos1 = s1.getDependent().tag();  //评论一的dependent词性
+            String deplem1 = s1.getDependent().lemma(); //评论一dependent原形
             String govpos1 = s1.getGovernor().tag();
             String govlem1 = s1.getGovernor().lemma();
-            String relation1 = s1.getRelation().toString();
-            String dep1 = s1.getDependent().word();
+            String relation1 = s1.getRelation().toString();  //评论一dependent与governor关系
+            String dep1 = s1.getDependent().word(); //评论一dependent单词
             String gov1 = s1.getGovernor().word();
             for(int j = 0; j < list2.size(); j++){
                 SemanticGraphEdge s2 = (SemanticGraphEdge) list2.get(j);
@@ -245,39 +273,92 @@ public class Standfordnlp {
                 String relation2 = s2.getRelation().toString();
                 String dep2 = s2.getDependent().word();
                 String gov2 = s2.getGovernor().word();
+                //分别获取LCA节点
+                String anc1 = this.LCA(tree1, dep1, gov1);
+                String anc2 = this.LCA(tree2, dep2, gov2);
+                //分别获取距离LCA的路径之和
+                int path1 = this.Path(tree1, dep1, gov1);
+                int path2 = this.Path(tree2, dep2, gov2);
+                int dist = Math.abs(path1-path2); //计算两路径距离差
                 if(relation1.equals(relation2)){ //关系相同时
                     if(deplem1.equals(deplem2)){ //dependency原形相同
                         if(govlem1.equals(govlem2)){ //governor原形相同
-                            String[] rela_value = {relation1,"5"};
-                            simi.add(rela_value);
+                            if(anc1.equals(anc2)){ //LCA相同
+                                if(dist == 0){ //距离相同
+                                    String[] rela_value = {relation1,"5"};
+                                    simi.add(rela_value);
+                                }
+                                else if(dist <= 5){ //距离相近，降低关系值
+                                    String[] rela_value = {relation1,"3"};
+                                    simi.add(rela_value);
+                                }
+                            }
                         }
                         else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
-                            String[] rela_value = {relation1,"4"};
-                            simi.add(rela_value);
+                            if(anc1.equals(anc2)){ //LCA相同
+                                if(dist == 0){
+                                    String[] rela_value = {relation1,"4"};
+                                    simi.add(rela_value);
+                                }
+                                else if(dist <= 5){
+                                    String[] rela_value = {relation1,"2"};
+                                    simi.add(rela_value);
+                                }
+                            }
                         }
                         else{  //governor不同
-                            String[] rela_value = {relation1,"3"};
-                            simi.add(rela_value);
+                            if(anc1.equals(anc2)){
+                                if(dist == 0){
+                                    String[] rela_value = {relation1,"3"};
+                                    simi.add(rela_value);
+                                }
+                                else if(dist <= 5){
+                                    String[] rela_value = {relation1,"1"};
+                                    simi.add(rela_value);
+                                }
+                            }
                         }
                     } 
                     else if(govlem1.equals(govlem2)){ //governor原形相同
                         if(deppos1.equals(deppos2)){ //dependency原形不同，词性相同
-                            String[] rela_value = {relation1,"4"};
-                            simi.add(rela_value);
+                            if(anc1.equals(anc2)){
+                                if(dist == 0){
+                                    String[] rela_value = {relation1,"4"};
+                                    simi.add(rela_value);
+                                }
+                                else if(dist <= 5){
+                                    String[] rela_value = {relation1,"2"};
+                                    simi.add(rela_value);
+                                }
+                            }
                         }
                         else{ //dependency不同
-                            String[] rela_value = {relation1,"3"};
-                            simi.add(rela_value);
+                            if(anc1.equals(anc2)){
+                                if(dist == 0){
+                                    String[] rela_value = {relation1,"3"};
+                                    simi.add(rela_value);
+                                }
+                                else if(dist <= 5){
+                                    String[] rela_value = {relation1,"1"};
+                                    simi.add(rela_value);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+        
+        for(int k = 0;k<simi.size();k++){
+            String[] a = simi.get(k);
+            System.out.println(a[0]+"\t"+a[1]);
+        }
+        
         return simi;
     }
      
    /**
-     * 判断某节点的兄弟节点hash值是否均已知
+     * (舍)判断某节点的兄弟节点hash值是否均已知
      * @param node 所判断的节点
      * @param root 所判断节点所在树的根节点
      * @return  均已知则返回ture，否则为false
@@ -295,7 +376,7 @@ public class Standfordnlp {
         return true;
     }    
     /**
-     * 计算该节点的父节点hash值
+     * (舍)计算该节点的父节点hash值
      * @param node 待计算节点的子节点
      * @param root 待计算节点所在树的根节点
      * @return  待计算节点hash值
@@ -313,7 +394,7 @@ public class Standfordnlp {
         return value;
     }    
     /**
-     * 将语法树解析为hash值数组并转化为字符串
+     * (舍)将语法树解析为hash值数组并转化为字符串
      * @param tree  评论的句法树
      * @return  经解析后转化的字符串
      */
@@ -403,7 +484,7 @@ public class Standfordnlp {
         return ast_str;
     }
     /**
-     * 获取树中除叶子节点外的其他所有有父亲的节点
+     * (舍)获取树中除叶子节点外的其他所有有父亲的节点
      * @param tree
      * @return 树中除叶子节点和Root外的其他节点list
      */
@@ -420,7 +501,7 @@ public class Standfordnlp {
         return list;
     }
     /**
-     * 计算语法树相似度
+     * (舍)计算语法树相似度
      * @param a 语法树所代表的字符串a
      * @param b 语法树所代表的字符串b
      * @return 两棵语法树的相似度

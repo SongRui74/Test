@@ -40,19 +40,11 @@ public class Test {
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
     */
+        //Your happy passer-by all knows, my distressed there is no place hides.
         Standfordnlp t = new Standfordnlp(); 
-        String s = "App don't work.";
-    //    t.FeedbacktoTree(s);
-    //    System.out.println("1）\"App don't work.\"的语法树");
-        t.FeedbacktoDep(s);
-        System.out.println("1）\"App don't work.\"的依存关系");
-        t.LCA(s, "work", "do");
-    /*    
-        String s2 = "App can't work.";
-        t.FeedbacktoTree(s2);
-        System.out.println("1）\"App can't work.\"的语法树");
-        t.FeedbacktoDep(s2);
-        System.out.println("1）\"App can't work.\"的依存关系");
+        String s = "App don't work.";        
+        String s2 = "App can't open and don't work."; 
+        t.CalSimi(s, s2);
                 
     //    t.getNodeHashList();
     /*    String a = t.TreetoString(tree);
