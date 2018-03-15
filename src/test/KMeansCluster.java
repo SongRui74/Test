@@ -11,6 +11,11 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -21,18 +26,18 @@ import java.util.logging.Logger;
  * @author dell-pc
  */
 class point{
-    public String t = null; //语法树
+//    public String t = null; //语法树
     public String r = null; //用户评论
     public String c = null; //类别
     public int flag = -1;  //标记
     
-    public String getT(){
+/*    public String getT(){
         return t;
     }
     public void setT(String t){
         this.t = t;
     }
-    
+*/    
     public String getC(){
         return c;
     }
@@ -58,16 +63,16 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 0.40; //迭代停止时的新旧质心相似程度
+    double stopsim = 4; //迭代停止时的新旧质心相似程度
     SQL s = new SQL();
-    
-    
+    Standfordnlp nlp = new Standfordnlp();
+  
     point[][] pop;//种群
     int[] count;//种群规模
-    int IterNum = 10;//遗传迭代次数
-    double crossrate = 0.60;//交叉率
-    double mutarate = 0.01;//突变率    
-    float[] bestfitness;//最优解，即最大距离和
+//    int IterNum = 10;//遗传迭代次数
+//    double crossrate = 0.60;//交叉率
+ //   double mutarate = 0.01;//突变率    
+    double[] bestfitness;//最优解，即最大距离和
     point[] best; //最优染色体
     
     /**
@@ -89,10 +94,10 @@ public class KMeansCluster {
             rs.first();//读取数据库第一行记录
             for(int i = 0;i < num ;i++){   
                 data[i] = new point();// 对象创建
-                String ast = rs.getString("ast");
+            //    String ast = rs.getString("ast");
                 String classes = rs.getString("classes");
                 String content = rs.getString("Review_Content");
-                data[i].setT(ast);
+            //    data[i].setT(ast);
                 data[i].setC(classes);
                 data[i].setR(content);
                 rs.next();
@@ -140,7 +145,7 @@ public class KMeansCluster {
         for(int i = 0; i < center;i++){
             int thistemp = temp[i];
             old_center[i] = new point();
-            old_center[i].t = data[thistemp].t;
+        //    old_center[i].t = data[thistemp].t;
             old_center[i].r = data[thistemp].r;
             old_center[i].c = data[thistemp].c;
             old_center[i].flag = 0; //0表示聚类中心
@@ -148,7 +153,8 @@ public class KMeansCluster {
        
         System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
-            System.out.println(old_center[i].t);
+        //    System.out.println(old_center[i].t);
+            System.out.println(old_center[i].r);
         }
     }
     
@@ -157,13 +163,16 @@ public class KMeansCluster {
      */
     public void Classified(){
         for(int i =0;i<data.length;i++){
-            float dist = 999;
+            double dist = 999;
             int lable = -1;
             for(int j = 0;j < old_center.length;j++){
-                if(old_center[j].t == null){ //种群为空导致质心为空
+            /*    if(old_center[j].t == null){ //种群为空导致质心为空
+                    continue;
+                }*/
+                if(old_center[j].r == null){ //种群为空导致质心为空
                     continue;
                 }
-                float distance = Similarity(data[i],old_center[j]);
+                double distance = Similarity(data[i],old_center[j]);
                 if(distance < dist){
                     dist = distance;
                     lable = j;
@@ -176,8 +185,8 @@ public class KMeansCluster {
     /**
      * 生成新的质心
      */
-    public void GenCenter(){
-        bestfitness = new float[old_center.length]; //记录最优适应度
+    public void GenCenter(){   
+        bestfitness = new double[old_center.length]; //记录最优适应度
         best = new point[old_center.length]; //记录最优染色体
         
         for(int i = 0 ; i < old_center.length; i++){
@@ -186,22 +195,28 @@ public class KMeansCluster {
         }
         
         InitPop();  //初始化种群
-        for(int i = 0; i < IterNum; i++){
+        SelectMax(); //选择最优染色体
+        
+    /*    for(int i = 0; i < IterNum; i++){
             Select();
             Cross();
             Mutation();
         //    System.out.println("//////////"+i+"次遗传完成");
         }
+        */
+        
         //记录新的质心
         System.out.println("新质心：");
         for(int i = 0;i < old_center.length;i++){
             new_center[i] = new point();
-            new_center[i].t = best[i].t;
+        //    new_center[i].t = best[i].t;
             new_center[i].r = best[i].r;
             new_center[i].c = best[i].c;
             new_center[i].flag = 0;
-            if(new_center[i].t != null)
-                System.out.println("第"+i+"个质心为："+new_center[i].t);
+        /*    if(new_center[i].t != null)
+                System.out.println("第"+i+"个质心为："+new_center[i].t);*/
+            if(new_center[i].r != null)
+                System.out.println("第"+i+"个质心为："+new_center[i].r);
         }
     }
     
@@ -211,11 +226,21 @@ public class KMeansCluster {
      * @param b 染色体b
      * @return 两染色体所代表的树的相似度
      */    
-    public Float Similarity(point a, point b){
-        float sim = 0;
-        String t1 = a.t;
-        String t2 = b.t;
-        String[] aa = t1.split("\\,");
+    public Double Similarity(point a, point b){
+        double sim = 0;
+        String t1 = a.r;
+        String t2 = b.r;
+        
+        List simi = nlp.CalSimi(t1, t2); //获取依存关系及对应数值的相似度列表
+        List vec = nlp.SimiVector(simi);
+        
+        int sum = 0;
+        for(int i = 0; i < vec.size(); i++){
+            int val = (int) vec.get(i);
+            sum += val*val;
+        }        
+        sim = Math.sqrt(sum);
+    /*    String[] aa = t1.split("\\,");
         String[] bb = t2.split("\\,");
         int temp = 0;
         for(int i = 0; i < aa.length; i++){
@@ -232,8 +257,8 @@ public class KMeansCluster {
         }
         int same = temp;
         int sum = aa.length + bb.length;
-    //    int min = Math.min(aa.length, bb.length);
         sim = (float)same/sum;
+        */
         return sim;
     }
     
@@ -244,7 +269,7 @@ public class KMeansCluster {
      */
     public void RenewOldCenter(point[] old, point[] news) {
         for (int i = 0; i < old.length; i++) {
-            old[i].t = news[i].t;
+        //    old[i].t = news[i].t;
             old[i].r = news[i].r;
             old[i].c = news[i].c;
             old[i].flag = 0;// 表示为聚类中心的标志。
@@ -257,11 +282,14 @@ public class KMeansCluster {
     int clustercount = 1;
     public void Iteration(){
         int stop = -1;  //迭代停止的标志
-        float dist = 0;  //新旧质心相似度
+        double dist = 0;  //新旧质心相似度
         this.Classified();//各数据归类
         this.GenCenter();//重新计算聚类中心
         for(int i = 0;i < old_center.length; i++){
-            if( new_center[i].t == null){
+        /*    if( new_center[i].t == null){
+                continue;
+            }*/
+            if( new_center[i].r == null){
                 continue;
             }
             dist = this.Similarity(old_center[i], new_center[i]);
@@ -293,7 +321,8 @@ public class KMeansCluster {
         int num = s.GetDataNum(table_name);
         count = new int[old_center.length];        
         for(int i =0;i < old_center.length ; i++){
-            System.out.println("聚类中心："+old_center[i].t);
+        //    System.out.println("聚类中心："+old_center[i].t);
+            System.out.println("聚类中心："+old_center[i].r);
             int Demand = 0;
             int Invalid = 0;
             int Overview = 0;
@@ -365,6 +394,7 @@ public class KMeansCluster {
     /**
      * 定义初始种群
      */
+    
     public void InitPop(){
         count = new int[old_center.length];//存放各种群的规模
         pop = new point[old_center.length][];
@@ -383,7 +413,8 @@ public class KMeansCluster {
             for (int j = 0; j < data.length; j++) { //初始化种群
                 if (data[j].flag == (i + 1)) {
                     pop[i][k] = new point();
-                    pop[i][k].t = data[j].t; 
+                //    pop[i][k].t = data[j].t; 
+                    pop[i][k].r = data[j].r; 
                     pop[i][k].c = data[j].c; 
                     pop[i][k].flag = data[j].flag;
                     k++;
@@ -393,9 +424,34 @@ public class KMeansCluster {
     //    System.out.println("初始化完成");
     }
     /**
+     * 选择与其他评论相似度最高的个体
+     */    
+    public void SelectMax(){
+        double[][] d = new double[old_center.length][]; //记录种群中每条染色体的适应值        
+        for(int i = 0; i < old_center.length ; i++){            
+            if(pop[i].length == 0){ //种群为空
+                continue;
+            }            
+            d[i] = new double[pop[i].length]; //记录种群中每条染色体的适应值                        
+            for(int j = 0; j < pop[i].length ; j++){
+                for(int k = 0; k < pop[i].length; k++){
+                    if(pop[i][j] != pop[i][k])
+                        d[i][j] += Similarity(pop[i][j],pop[i][k]);//计算适应值，即一个种群中每个染色体到其他染色体的距离并求和
+                }
+                if(d[i][j] > bestfitness[i]){     //记录最大值
+                    bestfitness[i] = d[i][j];
+                //    best[i].t = pop[i][j].t;
+                    best[i].r = pop[i][j].r;
+                    best[i].c = pop[i][j].c;
+                    best[i].flag = pop[i][j].flag;
+                }
+            }           
+        }
+    }
+    /**
      * 轮盘赌法选择
      */
-    
+    /*
     public void Select(){
         
         float[][] d = new float[old_center.length][]; //记录种群中每条染色体的适应值
@@ -420,7 +476,7 @@ public class KMeansCluster {
                 }
                 if(d[i][j] > bestfitness[i]){     //记录最大值
                     bestfitness[i] = d[i][j];
-                    best[i].t = pop[i][j].t;
+                //    best[i].t = pop[i][j].t;
                     best[i].c = pop[i][j].c;
                     best[i].flag = pop[i][j].flag;
                 }
@@ -439,14 +495,14 @@ public class KMeansCluster {
             for(int j = 0; j < pop[i].length; j++){ //选择概率高的染色体进入下一代
                 double r = Math.random();
                 if( r <= q[i][0]){
-                    pop[i][j].t = pop[i][0].t;
+                //    pop[i][j].t = pop[i][0].t;
                     pop[i][j].c = pop[i][0].c;
                     pop[i][j].flag = pop[i][0].flag;
                 }
                 else{
                     for(int k = 1; k < pop[i].length; k++){
                         if(r < q[i][k]){
-                            pop[i][j].t = pop[i][k].t;
+                        //    pop[i][j].t = pop[i][k].t;
                             pop[i][j].c = pop[i][k].c;
                             pop[i][j].flag = pop[i][k].flag;
                             break;
@@ -457,9 +513,11 @@ public class KMeansCluster {
         }
     //    System.out.println("选择完成");
     }
+    */
     /**
      * 交叉
      */
+    /*
     public void Cross(){
         Random rand = new Random(); 
         for(int i = 0; i < old_center.length ; i++){
@@ -498,9 +556,11 @@ public class KMeansCluster {
         }
     //    System.out.println("交叉完成");
     }
+    */
     /**
      * 变异
      */ 
+    /*
     public void Mutation(){
         Random rand = new Random(); 
         for(int i = 0; i < old_center.length; i++){            
@@ -548,5 +608,6 @@ public class KMeansCluster {
         }
     //    System.out.println("变异完成");
     }
+    */
     
 }

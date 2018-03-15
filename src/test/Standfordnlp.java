@@ -111,7 +111,8 @@ public class Standfordnlp {
     public Tree FeedbacktoTree(String str){  
         Tree tree = null;
         Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+    //    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+        props.put("annotators", "tokenize, ssplit,pos, lemma, ner, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation document = new Annotation(str);
         pipeline.annotate(document);
@@ -138,7 +139,8 @@ public class Standfordnlp {
     public List FeedbacktoDep(String str){  
         Properties props = new Properties();
         //分词（tokenize）、分句（ssplit）、词性标注（pos）、词形还原（lemma）、命名实体识别（ner）、语法解析（parse）、情感分析（sentiment）、指代消解（coreference resolution）
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+    //    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+        props.put("annotators", "tokenize, ssplit,pos, lemma, ner, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation document = new Annotation(str);
         pipeline.annotate(document);
@@ -147,7 +149,7 @@ public class Standfordnlp {
         for(CoreMap sentence: sentences) {
             SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
             list = dependencies.edgeListSorted(); //依存关系list
-            System.out.println(dependencies.toList());
+        //    System.out.println(dependencies.toList());
         }
         return list;
     }
@@ -400,16 +402,48 @@ public class Standfordnlp {
                 rela_value[1] = Integer.toString(val);
             }
             simi.add(rela_value); //添加到相似度列表中
+        }       
+    /*    
+        for(String[] a :simi){
+            System.out.println(a[0] + "\t" + a[1]);
         }
-        //去掉重复
-        for(int k = 0;k<simi.size();k++){
-            String[] a = simi.get(k);
-            System.out.println(a[0]+"\t"+a[1]);
-        }
-        
+    */    
         return simi;
     }
      
+    /**
+     * 计算依存关系数值向量（重复的关系值累加）
+     * @param simi 依存关系和对应数值列表
+     * @return 仅含数值的列表
+     */
+    public List SimiVector(List simi){
+        List<Integer> vector = new ArrayList();
+        Map<String,Integer> simi_value = new HashMap(); //存储数值        
+        for(int i = 0; i < simi.size(); i++){
+            String[] rela_value = (String[]) simi.get(i);
+            String key = rela_value[0];
+            int value = Integer.parseInt(rela_value[1]);
+            if(!simi_value.containsKey(key)){
+                simi_value.put(key, value);
+            }
+            else{
+                int temp = simi_value.get(key);
+                int new_val = value + temp;
+                simi_value.put(key, new_val);
+            }
+        }
+        
+        for(String k : simi_value.keySet()){ 
+            int val = simi_value.get(k);
+            vector.add(val);
+        }        
+    /*    for(int a :vector){
+            System.out.println(a);
+        }
+        */
+        return vector;
+    }
+    
    /**
      * (舍)判断某节点的兄弟节点hash值是否均已知
      * @param node 所判断的节点

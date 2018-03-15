@@ -14,16 +14,16 @@ import java.util.List;
  */
 public class Test {
     
-    private static final String table_name = "test2";
+    private static final String table_name = "test100";
          
     public static void main(String[] args) throws Exception{
               
-    /*    KMeansCluster km = new KMeansCluster();
+        KMeansCluster km = new KMeansCluster();
         km.ImportData(table_name);
         km.ChooseCenter(table_name);
         km.Iteration();
         km.ResultOut(table_name);
-    */   
+       
     /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
@@ -41,10 +41,11 @@ public class Test {
         s.RemarkNumberofWords(table_name, col);//标记单词数
     */
         //Your happy passer-by all knows, my distressed there is no place hides.
-        Standfordnlp t = new Standfordnlp(); 
+    /*    Standfordnlp t = new Standfordnlp(); 
         String s = "App don't work.";        
         String s2 = "App can't open and don't work."; 
-        t.CalSimi(s, s2);
+        List a = t.CalSimi(s2, s);
+        t.SimiVector(a);
                 
     //    t.getNodeHashList();
     /*    String a = t.TreetoString(tree);
