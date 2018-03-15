@@ -45,6 +45,7 @@ public class Test {
         String s = "App don't work.";        
         String s2 = "App can't open and don't work."; 
         t.CalSimi(s, s2);
+        System.out.println("aa");
                 
     //    t.getNodeHashList();
     /*    String a = t.TreetoString(tree);
