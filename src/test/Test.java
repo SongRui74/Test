@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Test {
     
-    private static final String table_name = "test100";
+    private static final String table_name = "test50";
          
     public static void main(String[] args) throws Exception{
               
@@ -42,11 +42,15 @@ public class Test {
     */
         //Your happy passer-by all knows, my distressed there is no place hides.
     /*    Standfordnlp t = new Standfordnlp(); 
-        String s = "App don't work.";        
-        String s2 = "App can't open and don't work."; 
-        List a = t.CalSimi(s2, s);
+        String s1 = "App don't work..";        
+        String s2 = "App can't open and don't work!"; 
+        List l1 = t.FeedbacktoDep(s1);
+        List l2 = t.FeedbacktoDep(s2);
+        Tree t1 = t.FeedbacktoTree(s1);
+        Tree t2 = t.FeedbacktoTree(s2);
+        List a = t.CalSimi(l1,l2,t1,t2);
         t.SimiVector(a);
-                
+    */            
     //    t.getNodeHashList();
     /*    String a = t.TreetoString(tree);
         

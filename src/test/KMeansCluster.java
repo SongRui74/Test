@@ -6,6 +6,7 @@
 
 package test;
 
+import edu.stanford.nlp.trees.Tree;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -60,13 +61,17 @@ public class KMeansCluster {
     private final String userPwd = "123456"; 
     private Connection conn;  
     
+    private final Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
+    private final Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
+    
+    SQL s = new SQL();
+    Standfordnlp nlp = new Standfordnlp();
+    
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
     double stopsim = 4; //迭代停止时的新旧质心相似程度
-    SQL s = new SQL();
-    Standfordnlp nlp = new Standfordnlp();
-  
+ 
     point[][] pop;//种群
     int[] count;//种群规模
 //    int IterNum = 10;//遗传迭代次数
@@ -74,7 +79,7 @@ public class KMeansCluster {
  //   double mutarate = 0.01;//突变率    
     double[] bestfitness;//最优解，即最大距离和
     point[] best; //最优染色体
-    
+   
     /**
      * 从某表中导入数据
      * @param table_name 表名
@@ -100,6 +105,13 @@ public class KMeansCluster {
             //    data[i].setT(ast);
                 data[i].setC(classes);
                 data[i].setR(content);
+                //解析语法树和依存关系存入相应的map中
+                Tree temptree = nlp.FeedbacktoTree(content);
+                List templist = nlp.FeedbacktoDep(content);
+                
+                treemap.put(content, temptree);
+                listmap.put(content, templist);
+                
                 rs.next();
             }
             rs.close();
@@ -126,8 +138,8 @@ public class KMeansCluster {
         Random rand = new Random();
         //产生不重复的随机数
         int[] temp = new int[center];
-        int count = 0;
-        while(count < center){
+        int rancount = 0;
+        while(rancount < center){
             int thistemp = rand.nextInt(num);
             boolean flag = true;
             for(int i = 0;i < center; i++){
@@ -137,8 +149,8 @@ public class KMeansCluster {
                 }
             }
             if(flag){
-                temp[count] = thistemp;
-                count++;
+                temp[rancount] = thistemp;
+                rancount++;
             }
         }
         //生成聚类中心      
@@ -154,7 +166,7 @@ public class KMeansCluster {
         System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
         //    System.out.println(old_center[i].t);
-            System.out.println(old_center[i].r);
+            System.out.println(old_center[i].r + "\t" + old_center[i].c);
         }
     }
     
@@ -195,8 +207,7 @@ public class KMeansCluster {
         }
         
         InitPop();  //初始化种群
-        SelectMax(); //选择最优染色体
-        
+        SelectMax(); //选择最优染色体        
     /*    for(int i = 0; i < IterNum; i++){
             Select();
             Cross();
@@ -216,7 +227,7 @@ public class KMeansCluster {
         /*    if(new_center[i].t != null)
                 System.out.println("第"+i+"个质心为："+new_center[i].t);*/
             if(new_center[i].r != null)
-                System.out.println("第"+i+"个质心为："+new_center[i].r);
+                System.out.println("第"+i+"个质心为："+new_center[i].r +"\t"+ new_center[i].c);
         }
     }
     
@@ -228,15 +239,21 @@ public class KMeansCluster {
      */    
     public Double Similarity(point a, point b){
         double sim = 0;
-        String t1 = a.r;
+        String t1 = a.r; //获取两条评论内容
         String t2 = b.r;
         
-        List simi = nlp.CalSimi(t1, t2); //获取依存关系及对应数值的相似度列表
+        Tree tree1 = treemap.get(t1);  //找到对应的树和依存关系
+        Tree tree2 = treemap.get(t2);
+        
+        List list1 = listmap.get(t1);
+        List list2 = listmap.get(t2);
+                
+        List simi = nlp.CalSimi(list1, list2,tree1,tree2); //获取依存关系及对应数值的相似度列表
         List vec = nlp.SimiVector(simi);
         
         int sum = 0;
         for(int i = 0; i < vec.size(); i++){
-            int val = (int) vec.get(i);
+            double val = (double) vec.get(i);
             sum += val*val;
         }        
         sim = Math.sqrt(sum);
