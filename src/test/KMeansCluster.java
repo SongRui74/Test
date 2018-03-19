@@ -70,7 +70,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 4; //迭代停止时的新旧质心相似程度
+    double stopsim = 6; //迭代停止时的新旧质心相似程度
  
     point[][] pop;//种群
     int[] count;//种群规模

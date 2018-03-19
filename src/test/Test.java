@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Test {
     
-    private static final String table_name = "test50";
+    private static final String table_name = "test100";
          
     public static void main(String[] args) throws Exception{
               

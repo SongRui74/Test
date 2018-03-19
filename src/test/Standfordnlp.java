@@ -223,9 +223,6 @@ public class Standfordnlp {
                 if(relation1.equals(relation2)){ //关系相同时
                     if(deplem1.equals(deplem2)){ //dependency原形相同
                         if(govlem1.equals(govlem2)){ //governor原形相同
-                            //解析为语法树
-                        //    Tree tree1 = this.FeedbacktoTree(str1); 
-                        //    Tree tree2 = this.FeedbacktoTree(str2);
                             //分别获取LCA节点
                             String anc1 = this.LCA(tree1, dep1, gov1);
                             String anc2 = this.LCA(tree2, dep2, gov2);
@@ -235,20 +232,20 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){ //距离相同
-                                    rela_value[1] = "5";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "7";
                                 }
                                 else if(dist <= 5){ //距离相近，降低关系值
-                                    //若已计算过此关系
-                                    rela_value[1] = "3";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "6";
                                 }
+                                else{ //距离较远，降低关系值
+                                    rela_value[1] = "5";
+                                }
+                            }
+                            else{ //LCA不同
+                                rela_value[1] = "4";
                             }
                         }
                         else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
-                            //解析为语法树
-                        //    Tree tree1 = this.FeedbacktoTree(str1); 
-                        //    Tree tree2 = this.FeedbacktoTree(str2);
                             //分别获取LCA节点
                             String anc1 = this.LCA(tree1, dep1, gov1);
                             String anc2 = this.LCA(tree2, dep2, gov2);
@@ -258,43 +255,25 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    rela_value[1] = "4";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "6";
                                 }
                                 else if(dist <= 5){
-                                    rela_value[1] = "2";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "5";
                                 }
+                                else{
+                                    rela_value[1] = "4";
+                                }
+                            }
+                            else{
+                                rela_value[1] = "3";
                             }
                         }
                         else{  //governor不同
-                            //解析为语法树
-                        //    Tree tree1 = this.FeedbacktoTree(str1); 
-                        //    Tree tree2 = this.FeedbacktoTree(str2);
-                            //分别获取LCA节点
-                            String anc1 = this.LCA(tree1, dep1, gov1);
-                            String anc2 = this.LCA(tree2, dep2, gov2);
-                            if(anc1.equals(anc2)){
-                                //分别获取距离LCA的路径之和
-                                int path1 = this.Path(tree1, dep1, gov1);
-                                int path2 = this.Path(tree2, dep2, gov2);
-                                int dist = Math.abs(path1-path2); //计算两路径距离差
-                                if(dist == 0){
-                                    rela_value[1] = "3";
-                                //    simi.add(rela_value);
-                                }
-                                else if(dist <= 5){
-                                    rela_value[1] = "1";
-                                //    simi.add(rela_value);
-                                }
-                            }
+                            rela_value[1] = "1";
                         }
                     } 
                     else if(govlem1.equals(govlem2)){ //governor原形相同
                         if(deppos1.equals(deppos2)){ //dependency原形不同，词性相同
-                            //解析为语法树
-                        //    Tree tree1 = this.FeedbacktoTree(str1); 
-                        //    Tree tree2 = this.FeedbacktoTree(str2);
                             //分别获取LCA节点
                             String anc1 = this.LCA(tree1, dep1, gov1);
                             String anc2 = this.LCA(tree2, dep2, gov2);
@@ -304,36 +283,45 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    rela_value[1] = "4";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "6";
                                 }
                                 else if(dist <= 5){
-                                    rela_value[1] = "2";
-                                //    simi.add(rela_value);
+                                    rela_value[1] = "5";
                                 }
+                                else{
+                                    rela_value[1] = "4";
+                                }
+                            }
+                            else{
+                                rela_value[1] = "3";
                             }
                         }
                         else{ //dependency不同
-                            //解析为语法树
-                        //    Tree tree1 = this.FeedbacktoTree(str1); 
-                        //    Tree tree2 = this.FeedbacktoTree(str2);
-                            //分别获取LCA节点
-                            String anc1 = this.LCA(tree1, dep1, gov1);
-                            String anc2 = this.LCA(tree2, dep2, gov2);
-                            if(anc1.equals(anc2)){
-                                //分别获取距离LCA的路径之和
-                                int path1 = this.Path(tree1, dep1, gov1);
-                                int path2 = this.Path(tree2, dep2, gov2);
-                                int dist = Math.abs(path1-path2); //计算两路径距离差
-                                if(dist == 0){
-                                    rela_value[1] = "3";
-                                //    simi.add(rela_value);
-                                }
-                                else if(dist <= 5){
-                                    rela_value[1] = "1";
-                                //    simi.add(rela_value);
-                                }
+                            rela_value[1] = "1";
+                        }
+                    }
+                    //仅两词词性相同
+                    else if(deppos1.equals(deppos2)&&govpos1.equals(govpos2)){  
+                        //分别获取LCA节点
+                        String anc1 = this.LCA(tree1, dep1, gov1);
+                        String anc2 = this.LCA(tree2, dep2, gov2);
+                        if(anc1.equals(anc2)){
+                            //分别获取距离LCA的路径之和
+                            int path1 = this.Path(tree1, dep1, gov1);
+                            int path2 = this.Path(tree2, dep2, gov2);
+                            int dist = Math.abs(path1-path2); //计算两路径距离差
+                            if(dist == 0){
+                                rela_value[1] = "4";
                             }
+                            else if(dist <= 5){
+                                rela_value[1] = "3";
+                            }
+                            else{
+                                rela_value[1] = "2";
+                            }
+                        }  
+                        else{ //LCA不同
+                            rela_value[1] = "1";
                         }
                     }
                 }
@@ -355,7 +343,7 @@ public class Standfordnlp {
     }
      
     /**
-     * 计算依存关系数值向量（重复的关系值累加）
+     * 计算依存关系数值向量（重复的关系值均值？）
      * @param simi 依存关系和对应数值列表
      * @return 仅含数值的列表
      */
