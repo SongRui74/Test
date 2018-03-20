@@ -266,8 +266,8 @@ public class SQL {
             //  System.out.println("Connection Successful!");
             rs=stmt.executeQuery("SELECT Review_Content FROM "+table_name);  
             while(rs.next()){          
-                if (rs.getString("Review_Content").contains(".")){
-                    String[] numdot = rs.getString("Review_Content").split("\\.");
+                if (rs.getString("Review_Content").contains(".")||rs.getString("Review_Content").contains("!")||rs.getString("Review_Content").contains("?")){
+                    String[] numdot = rs.getString("Review_Content").split("\\.|!|\\?");
                     if(numdot.length>1){
                         LongTexttoShort(rs,table_name);
                     }

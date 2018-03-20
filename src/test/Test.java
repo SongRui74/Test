@@ -14,9 +14,8 @@ import java.util.List;
  */
 public class Test {
     
-    private static final String table_name = "t12";
+    private static final String table_name = "cpy";
     
-    //t4,
     /**
      * 对给定表的评论数据聚类
      */
@@ -138,11 +137,11 @@ public class Test {
     public static void main(String[] args) throws Exception{
               
         SQL s = new SQL();
-        s.SqltoShort(table_name);//批量将长文本化为单句
+    //    s.SqltoShort(table_name);//批量将长文本化为单句
     //    s.DealNullData(table_name);//删除无英文字母的无效评论
-    /*    String col = "num";
+        String col = "num";
         String type = "int";
-        s.AddColumn(table_name,col, type);//添加单词数目列
+    //    s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
     
         //Your happy passer-by all knows, my distressed there is no place hides.
