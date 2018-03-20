@@ -34,8 +34,9 @@ public class SQL {
      * 标记文本属性特征
      * @param table_name 表名
      * @param col 列名
+     * @param str 特征字符串
      */
-    public void RemarkTextFeature(String table_name,String col){
+    public void RemarkTextFeature(String table_name,String col,String str){
         try {             
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
@@ -46,11 +47,18 @@ public class SQL {
             
             rs=stmt.executeQuery("SELECT * FROM "+table_name);  
                 
-            //循环标记ast
+            int num = 0;//记录评论中是否包含该特征
+            //循环标记
             while(rs.next()){                                            
                 /*文本特征判断*/
-                /******************待改**************/
-                int num = this.NumberofWords(rs.getString("Review_Content"));          
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();//转化为小写
+                if(content.contains(str)){
+                    num = 1; //存在该特征记为1
+                }  
+                else{
+                    num = 0; 
+                }
                 /*写入数据库中*/
                 String sql = UpdateSql(rs,table_name,col,num);
                 stmt2.executeUpdate(sql);
@@ -114,7 +122,7 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-        /**
+    /**
      * 获取表中数据数量
      * @param table 表名
      * @return 返回表中数据数量
@@ -144,6 +152,35 @@ public class SQL {
         return num;
     }
     
+    /**
+     * 获取表中字段数量
+     * @param table 表名
+     * @return 返回表中字段数量
+     */
+    public int GetColNum(String table){
+        int num = 0;
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);
+            
+            Statement stmt = conn.createStatement();
+            ResultSet rs;
+            String sql = null;
+            String tempcol = "a";            
+            sql = "select count(*) as "+ tempcol + " from syscolumns where id = object_id('"+table+"')";
+            rs = stmt.executeQuery(sql);
+            rs.next();
+            num = rs.getInt(tempcol);
+            
+            stmt.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return num;
+    }
     
     /**
      * 增加列
@@ -204,7 +241,7 @@ public class SQL {
             
             Statement stmt  = conn.createStatement();
             String sql = null;
-            sql = "delete from " + table +" where Review_Content not like '%[a-zA-Z]%'";
+            sql = "delete from " + table +" where Review_Content not like '%[a-zA-Z]%' or Review_Content not like '%[a-zA-Z]%'";
             stmt.executeUpdate(sql);
             
             stmt.close();
@@ -265,13 +302,13 @@ public class SQL {
             sql = "SELECT * FROM "+ table_name +" WHERE Review_Content = '" + old_content + "'"; 
             ResultSet rstemp = st.executeQuery(sql);
             rstemp.first();
-            String[] content_info = new String[5];            
+            String[] content_info = new String[4];            
             content_info[0] = rstemp.getString("APP_ID");
             content_info[1] = rstemp.getString("Reviewer_Name");
             content_info[2] = rstemp.getString("Rating");
             content_info[3] = rstemp.getString("Review_Title");
         //    content_info[4] = rstemp.getString("Review_Content");
-            content_info[4] = rstemp.getString("classes");
+        //    content_info[4] = rstemp.getString("classes");
             //处理单引号
             for (int i = 0;i<content_info.length;i++) {
                 content_info[i] = SqlSingleQuote(content_info[i]);
@@ -284,8 +321,9 @@ public class SQL {
             for(int i=1;i<new_contents.length;i++){
                 sql = "INSERT INTO "+ table_name +" VALUES ('"+ content_info[0] +"', '" 
                         + content_info[1] + "','"+ content_info[2] +"', '"
-                        + content_info[3] + "','"+ new_contents[i] +"', '"
-                        + content_info[4] +"')";
+                        + content_info[3] + "','"+ new_contents[i] +"')";
+                    //    + content_info[3] + "','"+ new_contents[i] +"', '"
+                    //    + content_info[4] +"')";
                 st2.executeUpdate(sql);
             }                        
             st.close();
@@ -295,7 +333,7 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }        
         
-    }    
+    }        
     /**
      * 更改数据库查询语句
      * @param rs

@@ -207,7 +207,7 @@ public class Standfordnlp {
             String dep1 = s1.getDependent().word(); //评论一dependent单词
             String gov1 = s1.getGovernor().word();
                         
-            String[] rela_value = {relation1,"0"};  //记录关系及数值
+            String[] rela_value = {relation1,"0"};  //记录关系及数值，初始为0
             int temp = -99; //记录相同关系中的最大值，即匹配度最高的关系
             
             for(int j = 0; j < list2.size(); j++){

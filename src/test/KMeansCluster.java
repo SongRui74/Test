@@ -309,7 +309,7 @@ public class KMeansCluster {
             if( new_center[i].r == null){
                 continue;
             }
-            dist = this.Similarity(old_center[i], new_center[i]);
+            dist = this.Similarity(new_center[i],old_center[i]);
             System.out.println("第"+i+"个新旧质心相似度："+dist);
             if(dist >= stopsim){   //每个质心都满足停止条件
                 stop = 0;
