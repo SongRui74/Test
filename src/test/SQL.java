@@ -6,6 +6,8 @@
 
 package test;
 
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.trees.Tree;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +18,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,13 +35,146 @@ public class SQL {
     private final String userPwd = "123456"; 
     private Connection conn;    
     
+    Standfordnlp nlp = new Standfordnlp();  
     /**
-     * 标记文本属性特征
+     * 记录评论解析后的句法树
+     * @param table_name 
+     * @return  评论-句法树Map
+     */
+    public Map<String,Tree> RecordTreeMap(String table_name){
+        Map<String,Tree> treemap = new HashMap();
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY); 
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                           
+            //循环记录
+            while(rs.next()){                                            
+                /*文本转化为树和依存关系列表*/
+                String content = rs.getString("Review_Content");
+                Tree tree_value = nlp.FeedbacktoTree(content);
+                List dep_value = nlp.FeedbacktoDep(content);
+                /*写入map中*/
+                treemap.put(content, tree_value);               
+            }
+            rs.close();
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return treemap;
+    }
+    
+    /**
+     * 记录评论解析后的依存关系列表
+     * @param table_name 
+     * @return  评论-依存关系列表Map
+     */
+    public Map<String,List> RecordDepMap(String table_name){
+        Map<String,List> listmap = new HashMap();
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY); 
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                           
+            //循环记录
+            while(rs.next()){                                            
+                /*文本转化为树和依存关系列表*/
+                String content = rs.getString("Review_Content");
+                Tree tree_value = nlp.FeedbacktoTree(content);
+                List dep_value = nlp.FeedbacktoDep(content);
+                /*写入map中*/
+                listmap.put(content, dep_value);                
+            }
+            rs.close();
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return listmap;
+    }
+    
+    /**
+     * 标记文本属性特征（句法树类-无效评论）
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param listmap 评论-依存关系map
+     */
+    public void RemarkInvaildFeature(String table_name,String col,Map treemap,Map listmap){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            Tregex regex = new Tregex();
+            int num = 0;//记录评论中是否包含该特征
+            //循环标记
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                String tempnum = rs.getString("num");
+                int wordnum = Integer.parseInt(tempnum); //评论单词数目
+                String content = rs.getString("Review_Content");
+                Tree t = (Tree) treemap.get(content);
+                //判断是否仅存在一个punct的关系
+                List l = (List) listmap.get(content);
+                int isPunct = 0;
+                if(l.size() == 1){
+                    SemanticGraphEdge s = (SemanticGraphEdge) l.get(0);
+                    String relation = s.getRelation().toString();
+                    if(relation.equals("punct")){
+                        isPunct = 1;
+                    }
+                }
+                int regexnum = regex.TregexInvalid(t); //单词解析成名词的数目
+                //若单词均解析为名词或只存在一个punct的依存关系则视为无效评论
+                if((wordnum == regexnum )|| isPunct == 1){ 
+                    num = 1; //存在该特征记为1
+                }  
+                else{
+                    num = 0; 
+                }
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }   
+    
+    /**
+     * 标记文本属性特征（单词类）
      * @param table_name 表名
      * @param col 列名
      * @param str 特征字符串
      */
-    public void RemarkTextFeature(String table_name,String col,String str){
+    public void RemarkWordFeature(String table_name,String col,String str){
         try {             
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库

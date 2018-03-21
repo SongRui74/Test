@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 
 
-public class Standfordnlp {
+public class Standfordnlp {    
 /*    private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
     private final String userName = "song"; 
@@ -191,9 +191,7 @@ public class Standfordnlp {
      * @param tree2  评论二的语法树
      * @return 两条评论的相似度
      */
-    public List CalSimi(List list1, List list2,Tree tree1,Tree tree2){        
-    //    List list1 = this.FeedbacktoDep(str1);  //解析为依存关系list
-    //    List list2 = this.FeedbacktoDep(str2);
+    public List CalSimi(List list1, List list2,Tree tree1,Tree tree2){ 
                 
         List<String[]> simi = new ArrayList();  //存放依存关系相似度
         
@@ -208,7 +206,7 @@ public class Standfordnlp {
             String gov1 = s1.getGovernor().word();
                         
             String[] rela_value = {relation1,"0"};  //记录关系及数值，初始为0
-            int temp = -99; //记录相同关系中的最大值，即匹配度最高的关系
+            double temp = -99; //记录相同关系中的最大值，即匹配度最高的关系
             
             for(int j = 0; j < list2.size(); j++){
                 SemanticGraphEdge s2 = (SemanticGraphEdge) list2.get(j);
@@ -242,7 +240,7 @@ public class Standfordnlp {
                                 }
                             }
                             else{ //LCA不同
-                                rela_value[1] = "4";
+                                rela_value[1] = "3";
                             }
                         }
                         else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
@@ -265,11 +263,11 @@ public class Standfordnlp {
                                 }
                             }
                             else{
-                                rela_value[1] = "3";
+                                rela_value[1] = "2";
                             }
                         }
                         else{  //governor不同
-                            rela_value[1] = "1";
+                            rela_value[1] = "0.5";
                         }
                     } 
                     else if(govlem1.equals(govlem2)){ //governor原形相同
@@ -293,11 +291,11 @@ public class Standfordnlp {
                                 }
                             }
                             else{
-                                rela_value[1] = "3";
+                                rela_value[1] = "2";
                             }
                         }
                         else{ //dependency不同
-                            rela_value[1] = "1";
+                            rela_value[1] = "0.5";
                         }
                     }
                     //仅两词词性相同
@@ -311,13 +309,13 @@ public class Standfordnlp {
                             int path2 = this.Path(tree2, dep2, gov2);
                             int dist = Math.abs(path1-path2); //计算两路径距离差
                             if(dist == 0){
-                                rela_value[1] = "4";
+                                rela_value[1] = "5";
                             }
                             else if(dist <= 5){
-                                rela_value[1] = "3";
+                                rela_value[1] = "4";
                             }
                             else{
-                                rela_value[1] = "2";
+                                rela_value[1] = "3";
                             }
                         }  
                         else{ //LCA不同
@@ -326,11 +324,12 @@ public class Standfordnlp {
                     }
                 }
                 //保存匹配度最高的关系数值
-                int val = Integer.parseInt(rela_value[1]);
+            //    int val = Integer.parseInt(rela_value[1]);
+                double val = Double.parseDouble(rela_value[1]);
                 if(val > temp){
                     temp = val;
                 }              
-                rela_value[1] = Integer.toString(val);
+                rela_value[1] = Double.toString(val);
             }
             simi.add(rela_value); //添加到相似度列表中
         }       
@@ -353,7 +352,7 @@ public class Standfordnlp {
         for(int i = 0; i < simi.size(); i++){
             String[] rela_value = (String[]) simi.get(i);
             String key = rela_value[0];
-            double value = Integer.parseInt(rela_value[1]);
+            double value = Double.parseDouble(rela_value[1]);
             if(!simi_value.containsKey(key)){
                 simi_value.put(key, value);
             }

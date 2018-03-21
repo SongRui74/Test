@@ -28,15 +28,44 @@ public class Classifiertest {
     public JTextArea txtJ48 = new JTextArea();
     public JTextArea txtNB = new JTextArea();
     
-    public void TestCluster() throws Exception{
+    public void TestJ48() throws Exception{
+        
+        //从数据库读取数据文件
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
         query.setPassword("123456");
-        query.setQuery("select * from test2");
+        query.setQuery("select * from test50");
+        txtJ48.append("数据库连接成功！\n");
+        
+        Classifier J48 = new J48();    
+        Instances d_Train = query.retrieveInstances();
+        Instances d_Test = query.retrieveInstances();        
+             
+        d_Train.setClassIndex(0); 
+        d_Test.setClassIndex(0); //设置分类属性所在行号（第一行为0号）
+        
+        J48.buildClassifier(d_Train);//训练
+        Evaluation eval = new Evaluation(d_Train);
+        eval.evaluateModel(J48, d_Test);//测试
+        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false));
+        System.out.println(eval.toClassDetailsString());
+        System.out.println(eval.toMatrixString());
+        
+        txtJ48.append("Classifier model:\tJ48\n");
+        txtJ48.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        txtJ48.append(eval.toClassDetailsString()+"\n");
+        txtJ48.append(eval.toMatrixString()+"\n");
+    
+    }
+    
+    public void TestCluster() throws Exception{
+        //从数据库读取数据文件
+        InstanceQuery query = new InstanceQuery();
+        query.setUsername("song");
+        query.setPassword("123456");
+        query.setQuery("select * from test50");
         Instances data = query.retrieveInstances();
-        /**
-         * 实现聚类
-         */
+        //实现聚类
         String[] option=new String[6];  //设置相应的参数  
         option[0]="-N"; //聚类数  
         option[1]="4";  
@@ -48,9 +77,7 @@ public class Classifiertest {
         kmeans.setOptions(option); // set the options  
         kmeans.buildClusterer(data); // build the clusterer 
         
-        /** 
-         * 评价聚类，使用ClusterEvaluation 
-         */  
+        //评价聚类，使用ClusterEvaluation 
         ClusterEvaluation eval = new ClusterEvaluation();  
         eval.setClusterer(kmeans);  
         eval.evaluateClusterer(new Instances(data));  
@@ -85,7 +112,8 @@ public class Classifiertest {
     }
     //读取C4.5算法结果
     public String getJ48Result() throws Exception{
-        J48test();
+    //    J48test();
+        this.TestJ48();
         String str = txtJ48.getText();
         return str;
     }

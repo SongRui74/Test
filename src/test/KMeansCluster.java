@@ -12,9 +12,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -70,7 +68,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 6; //迭代停止时的新旧质心相似程度
+    double stopsim = 4; //迭代停止时的新旧质心相似程度
  
     point[][] pop;//种群
     int[] count;//种群规模
@@ -95,7 +93,7 @@ public class KMeansCluster {
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             
-            rs=stmt.executeQuery("SELECT ast,classes,Review_Content FROM "+table_name);
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);
             rs.first();//读取数据库第一行记录
             for(int i = 0;i < num ;i++){   
                 data[i] = new point();// 对象创建
