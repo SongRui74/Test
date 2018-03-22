@@ -17,8 +17,6 @@ import edu.stanford.nlp.trees.GrammaticalStructureFactory;
 import edu.stanford.nlp.trees.Tree;  
 import edu.stanford.nlp.trees.tregex.TregexMatcher;  
 import edu.stanford.nlp.trees.tregex.TregexPattern;  
-import edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon;
-import edu.stanford.nlp.trees.tregex.tsurgeon.TsurgeonPattern;
 import edu.stanford.nlp.util.logging.Redwood;
 /**
  *
@@ -40,6 +38,58 @@ public class Tregex {
             //    m.getMatch().pennPrint(); 
         }
         return count;
+    }
+    /**
+     * 是否匹配该表达式
+     * @param t 句法树
+     * @param str 表达式
+     * @return 
+     */
+    public boolean TregexIsMatch(Tree t,String str){
+        int flag = 0;//记录是否匹配的标志       
+        //找到匹配的内容  
+        TregexPattern p = TregexPattern.compile(str);  
+        TregexMatcher m = p.matcher(t);  
+        
+        while (m.find()) { 
+            flag = 1;
+            break;
+        }
+        
+        if(flag == 0)
+            return false;
+        else
+            return true;
+    }
+    
+    /**
+     * 是否匹配关系的表达式
+     * @param tree 句法树
+     * @param str 匹配表达式
+     */
+    public boolean SemgrexIsMatch(Tree tree,String str){
+        int flag = 0;//标记是否匹配成功
+        Redwood.RedwoodChannels log = Redwood.channels(Tregex.class);
+        SemanticGraph graph = SemanticGraphFactory.generateUncollapsedDependencies(tree);
+
+        TreebankLangParserParams params = new EnglishTreebankParserParams();
+        GrammaticalStructureFactory gsf = params.treebankLanguagePack().grammaticalStructureFactory(params.treebankLanguagePack().punctuationWordRejectFilter(), params.typedDependencyHeadFinder());
+
+        GrammaticalStructure gs = gsf.newGrammaticalStructure(tree);
+
+        log.info(graph);
+
+        SemgrexPattern semgrex = SemgrexPattern.compile(str);
+        SemgrexMatcher matcher = semgrex.matcher(graph);
+        
+        while (matcher.find()) {
+            flag = 1;
+            break;
+        }
+        if(flag == 0)
+            return false;
+        else
+            return true;
     }
     
     public void Tregextest(){
@@ -77,15 +127,8 @@ public class Tregex {
         }  
     } 
     
-    public void Tregextest2(){
-        int count = 0;
-        Standfordnlp nlp = new Standfordnlp();
-        Tree tree = nlp.FeedbacktoTree(" Good, solid data and info");
-    //    Tree t = Tree.valueOf("(ROOT(NP(NP (DT An) (NNP NP))(PP (IN over)(NP(NP (DT an) (NNP NN))(SBAR(WHNP (WDT that))(S(VP (VBZ is)(PP (IN over)(NP (NN dog))))))))(. .)))");  
-        tree.pennPrint();
-        String st = "NP < NN | < NNP | < NNS | < NNPS | < DT";
-        String s = "NP < NN | < NNS"; 
-        
+    public void Tregextest2(Tree tree,String st){
+        int count = 0;        
         //输出匹配的内容  
         TregexPattern p = TregexPattern.compile(st);  
         TregexMatcher m = p.matcher(tree);  
@@ -98,12 +141,9 @@ public class Tregex {
         System.out.println(count);
     }
     
-    private static Redwood.RedwoodChannels log = Redwood.channels(Tregex.class);
-    public void Semgrextest(){
-        String treeString = "(ROOT  (S (NP (PRP$ My) (NN dog)) (ADVP (RB also)) (VP (VBZ likes) (S (VP (VBG eating) (NP (NN sausage))))) (. .)))";
-        Tree tree = Tree.valueOf(treeString);
-        tree.pennPrint();
-
+    
+    public void Semgrextest(Tree tree,String str){        
+        Redwood.RedwoodChannels log = Redwood.channels(Tregex.class);
         SemanticGraph graph = SemanticGraphFactory.generateUncollapsedDependencies(tree);
 
         TreebankLangParserParams params = new EnglishTreebankParserParams();
@@ -113,12 +153,12 @@ public class Tregex {
 
         log.info(graph);
 
-        SemgrexPattern semgrex = SemgrexPattern.compile("{}=A <<advmod {}=B");
+        SemgrexPattern semgrex = SemgrexPattern.compile(str);
         SemgrexMatcher matcher = semgrex.matcher(graph);
     // This will produce two results on the given tree: "likes" is an
     // ancestor of both "dog" and "my" via the nsubj relation
         while (matcher.find()) {
-            log.info(matcher.getNode("A") + " <<advmod " + matcher.getNode("B"));
+            System.out.println(matcher.getMatch().toString());
         }
 
     }

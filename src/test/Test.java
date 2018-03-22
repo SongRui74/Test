@@ -16,8 +16,7 @@ import java.util.Map;
  */
 public class Test {
     
-    private static final String table_name = "test50";
-    private static Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
+    private static final String table_name = "cpy";
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
     /**
@@ -70,7 +69,31 @@ public class Test {
         SQL s = new SQL();
         String type = "int";
         s.AddColumn(table_name,col, type);//添加特征对应的列
-        s.RemarkInvaildFeature(table_name, col,treemap,listmap); //在对应评论特征列标记数值，1表示符合该特征，0表示不符合
+        s.RemarkInvaildFeature(table_name, col,treemap); //在对应评论特征列标记数值，1表示符合该特征，0表示不符合
+    }
+    
+    /**
+     * 增加列名并标记文本属性特征对应的值（句法树类）
+     * @param str 匹配的表达式
+     */
+    public void MarkTreeFeature(String str){ 
+        SQL s = new SQL();
+        String type = "int";
+        String col = "["+str+"]";
+        s.AddColumn(table_name,col, type);//添加特征对应的列
+        s.RemarkTreeFeature(table_name, col, treemap, str);//在对应评论特征列标记数值，1表示符合该特征，0表示不符合
+    }
+    
+    /**
+     * 增加列名并标记文本属性特征对应的值（依存关系类）
+     * @param str 匹配的表达式
+     */
+    public void MarkDepFeature(String str){ 
+        SQL s = new SQL();
+        String type = "int";
+        String col = "["+str+"]";
+        s.AddColumn(table_name,col, type);//添加特征对应的列
+        s.RemarkDepFeature(table_name, col, treemap, str);//在对应评论特征列标记数值，1表示符合该特征，0表示不符合
     }
     
     /**
@@ -97,6 +120,7 @@ public class Test {
         this.MarkWordFeature("would");
         this.MarkWordFeature("old version");
         this.MarkWordFeature("lost");
+        this.MarkWordFeature("give");
         //Demand-wrong
         this.MarkWordFeature("not");
         this.MarkWordFeature("doesn't");
@@ -147,12 +171,25 @@ public class Test {
         //Specific
         this.MarkWordFeature("Preferred the old display");
         this.MarkWordFeature("new version");
+        this.MarkWordFeature("user friendly");
+        this.MarkWordFeature("beautiful");
         this.MarkWordFeature("Helpful to");
         this.MarkWordFeature("is easy to do");
         this.MarkWordFeature("it's very convenient for");
         this.MarkWordFeature("I am glad");
         //Invalid
         this.MarkInvalidFeature("JustNN");
+        //Tree
+        //Overview
+        this.MarkTreeFeature("NP < ( JJ $+ NN | $+ NNS | $+ NNP | $+ NNPS )");
+        this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < JJ))");
+        this.MarkTreeFeature("JJ $++ CC $++ JJ");
+        this.MarkDepFeature("{tag:/JJ.*/} > advmod {tag:RB}"); 
+        //Specific
+        this.MarkTreeFeature("JJ..( CC..JJ )");
+        this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
+        this.MarkDepFeature("{tag:/VB.*/} > nsubj {tag:/NN.*/} = A  : {tag:/NN.*/} = A > amod {tag:/JJ.*/}");
+        
     }
          
     public static void main(String[] args) throws Exception{
@@ -160,21 +197,33 @@ public class Test {
     /*    SQL s = new SQL();
     //    s.SqltoShort(table_name);//批量将长文本化为单句
     //    s.DealNullData(table_name);//删除无英文字母的无效评论
+    //    s.DelInvaSymbol(table_name);//删除文本无用的字符
         String col = "num";
         String type = "int";
     //    s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
-    */
+    
     /*    SQL s = new SQL();
         treemap = s.RecordTreeMap(table_name);//解析语法树
-        listmap = s.RecordDepMap(table_name);//解析依存关系
         Test t = new Test();
-        t.MarkALLFeature();
-        */
-    /*            
+        t.MarkTreeFeature("JJ..( CC..JJ )");
+        
+        
+    */    Standfordnlp s = new Standfordnlp();
+        String str = "Helpful to check values throughout day";
+        Tree tree = s.FeedbacktoTree(str);
+        tree.pennPrint();
+        List list = s.FeedbacktoDep(str);
+        System.out.println(list.toString());
+        String re = "JJ .. ( TO $++ VP )";
         Tregex t = new Tregex();
-        t.Tregextest2();
-      
+        t.Tregextest2(tree,re);
+/*        String sm = "{tag:/VB.} > nsubj {tag:/NN./} = A  : {tag:/NN.} = A > amod {tag:/JJ.}";
+        
+        boolean c = t.SemgrexIsMatch(tree, sm);
+        System.out.println(c);
+    
+        
     /*    Test k = new Test();
         k.KMeans();
     */    
@@ -190,7 +239,7 @@ public class Test {
         t.SimiVector(a);
     */  
         
-       new MyPanel();        
+    //   new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
     }

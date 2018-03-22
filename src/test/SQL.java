@@ -109,13 +109,107 @@ public class SQL {
     }
     
     /**
+     * 标记文本属性特征（句法树类）
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param str 匹配关系式
+     */
+    public void RemarkTreeFeature(String table_name,String col,Map treemap,String str){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            Tregex regex = new Tregex();
+            int num = 0;//记录评论中是否包含该特征
+            //循环标记
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                String content = rs.getString("Review_Content");
+                Tree t = (Tree) treemap.get(content);
+                //若存在匹配到的表达式
+                if(regex.TregexIsMatch(t, str)){ 
+                    num = 1; //存在该特征记为1
+                }  
+                else{
+                    num = 0; 
+                }
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * 标记文本属性特征（依存关系类）
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param str 匹配关系式
+     */
+    public void RemarkDepFeature(String table_name,String col,Map treemap,String str){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            Tregex regex = new Tregex();
+            int num = 0;//记录评论中是否包含该特征
+            //循环标记
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                String content = rs.getString("Review_Content");
+                Tree t = (Tree) treemap.get(content);
+                //若存在匹配到的表达式
+                if(regex.SemgrexIsMatch(t, str)){ 
+                    num = 1; //存在该特征记为1
+                }  
+                else{
+                    num = 0; 
+                }
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
      * 标记文本属性特征（句法树类-无效评论）
      * @param table_name 表名
      * @param col 列名
      * @param treemap 评论-句法树map
      * @param listmap 评论-依存关系map
      */
-    public void RemarkInvaildFeature(String table_name,String col,Map treemap,Map listmap){
+    public void RemarkInvaildFeature(String table_name,String col,Map treemap){
         try {             
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
@@ -135,19 +229,9 @@ public class SQL {
                 int wordnum = Integer.parseInt(tempnum); //评论单词数目
                 String content = rs.getString("Review_Content");
                 Tree t = (Tree) treemap.get(content);
-                //判断是否仅存在一个punct的关系
-                List l = (List) listmap.get(content);
-                int isPunct = 0;
-                if(l.size() == 1){
-                    SemanticGraphEdge s = (SemanticGraphEdge) l.get(0);
-                    String relation = s.getRelation().toString();
-                    if(relation.equals("punct")){
-                        isPunct = 1;
-                    }
-                }
                 int regexnum = regex.TregexInvalid(t); //单词解析成名词的数目
-                //若单词均解析为名词或只存在一个punct的依存关系则视为无效评论
-                if((wordnum == regexnum )|| isPunct == 1){ 
+                //若单词均解析为名词或则视为无效评论
+                if((wordnum == regexnum )){ 
                     num = 1; //存在该特征记为1
                 }  
                 else{
@@ -390,6 +474,55 @@ public class SQL {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
     }    
+    
+    /**
+     * 删除文本中无用的符号，如"|?|!|.
+     * @param table_name
+     */
+    public void DelInvaSymbol(String table_name) throws ClassNotFoundException{
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);
+            
+            Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement st2 = conn.createStatement();
+            String sql = null;
+            /*查找含无用符号的记录*/
+            sql = "SELECT * FROM "+ table_name +" WHERE Review_Content like '%\"%' or "
+                    + "Review_Content like '%?%' or Review_Content like '%!%' or Review_Content like '%.%'"; 
+            ResultSet rstemp = st.executeQuery(sql);            
+            while(rstemp.next()){
+                String old_content = rstemp.getString("Review_Content"); //存储原记录            
+                String content_info = rstemp.getString("Review_Content");  
+                //替换无用符号
+                if(content_info.contains("\"")){
+                    content_info = content_info.replace("\"", " ");
+                }
+                if(content_info.contains("?")){
+                    content_info = content_info.replace("?", " ");
+                }
+                if(content_info.contains("!")){
+                    content_info = content_info.replace("!", " ");
+                }
+                if(content_info.contains(".")){
+                    content_info = content_info.replace(".", " ");
+                }
+                //处理单引号
+                old_content = SqlSingleQuote(old_content);
+                content_info = SqlSingleQuote(content_info);
+                //写入数据库
+                sql = "UPDATE "+ table_name +" SET Review_Content = '"+ content_info +"' WHERE Review_Content = '" + old_content + "'";
+                st2.executeUpdate(sql);
+            }            
+            st.close();
+            st2.close();
+            rstemp.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }        
+        
+    }        
+    
     /**
      * 批量将评论拆分为单句
      * @param table_name
@@ -440,13 +573,13 @@ public class SQL {
             sql = "SELECT * FROM "+ table_name +" WHERE Review_Content = '" + old_content + "'"; 
             ResultSet rstemp = st.executeQuery(sql);
             rstemp.first();
-            String[] content_info = new String[4];            
+            String[] content_info = new String[5];            
             content_info[0] = rstemp.getString("APP_ID");
             content_info[1] = rstemp.getString("Reviewer_Name");
             content_info[2] = rstemp.getString("Rating");
             content_info[3] = rstemp.getString("Review_Title");
         //    content_info[4] = rstemp.getString("Review_Content");
-        //    content_info[4] = rstemp.getString("classes");
+            content_info[4] = rstemp.getString("classes");
             //处理单引号
             for (int i = 0;i<content_info.length;i++) {
                 content_info[i] = SqlSingleQuote(content_info[i]);
@@ -459,9 +592,9 @@ public class SQL {
             for(int i=1;i<new_contents.length;i++){
                 sql = "INSERT INTO "+ table_name +" VALUES ('"+ content_info[0] +"', '" 
                         + content_info[1] + "','"+ content_info[2] +"', '"
-                        + content_info[3] + "','"+ new_contents[i] +"')";
-                    //    + content_info[3] + "','"+ new_contents[i] +"', '"
-                    //    + content_info[4] +"')";
+                    //    + content_info[3] + "','"+ new_contents[i] +"')";
+                        + content_info[3] + "','"+ new_contents[i] +"', '"
+                        + content_info[4] +"')";
                 st2.executeUpdate(sql);
             }                        
             st.close();
