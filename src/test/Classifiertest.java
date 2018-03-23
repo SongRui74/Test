@@ -19,6 +19,9 @@ import weka.clusterers.SimpleKMeans;
 import weka.core.*;
 import weka.core.converters.*;
 import weka.experiment.InstanceQuery;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.NumericToNominal;
+import weka.filters.unsupervised.attribute.Remove;
 /**
  *
  * @author dell-pc
@@ -36,11 +39,30 @@ public class Classifiertest {
         query.setPassword("123456");
         query.setQuery("select * from test50");
         txtJ48.append("数据库连接成功！\n");
+        Instances data = query.retrieveInstances();
+        
+        //数据预处理
+        //remove无用的文本特征
+        String[] re_option = new String[2];
+        re_option[0] = "-R";
+        re_option[1] = "1-5";
+        Remove remove = new Remove();
+        remove.setOptions(re_option);
+        remove.setInputFormat(data);
+        Instances newdata = Filter.useFilter(data, remove);        
+        //转化类型
+        NumericToNominal transtype = new NumericToNominal();
+        String[] ty_option = new String[2];
+        ty_option[0] = "-R";
+        ty_option[1] = "first-last";
+        transtype.setOptions(ty_option);        
+        transtype.setInputFormat(newdata);
+        newdata = Filter.useFilter(newdata, transtype);  
         
         Classifier J48 = new J48();    
-        Instances d_Train = query.retrieveInstances();
-        Instances d_Test = query.retrieveInstances();        
-             
+        Instances d_Train = newdata;
+        Instances d_Test = newdata;           
+        
         d_Train.setClassIndex(0); 
         d_Test.setClassIndex(0); //设置分类属性所在行号（第一行为0号）
         

@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class Test {
     
-    private static final String table_name = "cpy";
+    private static final String table_name = "test50";
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
     /**
@@ -78,8 +78,15 @@ public class Test {
      */
     public void MarkTreeFeature(String str){ 
         SQL s = new SQL();
+        String col = null;
         String type = "int";
-        String col = "["+str+"]";
+        if(!str.contains("[")){
+            col = "["+str+"]";
+        }
+        else{
+            col = str.replace("]", "_");
+            col = "["+ col.replace("[", "_") + "]";
+        }
         s.AddColumn(table_name,col, type);//添加特征对应的列
         s.RemarkTreeFeature(table_name, col, treemap, str);//在对应评论特征列标记数值，1表示符合该特征，0表示不符合
     }
@@ -90,8 +97,15 @@ public class Test {
      */
     public void MarkDepFeature(String str){ 
         SQL s = new SQL();
+        String col = null;
         String type = "int";
-        String col = "["+str+"]";
+        if(!str.contains("[")){
+            col = "["+str+"]";
+        }
+        else{
+            col = str.replace("]", "_");
+            col = "["+ col.replace("[", "_") + "]";
+        }
         s.AddColumn(table_name,col, type);//添加特征对应的列
         s.RemarkDepFeature(table_name, col, treemap, str);//在对应评论特征列标记数值，1表示符合该特征，0表示不符合
     }
@@ -144,6 +158,8 @@ public class Test {
         this.MarkWordFeature("Please add");
         this.MarkWordFeature("I was really hoping that");
         this.MarkWordFeature("Please update with");
+        this.MarkWordFeature("wish it");
+        this.MarkWordFeature("Just wish");
         //Overview
         this.MarkWordFeature("great");
         this.MarkWordFeature("great app");
@@ -184,11 +200,20 @@ public class Test {
         this.MarkTreeFeature("NP < ( JJ $+ NN | $+ NNS | $+ NNP | $+ NNPS )");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < JJ))");
         this.MarkTreeFeature("JJ $++ CC $++ JJ");
+        this.MarkTreeFeature("RB $+ JJ");
         this.MarkDepFeature("{tag:/JJ.*/} > advmod {tag:RB}"); 
         //Specific
         this.MarkTreeFeature("JJ..( CC..JJ )");
         this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
         this.MarkDepFeature("{tag:/VB.*/} > nsubj {tag:/NN.*/} = A  : {tag:/NN.*/} = A > amod {tag:/JJ.*/}");
+        this.MarkTreeFeature("JJ .. ( TO $++ VP )");
+        this.MarkTreeFeature("VBG ( .. VBZ | ..VBP | ..VBD ) .. JJ");
+        this.MarkDepFeature("{tag:VBG} >> ccomp {tag:/JJ.*/} = A : {tag:/JJ.*/} = A > cop {tag:/VB.*/}");
+        this.MarkDepFeature("{tag:/JJ.*/} = A > cop {tag:/VB.*/}");
+        this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < (JJ $+ PP | $+ SBAR)))");
+        //Demand
+        this.MarkTreeFeature("NP $+ (VP < ( RB [ $- MD | $- VBZ] ) & << VB)");
+        this.MarkTreeFeature("( NP < PRP ) $+ ( VP << (VBG $+ SBAR))");
         
     }
          
@@ -201,32 +226,30 @@ public class Test {
         String col = "num";
         String type = "int";
     //    s.AddColumn(table_name,col, type);//添加单词数目列
-        s.RemarkNumberofWords(table_name, col);//标记单词数
+    //    s.RemarkNumberofWords(table_name, col);//标记单词数
     
     /*    SQL s = new SQL();
         treemap = s.RecordTreeMap(table_name);//解析语法树
         Test t = new Test();
-        t.MarkTreeFeature("JJ..( CC..JJ )");
         
         
     */    Standfordnlp s = new Standfordnlp();
-        String str = "Helpful to check values throughout day";
+        String str = "Just wish I could print out their list if I wanted. ";
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "JJ .. ( TO $++ VP )";
+        String re = "( NP < PRP ) $+ ( VP << (VBG $+ SBAR))";
         Tregex t = new Tregex();
         t.Tregextest2(tree,re);
-/*        String sm = "{tag:/VB.} > nsubj {tag:/NN./} = A  : {tag:/NN.} = A > amod {tag:/JJ.}";
-        
+        /*
         boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
     
         
-    /*    Test k = new Test();
+        Test k = new Test();
         k.KMeans();
-    */    
+        
         //Your happy passer-by all knows, my distressed there is no place hides.
     /*    Standfordnlp t = new Standfordnlp(); 
         String s1 = "App don't work.";        
@@ -239,7 +262,7 @@ public class Test {
         t.SimiVector(a);
     */  
         
-    //   new MyPanel();        
+       new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
     }
