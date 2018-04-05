@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -207,7 +208,6 @@ public class SQL {
      * @param table_name 表名
      * @param col 列名
      * @param treemap 评论-句法树map
-     * @param listmap 评论-依存关系map
      */
     public void RemarkInvaildFeature(String table_name,String col,Map treemap){
         try {             

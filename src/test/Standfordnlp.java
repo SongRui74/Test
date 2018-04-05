@@ -373,7 +373,7 @@ public class Standfordnlp {
         */
         return vector;
     }
-     
+    
     /**
      * (舍)获取评论解析后语法树的每个节点及其hash值
      * @return 

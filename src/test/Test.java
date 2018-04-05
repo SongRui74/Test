@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class Test {
     
-    private static final String table_name = "test50";
+    private static final String table_name = "train";
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
     /**
@@ -115,14 +115,13 @@ public class Test {
      */
     public void MarkALLFeature(){
         //Demand-advice
-        this.MarkWordFeature("add");
-        this.MarkWordFeature("could");
+        this.MarkWordFeature("add ");
+        this.MarkWordFeature("could ");
         this.MarkWordFeature("improvement");
-        this.MarkWordFeature("instead of");
-        this.MarkWordFeature("lack");
+        this.MarkWordFeature("lack ");
         this.MarkWordFeature("miss");
         this.MarkWordFeature("need");
-        this.MarkWordFeature("must");
+        this.MarkWordFeature("must ");
         this.MarkWordFeature("please");
         this.MarkWordFeature("prefer");
         this.MarkWordFeature("should");
@@ -132,11 +131,12 @@ public class Test {
         this.MarkWordFeature("hope");
         this.MarkWordFeature("will");
         this.MarkWordFeature("would");
-        this.MarkWordFeature("old version");
         this.MarkWordFeature("lost");
         this.MarkWordFeature("give");
+        this.MarkWordFeature("help");
         //Demand-wrong
-        this.MarkWordFeature("not");
+        this.MarkWordFeature("no ");
+        this.MarkWordFeature("not ");
         this.MarkWordFeature("doesn't");
         this.MarkWordFeature("won't");
         this.MarkWordFeature("does not");
@@ -146,21 +146,24 @@ public class Test {
         this.MarkWordFeature("wrong");
         this.MarkWordFeature("broken");
         this.MarkWordFeature("fix");
-        this.MarkWordFeature("unable to");
+        this.MarkWordFeature("unable");
         this.MarkWordFeature("tired");
         this.MarkWordFeature("incorrect");
         this.MarkWordFeature("update");
+        this.MarkWordFeature("crash");
+        this.MarkWordFeature("inaccurate");
+        this.MarkWordFeature("frozen");
+        this.MarkWordFeature("even");
         //Demand-phrase
         this.MarkWordFeature("won't open");
-        this.MarkWordFeature("does not work");
         this.MarkWordFeature("Please fix");
         this.MarkWordFeature("needs to add");
         this.MarkWordFeature("Please add");
-        this.MarkWordFeature("I was really hoping that");
-        this.MarkWordFeature("Please update with");
         this.MarkWordFeature("wish it");
         this.MarkWordFeature("Just wish");
+        this.MarkWordFeature("Touch ID");
         //Overview
+        this.MarkWordFeature("love");
         this.MarkWordFeature("great");
         this.MarkWordFeature("great app");
         this.MarkWordFeature("thanks");
@@ -175,7 +178,7 @@ public class Test {
         this.MarkWordFeature("easy");
         this.MarkWordFeature("friendly");
         this.MarkWordFeature("useful");
-        this.MarkWordFeature("recommended");
+        this.MarkWordFeature("recommend");
         this.MarkWordFeature("safe");
         this.MarkWordFeature("like");
         this.MarkWordFeature("excellent");
@@ -184,7 +187,14 @@ public class Test {
         this.MarkWordFeature("free");
         this.MarkWordFeature("Terrible");
         this.MarkWordFeature("Horrible");
+        this.MarkWordFeature("download");        
+        this.MarkWordFeature("Love this app");
+        this.MarkWordFeature("easy to use");
         //Specific
+        this.MarkWordFeature("old");
+        this.MarkWordFeature("new");
+        this.MarkWordFeature("slow");
+        this.MarkWordFeature("before");
         this.MarkWordFeature("Preferred the old display");
         this.MarkWordFeature("new version");
         this.MarkWordFeature("user friendly");
@@ -194,7 +204,7 @@ public class Test {
         this.MarkWordFeature("it's very convenient for");
         this.MarkWordFeature("I am glad");
         //Invalid
-        this.MarkInvalidFeature("JustNN");
+        this.MarkInvalidFeature("IsInvalid");
         //Tree
         //Overview
         this.MarkTreeFeature("NP < ( JJ $+ NN | $+ NNS | $+ NNP | $+ NNPS )");
@@ -202,6 +212,7 @@ public class Test {
         this.MarkTreeFeature("JJ $++ CC $++ JJ");
         this.MarkTreeFeature("RB $+ JJ");
         this.MarkDepFeature("{tag:/JJ.*/} > advmod {tag:RB}"); 
+        this.MarkTreeFeature("NN..( DT $++ NN )"); 
         //Specific
         this.MarkTreeFeature("JJ..( CC..JJ )");
         this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
@@ -211,43 +222,49 @@ public class Test {
         this.MarkDepFeature("{tag:VBG} >> ccomp {tag:/JJ.*/} = A : {tag:/JJ.*/} = A > cop {tag:/VB.*/}");
         this.MarkDepFeature("{tag:/JJ.*/} = A > cop {tag:/VB.*/}");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < (JJ $+ PP | $+ SBAR)))");
+        this.MarkTreeFeature("NN..VBD..JJ | ..JJR | ..JJS");
+        this.MarkDepFeature("{word:old} < amod {tag:NN}");
+        this.MarkDepFeature("{word:old} < amod {tag:NN} : {tag:/JJ.*/} > cop {word:was}");
         //Demand
         this.MarkTreeFeature("NP $+ (VP < ( RB [ $- MD | $- VBZ] ) & << VB)");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP << (VBG $+ SBAR))");
+        this.MarkDepFeature("{word:no} < neg {tag:NN}");
         
     }
          
     public static void main(String[] args) throws Exception{
               
     /*    SQL s = new SQL();
-    //    s.SqltoShort(table_name);//批量将长文本化为单句
-    //    s.DealNullData(table_name);//删除无英文字母的无效评论
-    //    s.DelInvaSymbol(table_name);//删除文本无用的字符
+        s.SqltoShort(table_name);//批量将长文本化为单句
+        s.DealNullData(table_name);//删除无英文字母的无效评论
+        s.DelInvaSymbol(table_name);//删除文本无用的字符
         String col = "num";
         String type = "int";
-    //    s.AddColumn(table_name,col, type);//添加单词数目列
-    //    s.RemarkNumberofWords(table_name, col);//标记单词数
-    
-    /*    SQL s = new SQL();
+        s.AddColumn(table_name,col, type);//添加单词数目列
+        s.RemarkNumberofWords(table_name, col);//标记单词数
+    */
+        SQL s = new SQL();
         treemap = s.RecordTreeMap(table_name);//解析语法树
         Test t = new Test();
+        t.MarkInvalidFeature("IsInvalid");
+        t.MarkWordFeature("Touch ID");
+    //    t.MarkALLFeature();
         
-        
-    */    Standfordnlp s = new Standfordnlp();
-        String str = "Just wish I could print out their list if I wanted. ";
+    /*    Standfordnlp s = new Standfordnlp();
+        String str = " It will";
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "( NP < PRP ) $+ ( VP << (VBG $+ SBAR))";
+    /*    String re = "NN..VBD..JJ | ..JJR | ..JJS";
+        String sm = "{word:old} < amod {tag:NN} :";
         Tregex t = new Tregex();
-        t.Tregextest2(tree,re);
-        /*
+        t.Tregextest2(tree,re);      
         boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
     
         
-        Test k = new Test();
+    /*    Test k = new Test();
         k.KMeans();
         
         //Your happy passer-by all knows, my distressed there is no place hides.
@@ -262,7 +279,7 @@ public class Test {
         t.SimiVector(a);
     */  
         
-       new MyPanel();        
+    //new MyPanel();        
     //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
     //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
     }

@@ -26,17 +26,36 @@ public class Tregex {
     
     public int TregexInvalid(Tree t){
         int count = 0;//记录单词符合表达式的数目
-        String s = "NP < NN | < NNP | < NNS | < NNPS | < DT ";  //定义匹配表达式
+        String s1 = "NP < @/NN.?/ | < DT | < MD | < CC | < FW";
+        String s2 = "INTJ < @/NN.?/ | < UH | < FW";
+        String s3 = "FRAG < CC";
+        String s4 = "VP < CC | < SYM";  //定义匹配表达式
         
         //找到匹配的内容  
-        TregexPattern p = TregexPattern.compile(s);  
-        TregexMatcher m = p.matcher(t);  
-        
-        while (m.find()) { 
+        TregexPattern p1 = TregexPattern.compile(s1);  
+        TregexMatcher m1 = p1.matcher(t);          
+        while (m1.find()) { 
             count++;
-            //    System.out.println("**************");
-            //    m.getMatch().pennPrint(); 
         }
+        
+        TregexPattern p2 = TregexPattern.compile(s2);  
+        TregexMatcher m2 = p2.matcher(t);          
+        while (m2.find()) { 
+            count++;
+        }
+        
+        TregexPattern p3 = TregexPattern.compile(s3);  
+        TregexMatcher m3 = p3.matcher(t);         
+        while (m3.find()) { 
+            count++;
+        }
+        
+        TregexPattern p4 = TregexPattern.compile(s4);  
+        TregexMatcher m4 = p4.matcher(t);        
+        while (m4.find()) { 
+            count++;
+        }
+        
         return count;
     }
     /**
