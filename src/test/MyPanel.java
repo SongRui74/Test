@@ -22,7 +22,7 @@ public class MyPanel extends JFrame implements ActionListener
      * @param args the command line arguments
      */
     private JButton button_j48;
-    private JButton button_NB;
+    private JButton button_SMO;
     private JButton button_clear;
     private JTextArea txtArea;
     private JLabel label;
@@ -31,7 +31,7 @@ public class MyPanel extends JFrame implements ActionListener
     public MyPanel(){
         //设置按钮
         button_j48 = new JButton("J48分析");
-        button_NB = new JButton("NaiveBayes分析");
+        button_SMO = new JButton("SMO分析");
         button_clear = new JButton("清空");
         txtArea = new JTextArea(10,40);
         label = new JLabel("分析结果");
@@ -47,17 +47,16 @@ public class MyPanel extends JFrame implements ActionListener
         add(label);
         add(js);
         add(button_j48);
-        add(button_NB);
+        add(button_SMO);
         add(button_clear);
         setResizable(false);
         setVisible(true);
         
         //监听
         this.button_j48.addActionListener(this);
-        this.button_NB.addActionListener(this);
+        this.button_SMO.addActionListener(this);
         this.button_clear.addActionListener(this);
     }
-    @Override
     public void actionPerformed(ActionEvent e)
     {
         if(e.getSource() == this.button_j48)
@@ -70,11 +69,11 @@ public class MyPanel extends JFrame implements ActionListener
                 Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if(e.getSource() == this.button_NB)
+        if(e.getSource() == this.button_SMO)
         {
             Classifiertest test = new Classifiertest();
             try {
-                this.txtArea.append(test.getNavieBayesResult());
+                this.txtArea.append(test.getSMOResult());
                 this.txtArea.append("================================================\n");
             } catch (Exception ex) {
                 Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);

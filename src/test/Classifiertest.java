@@ -12,7 +12,7 @@ import java.util.*;
 import javax.swing.*;
 import weka.classifiers.Classifier; 
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.J48;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.SimpleKMeans;
@@ -29,16 +29,17 @@ import weka.filters.unsupervised.attribute.Remove;
 public class Classifiertest {
     
     public JTextArea txtJ48 = new JTextArea();
-    public JTextArea txtNB = new JTextArea();
+    public JTextArea txtSMO = new JTextArea();
     
-    public void TestJ48() throws Exception{
+    //SMO算法训练模型
+    public void SMO(String table_name) throws Exception{
         
         //从数据库读取数据文件
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
         query.setPassword("123456");
-        query.setQuery("select * from test50");
-        txtJ48.append("数据库连接成功！\n");
+        query.setQuery("select * from " + table_name);
+        txtSMO.append("数据库连接成功！\n");
         Instances data = query.retrieveInstances();
         
         //数据预处理
@@ -59,25 +60,38 @@ public class Classifiertest {
         transtype.setInputFormat(newdata);
         newdata = Filter.useFilter(newdata, transtype);  
         
-        Classifier J48 = new J48();    
+        Classifier smo = new SMO();    
         Instances d_Train = newdata;
         Instances d_Test = newdata;           
         
         d_Train.setClassIndex(0); 
         d_Test.setClassIndex(0); //设置分类属性所在行号（第一行为0号）
         
-        J48.buildClassifier(d_Train);//训练
+        smo.buildClassifier(d_Train);//训练
+        //实现交叉验证模型
+    /*    Evaluation eval = null;
+        for(int i=0;i<10;i++){
+            eval = new Evaluation(d_Train);
+            eval.crossValidateModel(smo, d_Train, 10, new Random(i));
+        }
+    */   
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(J48, d_Test);//测试
+        eval.evaluateModel(smo, d_Test);//测试
         System.out.println(eval.toSummaryString("\n=== Summary ===\n",false));
         System.out.println(eval.toClassDetailsString());
         System.out.println(eval.toMatrixString());
         
-        txtJ48.append("Classifier model:\tJ48\n");
-        txtJ48.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
-        txtJ48.append(eval.toClassDetailsString()+"\n");
-        txtJ48.append(eval.toMatrixString()+"\n");
+        txtSMO.append("Classifier model:\tSMO\n");
+        txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        txtSMO.append(eval.toClassDetailsString()+"\n");
+        txtSMO.append(eval.toMatrixString()+"\n");    
+    }
     
+    //读取支持向量机算法结果
+    public String getSMOResult() throws Exception{
+        this.SMO("train");
+        String str = txtSMO.getText();
+        return str;
     }
     
     public void TestCluster() throws Exception{
@@ -135,12 +149,12 @@ public class Classifiertest {
     //读取C4.5算法结果
     public String getJ48Result() throws Exception{
     //    J48test();
-        this.TestJ48();
+        this.J48test();
         String str = txtJ48.getText();
         return str;
     }
     //朴素贝叶斯算法    
-    public void NaiveBayestest() throws IOException, Exception{
+/*    public void NaiveBayestest() throws IOException, Exception{
         Classifier NB = new NaiveBayes();  
         File inputFile = new File("D:\\Program Files\\Weka-3-8\\data\\weather.numeric.arff");//训练语料文件  
         ArffLoader atf = new ArffLoader();   
@@ -165,4 +179,5 @@ public class Classifiertest {
         String str = txtNB.getText();
         return str;
     }
+    */
 }
