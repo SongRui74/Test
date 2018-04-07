@@ -20,6 +20,7 @@ import weka.core.*;
 import weka.core.converters.*;
 import weka.experiment.InstanceQuery;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Add;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
 /**
@@ -34,62 +35,101 @@ public class Classifiertest {
     //SMO算法训练模型
     public void SMO(String table_name) throws Exception{
         
-        //从数据库读取数据文件
+        //从数据库读取训练集
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
         query.setPassword("123456");
-        query.setQuery("select * from " + table_name);
+        query.setQuery("select * from train");
         txtSMO.append("数据库连接成功！\n");
-        Instances data = query.retrieveInstances();
-        
+        Instances traindata = query.retrieveInstances();
+                  
         //数据预处理
-        //remove无用的文本特征
+        //1.remove无用的文本特征
         String[] re_option = new String[2];
         re_option[0] = "-R";
-        re_option[1] = "1-5";
+        re_option[1] = "1-5,7"; //移除评论作者，标题，内容，词汇数目等属性
         Remove remove = new Remove();
         remove.setOptions(re_option);
-        remove.setInputFormat(data);
-        Instances newdata = Filter.useFilter(data, remove);        
-        //转化类型
+        remove.setInputFormat(traindata);
+        Instances newdata = Filter.useFilter(traindata, remove);        
+        //2.转化类型
         NumericToNominal transtype = new NumericToNominal();
         String[] ty_option = new String[2];
         ty_option[0] = "-R";
         ty_option[1] = "first-last";
         transtype.setOptions(ty_option);        
         transtype.setInputFormat(newdata);
-        newdata = Filter.useFilter(newdata, transtype);  
-        
+        newdata = Filter.useFilter(newdata, transtype); 
+               
+        //调用SMO算法
         Classifier smo = new SMO();    
-        Instances d_Train = newdata;
-        Instances d_Test = newdata;           
-        
-        d_Train.setClassIndex(0); 
-        d_Test.setClassIndex(0); //设置分类属性所在行号（第一行为0号）
-        
-        smo.buildClassifier(d_Train);//训练
-        //实现交叉验证模型
-    /*    Evaluation eval = null;
-        for(int i=0;i<10;i++){
-            eval = new Evaluation(d_Train);
-            eval.crossValidateModel(smo, d_Train, 10, new Random(i));
-        }
-    */   
+        Instances d_Train = newdata;        
+        //设置分类属性所在行号（第一行为0号）
+        d_Train.setClassIndex(0);  
+        //训练模型
+        smo.buildClassifier(d_Train);  
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(smo, d_Test);//测试
-        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
-        
+        eval.evaluateModel(smo, d_Train);//测试&评价算法        
         txtSMO.append("Classifier model:\tSMO\n");
         txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         txtSMO.append(eval.toClassDetailsString()+"\n");
-        txtSMO.append(eval.toMatrixString()+"\n");    
+        txtSMO.append(eval.toMatrixString()+"\n"); 
+        
+        //从数据库读入预测文件
+        query.setUsername("song");
+        query.setPassword("123456");
+        query.setQuery("select * from " + table_name);
+        Instances predata = query.retrieveInstances();       
+        
+        //保存为arff文件（备份便于查找评论信息）
+        ArffSaver saver = new ArffSaver();  
+        saver.setInstances(predata);  
+        saver.setFile(new File("./data/pre_info.arff")); 
+        saver.writeBatch();  
+        
+        //打开保存好的arff文件，数据预处理（类型转化、删除无关特征、增加classes属性）
+        //1.读入预测集
+        File inputFile = new File("./data/pre_info.arff");  
+        ArffLoader atf = new ArffLoader();   
+        atf.setFile(inputFile);  
+        Instances Pre = atf.getDataSet();         
+        //2.remove无用的文本特征
+        re_option = new String[2];
+        re_option[0] = "-R";
+        re_option[1] = "1-6"; //移除评论作者，标题，内容，词汇数目等属性
+        remove.setOptions(re_option);
+        remove.setInputFormat(Pre);
+        newdata = Filter.useFilter(Pre, remove); 
+        //3.添加classes属性使训练集与预测集一致
+        Add add = new Add();   
+        add.setAttributeIndex("1");  
+        add.setNominalLabels("Overview,Invalid,Demand,Specific");  
+        add.setAttributeName("classes");  
+        add.setInputFormat(newdata);  
+        newdata = Filter.useFilter(newdata,add);
+        //4.转化类型
+        transtype.setOptions(ty_option);        
+        transtype.setInputFormat(newdata);
+        newdata = Filter.useFilter(newdata, transtype); 
+        
+        //对预测集进行分类
+        Instances d_Pre = newdata; 
+        d_Pre.setClassIndex(0);//设置分类属性
+        int sum = d_Pre.numInstances();
+        for(int i = 0; i < sum; i++){
+            double clslabel = smo.classifyInstance(d_Pre.instance(i));
+            d_Pre.instance(i).setClassValue(clslabel);
+        }     
+        
+        //将结果保存为arff文件（便于查找预测结果信息）
+        saver.setInstances(d_Pre);  
+        saver.setFile(new File("./data/pre_result.arff")); 
+        saver.writeBatch();         
     }
     
     //读取支持向量机算法结果
     public String getSMOResult() throws Exception{
-        this.SMO("train");
+        this.SMO("test100");
         String str = txtSMO.getText();
         return str;
     }
@@ -153,31 +193,5 @@ public class Classifiertest {
         String str = txtJ48.getText();
         return str;
     }
-    //朴素贝叶斯算法    
-/*    public void NaiveBayestest() throws IOException, Exception{
-        Classifier NB = new NaiveBayes();  
-        File inputFile = new File("D:\\Program Files\\Weka-3-8\\data\\weather.numeric.arff");//训练语料文件  
-        ArffLoader atf = new ArffLoader();   
-        atf.setFile(inputFile);  
-        Instances d_Train = atf.getDataSet(); // 读入训练文件  
-        d_Train.setClassIndex(0);   //设置分类属性所在行号（第一行为0号）      
-        Evaluation eval = new Evaluation(d_Train);
-        eval.crossValidateModel(NB, d_Train, 10, new Random(1));//交叉验证，fold为10 
-        
-        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false));
-        System.out.println(eval.toClassDetailsString());
-        System.out.println(eval.toMatrixString());
-        
-        txtNB.append("Classifier model:\tNavieBayes\n");
-        txtNB.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
-        txtNB.append(eval.toClassDetailsString()+"\n");
-        txtNB.append(eval.toMatrixString()+"\n");
-    }
-    //读取朴素贝叶斯算法结果
-    public String getNavieBayesResult() throws Exception{
-        NaiveBayestest();
-        String str = txtNB.getText();
-        return str;
-    }
-    */
+    
 }

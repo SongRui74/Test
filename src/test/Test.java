@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class Test {
     
-    private static final String table_name = "test100";
+    private static final String table_name = "train";
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
     /**
