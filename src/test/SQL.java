@@ -55,10 +55,11 @@ public class SQL {
                            
             //循环记录
             while(rs.next()){                                            
-                /*文本转化为树和依存关系列表*/
+                /*文本转化为树*/
                 String content = rs.getString("Review_Content");
+                /*转化为小写*/
+                content = content.toLowerCase();
                 Tree tree_value = nlp.FeedbacktoTree(content);
-                List dep_value = nlp.FeedbacktoDep(content);
                 /*写入map中*/
                 treemap.put(content, tree_value);               
             }
@@ -93,7 +94,7 @@ public class SQL {
             while(rs.next()){                                            
                 /*文本转化为树和依存关系列表*/
                 String content = rs.getString("Review_Content");
-                Tree tree_value = nlp.FeedbacktoTree(content);
+                content = content.toLowerCase();
                 List dep_value = nlp.FeedbacktoDep(content);
                 /*写入map中*/
                 listmap.put(content, dep_value);                
@@ -133,6 +134,7 @@ public class SQL {
             while(rs.next()){                                            
                 /*文本特征判断*/
                 String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
                 Tree t = (Tree) treemap.get(content);
                 //若存在匹配到的表达式
                 if(regex.TregexIsMatch(t, str)){ 
@@ -180,6 +182,7 @@ public class SQL {
             while(rs.next()){                                            
                 /*文本特征判断*/
                 String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
                 Tree t = (Tree) treemap.get(content);
                 //若存在匹配到的表达式
                 if(regex.SemgrexIsMatch(t, str)){ 
@@ -228,6 +231,7 @@ public class SQL {
                 String tempnum = rs.getString("num");
                 int wordnum = Integer.parseInt(tempnum); //评论单词数目
                 String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
                 Tree t = (Tree) treemap.get(content);
                 int regexnum = regex.TregexInvalid(t); //单词解析成名词的数目
                 //若单词均解析为名词或则视为无效评论
@@ -344,6 +348,85 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    /**
+     * 创建预测集
+     * @param num 预测集数据数量
+     */
+    public void CreatePre(int num){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement(); 
+            Statement stmt3 = conn.createStatement(); 
+            rs=stmt.executeQuery("select * from sys.tables");  
+            String table_name = "test" + num;
+            while(rs.next()){                                            
+                /*获取数据库中表的名称*/
+                String name = rs.getString("name");          
+                /*判断是否存在表，若存在则删除*/
+                if(name.equals(table_name)){
+                    String sql = "Drop table " + table_name;
+                    stmt2.executeUpdate(sql);
+                    break;
+                }
+            }
+            String sql = "select top("+num+")* into "+ table_name +" from testdata order by newid()";
+            stmt3.executeUpdate(sql);
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    /**
+     * 创建训练集
+     */
+    public void CreateTrain(){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement(); 
+            Statement stmt3 = conn.createStatement(); 
+            rs=stmt.executeQuery("select * from sys.tables");  
+            
+            while(rs.next()){                                            
+                /*获取数据库中表的名称*/
+                String name = rs.getString("name");          
+                /*判断是否存在表，若存在则删除*/
+                if(name.equals("train")){
+                    String sql = "Drop table train";
+                    stmt2.executeUpdate(sql);
+                    break;
+                }
+            }
+            String sql = "select * into train from test1213";
+            stmt3.executeUpdate(sql);
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+        
+    
     /**
      * 获取表中数据数量
      * @param table 表名

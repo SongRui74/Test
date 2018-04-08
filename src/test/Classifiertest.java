@@ -9,6 +9,8 @@ package test;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import weka.classifiers.Classifier; 
 import weka.classifiers.Evaluation;
@@ -34,7 +36,7 @@ public class Classifiertest {
     
     //SMO算法训练模型
     public void SMO(String table_name) throws Exception{
-        
+//    public void SMO() throws Exception{    
         //从数据库读取训练集
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
@@ -75,11 +77,19 @@ public class Classifiertest {
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
         
+        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        System.out.println(eval.toClassDetailsString()+"\n");
+        System.out.println(eval.toMatrixString()+"\n");
+        
         //从数据库读入预测文件
         query.setUsername("song");
         query.setPassword("123456");
         query.setQuery("select * from " + table_name);
-        Instances predata = query.retrieveInstances();       
+        Instances predata = query.retrieveInstances();     
+        //转化类型
+        transtype.setOptions(ty_option);        
+        transtype.setInputFormat(predata);
+        predata = Filter.useFilter(predata, transtype); 
         
         //保存为arff文件（备份便于查找评论信息）
         ArffSaver saver = new ArffSaver();  
@@ -106,11 +116,7 @@ public class Classifiertest {
         add.setNominalLabels("Overview,Invalid,Demand,Specific");  
         add.setAttributeName("classes");  
         add.setInputFormat(newdata);  
-        newdata = Filter.useFilter(newdata,add);
-        //4.转化类型
-        transtype.setOptions(ty_option);        
-        transtype.setInputFormat(newdata);
-        newdata = Filter.useFilter(newdata, transtype); 
+        newdata = Filter.useFilter(newdata,add);        
         
         //对预测集进行分类
         Instances d_Pre = newdata; 
@@ -125,14 +131,49 @@ public class Classifiertest {
         saver.setInstances(d_Pre);  
         saver.setFile(new File("./data/pre_result.arff")); 
         saver.writeBatch();         
+        
     }
     
     //读取支持向量机算法结果
     public String getSMOResult() throws Exception{
         this.SMO("test100");
+    //    this.SMO();
         String str = txtSMO.getText();
         return str;
     }
+    
+    //输出分类结果
+    public int[] ShowClassifyResult(){
+        //用于统计每个类别的个数
+        int[] distribution = {0,0,0,0};
+        try {
+            //读取预测集评论信息文件
+            File inputFile = new File("./data/pre_info.arff");
+            ArffLoader atf = new ArffLoader();
+            atf.setFile(inputFile);
+            Instances pre_info = atf.getDataSet();
+            //读取预测集结果文件
+            inputFile = new File("./data/pre_result.arff");
+            atf.setFile(inputFile);
+            Instances pre_result = atf.getDataSet();
+            //输出相同索引的评论信息和分类结果
+            for(int i = 0; i < pre_info.numInstances(); i++){
+                System.out.println(pre_info.instance(i).stringValue(4)+"\t"+pre_result.instance(i).stringValue(0));
+                if(pre_result.instance(i).stringValue(0).equals("Overview"))
+                    distribution[0]++;
+                if(pre_result.instance(i).stringValue(0).equals("Invalid"))
+                    distribution[1]++;
+                if(pre_result.instance(i).stringValue(0).equals("Demand"))
+                    distribution[2]++;
+                if(pre_result.instance(i).stringValue(0).equals("Specific"))
+                    distribution[3]++;
+            }            
+        }catch (IOException ex) {
+            Logger.getLogger(Classifiertest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return distribution;
+    }
+    
     
     public void TestCluster() throws Exception{
         //从数据库读取数据文件
