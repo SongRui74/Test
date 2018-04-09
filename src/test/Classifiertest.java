@@ -142,8 +142,12 @@ public class Classifiertest {
         return str;
     }
     
-    //输出分类结果
-    public int[] ShowClassifyResult(){
+    /**
+     * 存储分类结果
+     * @param table_name 预测集表名
+     * @return 各类别的数目（Overview,Invalid,Demand,Specific）
+     */
+        public int[] ShowClassifyResult(String table_name){
         //用于统计每个类别的个数
         int[] distribution = {0,0,0,0};
         try {
@@ -157,8 +161,17 @@ public class Classifiertest {
             atf.setFile(inputFile);
             Instances pre_result = atf.getDataSet();
             //输出相同索引的评论信息和分类结果
+            SQL sql = new SQL();
+            //添加类别列
+            sql.AddColumn(table_name, "classes", "varchar(100)");
             for(int i = 0; i < pre_info.numInstances(); i++){
-                System.out.println(pre_info.instance(i).stringValue(4)+"\t"+pre_result.instance(i).stringValue(0));
+                String content = pre_info.instance(i).stringValue(4);
+                String label = pre_result.instance(i).stringValue(0);
+                //标记评论对应的类别
+                sql.RemarkClasses(table_name, content, label);
+                
+                System.out.println(content +"\t"+ label);
+                //统计各类别的结果
                 if(pre_result.instance(i).stringValue(0).equals("Overview"))
                     distribution[0]++;
                 if(pre_result.instance(i).stringValue(0).equals("Invalid"))
@@ -168,11 +181,20 @@ public class Classifiertest {
                 if(pre_result.instance(i).stringValue(0).equals("Specific"))
                     distribution[3]++;
             }            
+            System.out.println(distribution[0]);
+            System.out.println(distribution[1]);
+            System.out.println(distribution[2]);
+            System.out.println(distribution[3]);
         }catch (IOException ex) {
             Logger.getLogger(Classifiertest.class.getName()).log(Level.SEVERE, null, ex);
         }
         return distribution;
     }
+    
+    
+    
+    
+    
     
     
     public void TestCluster() throws Exception{

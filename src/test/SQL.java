@@ -6,7 +6,6 @@
 
 package test;
 
-import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.Tree;
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,9 +65,7 @@ public class SQL {
             rs.close();
             stmt.close(); 
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return treemap;
@@ -102,9 +99,7 @@ public class SQL {
             rs.close();
             stmt.close(); 
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
         return listmap;
@@ -151,9 +146,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -199,9 +192,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -249,9 +240,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }   
@@ -293,12 +282,33 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }   
+    
+    /**
+     * 标记评论类别
+     * @param table_name 表名
+     * @param content 评论内容
+     * @param label 对应的类别
+     */
+    public void RemarkClasses(String table_name,String content,String label){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            stmt = conn.createStatement(); 
+            content = SqlSingleQuote(content);
+            String sql = "UPDATE "+ table_name +" SET classes = '" + label + "' where Review_Content = '"+ content +"'";     
+            stmt.executeUpdate(sql);
+            
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     /**
      * 获取评论单词数目
@@ -342,9 +352,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -380,9 +388,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -418,9 +424,7 @@ public class SQL {
             stmt.close(); 
             stmt2.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -449,9 +453,7 @@ public class SQL {
             
             stmt.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return num;
@@ -479,9 +481,7 @@ public class SQL {
             
             stmt.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return num;
@@ -505,9 +505,7 @@ public class SQL {
             
             stmt.close();
             conn.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -528,9 +526,7 @@ public class SQL {
             
             stmt.close();
             conn.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -551,9 +547,7 @@ public class SQL {
             
             stmt.close();
             conn.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
     }    
@@ -634,9 +628,7 @@ public class SQL {
             rs.close();
             stmt.close();
             conn.close();
-        }catch (SQLException ex) {
-            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        }catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -770,6 +762,7 @@ public class SQL {
      * @param readpath
      * @param table
      * @param n
+     * @return 
      * @throws java.io.IOException
      */  
     public String AppsToDB(String readpath,String table,int n) throws IOException, ClassNotFoundException, SQLException{    //文件路径，数据库表名，属性个数
