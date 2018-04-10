@@ -54,10 +54,8 @@ public class ResultPanel extends JFrame{
         setLayout(new FlowLayout());
         add(out_label);
         add(js);
-        
         setResizable(false);
         setVisible(true);
-        
         //显示信息
         SQL s = new SQL();
         List list = s.GetContentwithClass(classname);

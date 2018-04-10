@@ -79,7 +79,6 @@ public class SQL {
         return list;
     }
     
-    
     Standfordnlp nlp = new Standfordnlp();  
     /**
      * 记录评论解析后的句法树

@@ -35,7 +35,7 @@ public class MyPanel extends JFrame implements ActionListener
     public static final int HEIGHT = 300;
     
     public String n; //预测集数据数目
-    public String table_name ="test100"; //预测集表名
+    public String table_name = "test100"; //预测集表名
     
     public void settablename(String name){
         table_name = name;
