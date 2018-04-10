@@ -17,6 +17,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,24 +33,50 @@ public class SQL {
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
     private final String userName = "song"; 
     private final String userPwd = "123456"; 
-    private Connection conn;    
+    private Connection conn;  
+    
+    public String tablename;
+    
+    public void settablename(String name){
+        tablename = name;
+    }
+    
+    public String gettablename(){
+        return tablename;
+    }
     
     /**
-     * 执行一条sql语句
-     * @param sql 
+     * 根据类名获取评论内容
+     * @param classname 类名
+     * @return 评论内容
      */
-    public void ExecuteSQL(String sql){
+    public List<String> GetContentwithClass(String classname){
+        MyPanel p = new MyPanel();
+        String name = p.gettablename();
+        this.settablename(name);
+        
+        List list = new ArrayList();
         try {
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
+            ResultSet rs;
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            tablename = "cpy_"+tablename;
+            String sql = "select * from "+ tablename + " where classes = '" + classname + "'";
+            rs=stmt.executeQuery(sql);
             
+            while(rs.next()){   
+                String content = rs.getString("Review_Content");
+                list.add(content);
+            }
+            
+            rs.close();
             stmt.close(); 
             conn.close();
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return list;
     }
     
     

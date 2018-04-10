@@ -33,8 +33,18 @@ public class MyPanel extends JFrame implements ActionListener
     
     public static final int WIDTH = 500;
     public static final int HEIGHT = 300;
+    
+    public String n; //预测集数据数目
+    public String table_name ="test100"; //预测集表名
+    
+    public void settablename(String name){
+        table_name = name;
+    }
+    public String gettablename(){
+        return table_name;
+    }
        
-    public MyPanel(){
+    public void MainPanel(){
         //设置文本框和标签
         in_label = new JLabel("请输入预测数据集的评论数量（0-243484）");
         txtArea = new JTextArea(10,40);
@@ -72,19 +82,17 @@ public class MyPanel extends JFrame implements ActionListener
         this.button_pre_result.addActionListener(this);
         this.button_submit.addActionListener(this);
     }
-       
-    public String n; //预测集数据数目
-    public String table_name; //预测集表名
+    
     @Override
     public void actionPerformed(ActionEvent e)
     {
         n = txtField.getText()+"";
         if(n.equals("")){
             n = "100";
-            table_name = "test100";
+            settablename("test100");
         }
         else{
-            table_name = "test" + n;
+            settablename("test" + n);
         }
         if(e.getSource() == this.button_submit)
         {
@@ -128,7 +136,7 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("Demand类别： \t" + distr[2] + "\n");
             this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
             //调用结果子面板
-            new PrePanel();
+            PrePanel prePanel = new PrePanel();
         }
     }    
 }      
