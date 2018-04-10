@@ -6,12 +6,11 @@
 
 package test;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
 import weka.classifiers.Classifier; 
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SMO;
@@ -34,17 +33,20 @@ public class Classifiertest {
     public JTextArea txtJ48 = new JTextArea();
     public JTextArea txtSMO = new JTextArea();
     
-    //SMO算法训练模型
+    
+    /**
+     * SMO算法训练模型并分类
+     * @param table_name 预测集表名
+     * @throws Exception 
+     */
     public void SMO(String table_name) throws Exception{
-//    public void SMO() throws Exception{    
         //从数据库读取训练集
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
         query.setPassword("123456");
         query.setQuery("select * from train");
-        txtSMO.append("数据库连接成功！\n");
-        Instances traindata = query.retrieveInstances();
-                  
+    //    txtSMO.append("数据库连接成功！\n");
+        Instances traindata = query.retrieveInstances(); 
         //数据预处理
         //1.remove无用的文本特征
         String[] re_option = new String[2];
@@ -134,22 +136,25 @@ public class Classifiertest {
         
     }
     
-    //读取支持向量机算法结果
-    public String getSMOResult() throws Exception{
-        this.SMO("test100");
-    //    this.SMO();
+    /**
+     * 运行SMO算法并读取模型评价结果
+     * @param table_name 预测集表名
+     * @return
+     * @throws Exception 
+     */
+    public String getSMOResult(String table_name) throws Exception{
+        this.SMO(table_name);
         String str = txtSMO.getText();
         return str;
     }
     
     /**
-     * 存储分类结果
-     * @param table_name 预测集表名
+     * 统计分类结果
      * @return 各类别的数目（Overview,Invalid,Demand,Specific）
      */
-        public int[] ShowClassifyResult(String table_name){
+        public int[] StatisticsResult(){
         //用于统计每个类别的个数
-        int[] distribution = {0,0,0,0};
+        int[] distribution = {0,0,0,0,0};
         try {
             //读取预测集评论信息文件
             File inputFile = new File("./data/pre_info.arff");
@@ -160,17 +165,7 @@ public class Classifiertest {
             inputFile = new File("./data/pre_result.arff");
             atf.setFile(inputFile);
             Instances pre_result = atf.getDataSet();
-            //输出相同索引的评论信息和分类结果
-            SQL sql = new SQL();
-            //添加类别列
-            sql.AddColumn(table_name, "classes", "varchar(100)");
-            for(int i = 0; i < pre_info.numInstances(); i++){
-                String content = pre_info.instance(i).stringValue(4);
-                String label = pre_result.instance(i).stringValue(0);
-                //标记评论对应的类别
-                sql.RemarkClasses(table_name, content, label);
-                
-                System.out.println(content +"\t"+ label);
+            for(int i = 0; i < pre_info.numInstances(); i++){                
                 //统计各类别的结果
                 if(pre_result.instance(i).stringValue(0).equals("Overview"))
                     distribution[0]++;
@@ -180,15 +175,43 @@ public class Classifiertest {
                     distribution[2]++;
                 if(pre_result.instance(i).stringValue(0).equals("Specific"))
                     distribution[3]++;
-            }            
-            System.out.println(distribution[0]);
-            System.out.println(distribution[1]);
-            System.out.println(distribution[2]);
-            System.out.println(distribution[3]);
+            }    
+            distribution[4] = pre_info.numInstances();
         }catch (IOException ex) {
             Logger.getLogger(Classifiertest.class.getName()).log(Level.SEVERE, null, ex);
         }
         return distribution;
+    }    
+    
+    /**
+     * 存储分类结果
+     * @param table_name 预测集表名
+     */
+        public void RecordClassifyResult(String table_name){
+        try {
+            //读取预测集评论信息文件
+            File inputFile = new File("./data/pre_info.arff");
+            ArffLoader atf = new ArffLoader();
+            atf.setFile(inputFile);
+            Instances pre_info = atf.getDataSet();
+            //读取预测集结果文件
+            inputFile = new File("./data/pre_result.arff");
+            atf.setFile(inputFile);
+            Instances pre_result = atf.getDataSet();
+            //在备份表输出相同索引的评论信息和分类结果
+            SQL sql = new SQL();
+            table_name = "cpy_" + table_name;
+            //添加类别列
+            sql.AddColumn(table_name, "classes", "varchar(100)");
+            for(int i = 0; i < pre_info.numInstances(); i++){
+                String content = pre_info.instance(i).stringValue(4);
+                String label = pre_result.instance(i).stringValue(0);
+                //标记评论对应的类别
+                sql.RemarkClasses(table_name, content, label);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Classifiertest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     

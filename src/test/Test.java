@@ -32,7 +32,8 @@ public class Test {
     public static void main(String[] args) throws Exception{
         
     
-        new MyPanel(); 
+    //    new MyPanel(); 
+        new PrePanel(); 
               
     /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句

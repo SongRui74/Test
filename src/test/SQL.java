@@ -18,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,6 +33,25 @@ public class SQL {
     private final String userName = "song"; 
     private final String userPwd = "123456"; 
     private Connection conn;    
+    
+    /**
+     * 执行一条sql语句
+     * @param sql 
+     */
+    public void ExecuteSQL(String sql){
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql);
+            
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     
     Standfordnlp nlp = new Standfordnlp();  
     /**
@@ -370,8 +388,14 @@ public class SQL {
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             Statement stmt2 = conn.createStatement(); 
             Statement stmt3 = conn.createStatement(); 
+            Statement stmt4 = conn.createStatement();
+            Statement stmt5 = conn.createStatement();
             rs=stmt.executeQuery("select * from sys.tables");  
+            //预测集表名
             String table_name = "test" + num;
+            //备份表名
+            String cpy = "cpy_" + table_name;
+            
             while(rs.next()){                                            
                 /*获取数据库中表的名称*/
                 String name = rs.getString("name");          
@@ -379,14 +403,23 @@ public class SQL {
                 if(name.equals(table_name)){
                     String sql = "Drop table " + table_name;
                     stmt2.executeUpdate(sql);
+                    sql = "Drop table " + cpy; //同时删除备份表
+                    stmt5.executeUpdate(sql);
                     break;
                 }
             }
             String sql = "select top("+num+")* into "+ table_name +" from testdata order by newid()";
             stmt3.executeUpdate(sql);
+            //备份表
+            sql = "select * into "+ cpy +" from " + table_name;
+            stmt4.executeUpdate(sql);
+            
             rs.close();
             stmt.close(); 
             stmt2.close();
+            stmt3.close();
+            stmt4.close();
+            stmt5.close();
             conn.close();
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
@@ -498,12 +531,28 @@ public class SQL {
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);
             
-            Statement stmt = conn.createStatement();
-            String sql = null;
-            sql = "ALTER TABLE "+ table + " ADD "+ col +" "+ type;
-            stmt.executeUpdate(sql);
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();
+            ResultSet rs;
+            //获取表中所有列名
+            rs=stmt.executeQuery("select name from syscolumns where id = object_id('"+ table +"')");  
+            //判断是否存在该列
+            int flag = 0;
+            while(rs.next()){               
+                String name = rs.getString("name");
+                if(name.equals(col)){
+                    flag = 1;
+                    break;
+                }
+            }
+            //若不存在,则增加该列
+            if(flag == 0){
+                String sql = "ALTER TABLE "+ table + " ADD "+ col +" "+ type;
+                stmt2.executeUpdate(sql);
+            }
             
             stmt.close();
+            stmt2.close();
             conn.close();
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);

@@ -31,6 +31,9 @@ public class MyPanel extends JFrame implements ActionListener
     private JLabel out_label; //输出label
     private JScrollPane js; //滚动条
     
+    public static final int WIDTH = 500;
+    public static final int HEIGHT = 300;
+       
     public MyPanel(){
         //设置文本框和标签
         in_label = new JLabel("请输入预测数据集的评论数量（0-243484）");
@@ -41,12 +44,13 @@ public class MyPanel extends JFrame implements ActionListener
         button_SMO = new JButton("SMO分类");
         button_clear = new JButton("清空");
         button_pre_result = new JButton("分类结果");
-    //    button_submit = new JButton("确定");
         
         //布局
         setTitle("Classifier");
-        setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - 500)/2,
-            (Toolkit.getDefaultToolkit().getScreenSize().height - 300)/2 , 500, 300);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //关闭退出进程
+        setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
+            (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
+        
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         setLayout(new FlowLayout());
@@ -58,6 +62,7 @@ public class MyPanel extends JFrame implements ActionListener
         add(button_SMO);
         add(button_clear);
         add(button_pre_result);
+        
         setResizable(false);
         setVisible(true);
         
@@ -67,17 +72,24 @@ public class MyPanel extends JFrame implements ActionListener
         this.button_pre_result.addActionListener(this);
         this.button_submit.addActionListener(this);
     }
-    
-    
-    String n;
+       
+    public String n; //预测集数据数目
+    public String table_name; //预测集表名
     @Override
     public void actionPerformed(ActionEvent e)
     {
+        n = txtField.getText()+"";
+        if(n == ""){
+            n = "100";
+            table_name = "test100";
+        }
+        else{
+            table_name = "test" + n;
+        }
         if(e.getSource() == this.button_submit)
         {
             this.txtArea.setText("正在创建预测集并标记文本特征...\n");
-            txtArea.paintImmediately(txtArea.getBounds());
-            n = txtField.getText()+"";
+            txtArea.paintImmediately(txtArea.getBounds());            
             int num = Integer.parseInt(n);            
             Features fea = new Features();
             fea.RemarkAll(num);
@@ -87,10 +99,16 @@ public class MyPanel extends JFrame implements ActionListener
         {
             this.txtArea.append("正在建模并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
-            Classifiertest test = new Classifiertest();
+            Classifiertest cls = new Classifiertest();
             try {
-                this.txtArea.append(test.getSMOResult());
+                this.txtArea.append(cls.getSMOResult(table_name));
                 this.txtArea.append("该预测集分类完成！\n");
+                txtArea.paintImmediately(txtArea.getBounds());
+                this.txtArea.append("正在存储分类结果...\n");
+                txtArea.paintImmediately(txtArea.getBounds());
+                cls.RecordClassifyResult(table_name);
+                this.txtArea.append("数据库分类结果存储完成！\n");
+                txtArea.paintImmediately(txtArea.getBounds());
             } catch (Exception ex) {
                 Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -101,19 +119,15 @@ public class MyPanel extends JFrame implements ActionListener
         }
         if(e.getSource() == this.button_pre_result)
         {
-            Classifiertest cls = new Classifiertest();
-            String table_name = "test" + n;
-            int[] distr = cls.ShowClassifyResult(table_name);
+            Classifiertest cls = new Classifiertest();            
+            int[] distr = cls.StatisticsResult();
             this.txtArea.append("==================预测集分类结果=====================\n");
             this.txtArea.append("Overview类别：\t" + distr[0] + "\n");
             this.txtArea.append("Invalid类别： \t" + distr[1] + "\n");
             this.txtArea.append("Demand类别： \t" + distr[2] + "\n");
             this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
-            //调用结果
+            //调用结果子面板
+            new PrePanel();
         }
-    }
-    
-    public void PreResult(){
-    
-    }
-}
+    }    
+}      
