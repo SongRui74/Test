@@ -28,7 +28,6 @@ public class PrePanel extends JFrame{
         setContentPane(pre_result);
         // 设置窗口标题、大小、退出键
         setTitle("分类结果");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
         setResizable(false);
@@ -72,7 +71,20 @@ class Subpanel extends JPanel{
         //图例
         g.setColor(Color.blue);
         g.fillRect(CenterX/2+80, CenterY/8+100, 20, 10);
+        
+        g.setColor(Color.red);
+        g.fillRect(CenterX/2+80, CenterY/8+120, 20, 10);
+        
+        g.setColor(Color.yellow);
+        g.fillRect(CenterX/2+80, CenterY/8+140, 20, 10);        
+        
+        g.setColor(Color.green);
+        g.fillRect(CenterX/2+80, CenterY/8+160, 20, 10);
+        
         g.setColor(Color.black);
-        g.drawString("Overview", CenterX/2+110, CenterY/8+110);  
+        g.drawString("综合评价", CenterX/2+110, CenterY/8+110); 
+        g.drawString("无效评价", CenterX/2+110, CenterY/8+130); 
+        g.drawString("需求评价", CenterX/2+110, CenterY/8+150); 
+        g.drawString("具体评价", CenterX/2+110, CenterY/8+170); 
     }  
 }

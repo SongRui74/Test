@@ -79,10 +79,10 @@ public class Classifiertest {
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
         
-        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         System.out.println(eval.toClassDetailsString()+"\n");
         System.out.println(eval.toMatrixString()+"\n");
-        
+    */    
         //从数据库读入预测文件
         query.setUsername("song");
         query.setPassword("123456");
@@ -111,17 +111,17 @@ public class Classifiertest {
         re_option[1] = "1-6"; //移除评论作者，标题，内容，词汇数目等属性
         remove.setOptions(re_option);
         remove.setInputFormat(Pre);
-        newdata = Filter.useFilter(Pre, remove); 
+        Instances newpre = Filter.useFilter(Pre, remove); 
         //3.添加classes属性使训练集与预测集一致
         Add add = new Add();   
         add.setAttributeIndex("1");  
         add.setNominalLabels("Overview,Invalid,Demand,Specific");  
         add.setAttributeName("classes");  
-        add.setInputFormat(newdata);  
-        newdata = Filter.useFilter(newdata,add);        
+        add.setInputFormat(newpre);  
+        newpre = Filter.useFilter(newpre,add);        
         
         //对预测集进行分类
-        Instances d_Pre = newdata; 
+        Instances d_Pre = newpre; 
         d_Pre.setClassIndex(0);//设置分类属性
         int sum = d_Pre.numInstances();
         for(int i = 0; i < sum; i++){

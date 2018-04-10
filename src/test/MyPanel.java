@@ -79,7 +79,7 @@ public class MyPanel extends JFrame implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
         n = txtField.getText()+"";
-        if(n == ""){
+        if(n.equals("")){
             n = "100";
             table_name = "test100";
         }
@@ -100,18 +100,19 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("正在建模并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
             Classifiertest cls = new Classifiertest();
+            
             try {
                 this.txtArea.append(cls.getSMOResult(table_name));
-                this.txtArea.append("该预测集分类完成！\n");
-                txtArea.paintImmediately(txtArea.getBounds());
-                this.txtArea.append("正在存储分类结果...\n");
-                txtArea.paintImmediately(txtArea.getBounds());
-                cls.RecordClassifyResult(table_name);
-                this.txtArea.append("数据库分类结果存储完成！\n");
-                txtArea.paintImmediately(txtArea.getBounds());
             } catch (Exception ex) {
-                Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
+            this.txtArea.append("该预测集分类完成！\n");
+            txtArea.paintImmediately(txtArea.getBounds());
+            this.txtArea.append("正在存储分类结果...\n");
+            txtArea.paintImmediately(txtArea.getBounds());
+            cls.RecordClassifyResult(table_name);
+            this.txtArea.append("数据库分类结果存储完成！\n");
+            txtArea.paintImmediately(txtArea.getBounds());            
         }
         if(e.getSource() == this.button_clear)
         {
