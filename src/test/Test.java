@@ -30,8 +30,10 @@ public class Test {
     }
          
     public static void main(String[] args) throws Exception{
-        new PrePanel();
-    /*    MyPanel myPanel = new MyPanel();
+        
+        Features f = new Features();
+        f.RemarkTrainAll();
+        MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
@@ -42,22 +44,31 @@ public class Test {
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
          */
-        /*    Standfordnlp s = new Standfordnlp();
-        String str = " Great customer service";
+    /*    Standfordnlp s = new Standfordnlp();
+        String str = "It helps me manage my bills";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "JJ  $+ (NN !<< app)";
-        String sm = "{word:love} > dobj {tag:/NN./} & !> dobj {word:app}";
+        String re = "VBZ < helps $+ S";
+        String sm = "{tag:/VB./} < ccomp {word:helps} | < ccomp {word:help} ";
         Tregex t = new Tregex();
         t.Tregextest2(tree,re);      
         boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
-        /*    Test k = new Test();
+        /*  
+         Helpful videos to help get started and a powerful simulator
+        This App really helps me keep up with my bills
+          Helpful to check values throughout day
+        It helps me manage my bills
+         This helps me track every account and card I have
+         Helps me keep track of my spendings, great union 
+        Very helpful for checking balances 
+        This App really helps me keep up with my bills
+        
+        Test k = new Test();
         k.KMeans();
-        //Your happy passer-by all knows, my distressed there is no place hides.
         /*    Standfordnlp t = new Standfordnlp();
         String s1 = "App don't work.";
         String s2 = "App can't open.";

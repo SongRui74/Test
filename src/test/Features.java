@@ -100,8 +100,6 @@ public class Features {
         this.MarkWordFeature("must ");
         this.MarkWordFeature("please");
         this.MarkWordFeature("_please");
-        this.MarkWordFeature("prefer");
-        this.MarkWordFeature("_prefer");
         this.MarkWordFeature("should");
         this.MarkWordFeature("suggest");
         this.MarkWordFeature("want");
@@ -114,7 +112,7 @@ public class Features {
         this.MarkWordFeature("lost");
         this.MarkWordFeature("_lost");
         this.MarkWordFeature("give");
-        this.MarkWordFeature("help");
+    //    this.MarkWordFeature("help");
         this.MarkWordFeature("again");
         this.MarkWordFeature("limit");
         //Demand-wrong
@@ -167,24 +165,23 @@ public class Features {
         this.MarkWordFeature("Just wish");
         this.MarkWordFeature("Touch ID");
         //Overview
-    //    this.MarkWordFeature("love");
-    //    this.MarkWordFeature("great");
-        this.MarkWordFeature("great app");
+        this.MarkWordFeature("Love this app");
         this.MarkWordFeature("thanks");
+        this.MarkWordFeature("Thx");
+        this.MarkWordFeature("love it");
+    /*    this.MarkWordFeature("love");
+        this.MarkWordFeature("use");
+        this.MarkWordFeature("great"); 
         this.MarkWordFeature("amazing");
         this.MarkWordFeature("useless");
         this.MarkWordFeature("bad");
         this.MarkWordFeature("delete");
-        this.MarkWordFeature("love it");
         this.MarkWordFeature("Convenient");
-        this.MarkWordFeature("Thx");
-        this.MarkWordFeature("use");
-        this.MarkWordFeature("easy");
         this.MarkWordFeature("friendly");
         this.MarkWordFeature("useful");
         this.MarkWordFeature("recommend");
-    //    this.MarkWordFeature("safe");
-    //    this.MarkWordFeature("like");
+        this.MarkWordFeature("safe");
+        this.MarkWordFeature("like");
         this.MarkWordFeature("excellent");
         this.MarkWordFeature("good");
         this.MarkWordFeature("fool");
@@ -192,9 +189,12 @@ public class Features {
         this.MarkWordFeature("Terrible");
         this.MarkWordFeature("Horrible");
         this.MarkWordFeature("download");        
-        this.MarkWordFeature("Love this app");
-        this.MarkWordFeature("easy to use");
+        
+    */    this.MarkWordFeature("easy to use");
+        this.MarkWordFeature("easy to");
         //Specific
+        this.MarkWordFeature("prefer");
+        this.MarkWordFeature("_prefer");
         this.MarkWordFeature("can ");
         this.MarkWordFeature("make");
         this.MarkWordFeature("made");
@@ -211,21 +211,22 @@ public class Features {
         this.MarkWordFeature("glad that");
         this.MarkWordFeature("beautiful");
         this.MarkWordFeature("Helpful to");
+        this.MarkWordFeature("helpfs me");
         this.MarkWordFeature("is easy to do");
         //Invalid
         this.MarkInvalidFeature("IsInvalid");
         //Tree
         //Overview
-        this.MarkTreeFeature("NP < ( JJ $+ NN | $+ NNS | $+ NNP | $+ NNPS )");
+    //    this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
+    //    this.MarkDepFeature("{tag:/VB.*/} > nsubj {tag:/NN.*/} = A  : {tag:/NN.*/} = A > amod {tag:/JJ.*/}");
+    /*    this.MarkTreeFeature("NP < ( JJ $+ NN | $+ NNS | $+ NNP | $+ NNPS )");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < JJ))");
         this.MarkTreeFeature("JJ $++ CC $++ JJ");
         this.MarkTreeFeature("RB $+ JJ");
-        this.MarkDepFeature("{tag:/JJ.*/} > advmod {tag:RB}"); 
+        this.MarkDepFeature("{tag:/JJ./} > advmod {tag:RB}"); 
         this.MarkTreeFeature("NN..( DT $++ NN )"); 
-        //Specific
+    */    //Specific
         this.MarkTreeFeature("JJ..( CC..JJ )");
-        this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
-        this.MarkDepFeature("{tag:/VB.*/} > nsubj {tag:/NN.*/} = A  : {tag:/NN.*/} = A > amod {tag:/JJ.*/}");
         this.MarkTreeFeature("JJ .. ( TO $++ VP )");
         this.MarkTreeFeature("VBG ( .. VBZ | ..VBP | ..VBD ) .. JJ");
         this.MarkDepFeature("{tag:VBG} >> ccomp {tag:/JJ.*/} = A : {tag:/JJ.*/} = A > cop {tag:/VB.*/}");
@@ -241,19 +242,98 @@ public class Features {
         this.MarkDepFeature("{word:for} < mark {tag:VBG} | < case {tag:/NN.*/}");
         this.MarkDepFeature("{word:can} < aux {tag:VB}");
         this.MarkTreeFeature("MD < can & $+ VP");
-        this.MarkTreeFeature("VP < VBZ & << ((NP < PRP) $+ VP)");
-        this.MarkTreeFeature("VBZ ..((NP < PRP) $+ VP)");
-        this.MarkDepFeature("{tag:VBZ} > ccomp {tag:/VB.*/}");
-        this.MarkTreeFeature("(VBP < love | < like) $+ (NP !<< app)");
-        this.MarkTreeFeature("(VB < love | < like) $+ (NP !<< app)");
+    //    this.MarkTreeFeature("VP < VBZ & << ((NP < PRP) $+ VP)");
+    //    this.MarkTreeFeature("VBZ ..((NP < PRP) $+ VP)");
+    //    this.MarkDepFeature("{tag:VBZ} > ccomp {tag:/VB.*/}");
+        this.MarkTreeFeature("(VBP < love | < like) .. (NP !<< app)");
+        this.MarkTreeFeature("(VB < love | < like) .. (NP !<< app)");
         this.MarkDepFeature("{word:love} > dobj {tag:/NN.*/} & !> dobj {word:app} | < case {tag:/NN.*/}");
         this.MarkDepFeature("{word:like} > dobj {tag:/NN.*/} & !> dobj {word:app} | < case {tag:/NN.*/}");
         this.MarkTreeFeature("JJ $++ (NN !<< app)");
+        this.MarkTreeFeature("NP < ( JJ $+ @/NN.?/) : @/NN.?/ !<< app");
+        this.MarkDepFeature("{tag:JJ} < amod {tag:/NN.*/} & !< amod {word:app}");
+        this.MarkDepFeature("{tag:/VB.*/} < ccomp {word:helps} | < ccomp {word:help}");
+        this.MarkTreeFeature("VBZ < helps $+ S");
+        this.MarkTreeFeature("VB < help $+ S");
         //Demand
         this.MarkTreeFeature("NP $+ (VP < ( RB [ $- MD | $- VBZ] ) & << VB)");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP << (VBG $+ SBAR))");
         this.MarkDepFeature("{word:no} < neg {tag:NN}");
+        /*
+        //ok
+         Helpful videos to help get started and a powerful simulator
+        This App really helps me keep up with my bills
+          Helpful to check values throughout day
+        It helps me manage my bills
+         This helps me track every account and card I have
+         Helps me keep track of my spendings, great union 
+        Very helpful for checking balances 
+        This App really helps me keep up with my bills
+        //ok
+         Nice graphs
+         Great customer service
+         This app is real-time with useful technical analysis
+         What they had previously was actually a great UI
+        Good UI
+         Good customer support
+         Nice interface, really easy and simple to use
+         This app is real-time with useful technical analysis
+        //ok
+         Love being able to pay by photo
+         Works really well, I love the TouchID login 
+          Love the finger scan access and easy to pay bills
+            Love the TouchID functionality on my iPhone to login
+         I really like the presentation and ease of use
+         Love the customization features and the interface itself
+         I love the interaction with Penny
         
+        
+         Check Deposit is frustrating and disappointing
+         The instant balance feature makes everything so much easier
+         The check deposit function is bulletproof
+         Use it for work and makes accountants job easy
+         Screen resolution on ipad is way too big
+         Addition of mobile deposits was a plus
+         The new scrolling interface is awesome
+        More features but more confusing display
+        Transferring between personal and other accounts are easy
+        The new version is really good works perfect
+        New update is terrible
+         The new UI is horrible
+        Old app was way better
+         Buttons are also not good anymore
+        
+         Expenses easy to characterize
+         So easy to track mileage for work
+        Easy to use UI
+        So easy to pay/request with friends :)
+         So easy to navigate through 
+        Very easy to invest
+        Easy to set up
+          It's so easy to keep on top of my credit
+        It's awesome and easy to navigate
+         Really cool app, Very easy to navigate and user friendly
+        
+        
+         Great for quick informative articles and stock quotes
+        Good way to watch your credit daily and weekly
+        
+        
+        
+        
+         I can view my ID cards even without phone service
+         So glad that I can now deposit checks from anywhere
+        
+        
+        
+        I'm so excited no more one time password 
+         I just use my fingerprint to sign in
+         Clear design and overall a smooth journey for the customer
+         It's slick and user friendly with many great new features
+         I'd prefer to sort it by pay period
+         Not user friendly and visually embarrassing
+        
+        */
     }
     
     /**
@@ -265,6 +345,14 @@ public class Features {
         s.CreatePre(num);
         String n = Integer.toString(num);
         table_name = "test" + n;
+        treemap = s.RecordTreeMap(table_name);//解析语法树 
+        this.MarkALLFeature();
+    }
+    
+    public void RemarkTrainAll(){
+        SQL s = new SQL();
+        s.CreateTrain();
+        table_name = "train";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }
