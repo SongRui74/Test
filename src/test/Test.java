@@ -43,30 +43,23 @@ public class Test {
         String type = "int";
         s.AddColumn(table_name,col, type);//添加单词数目列
         s.RemarkNumberofWords(table_name, col);//标记单词数
+        
          */
     /*    Standfordnlp s = new Standfordnlp();
-        String str = "It helps me manage my bills";
+        String str = "Easy to use app";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "VBZ < helps $+ S";
-        String sm = "{tag:/VB./} < ccomp {word:helps} | < ccomp {word:help} ";
+        String re = "easy .. (S << to & << VP ) : !do : !use";
+        String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
+        
         Tregex t = new Tregex();
         t.Tregextest2(tree,re);      
         boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
-        /*  
-         Helpful videos to help get started and a powerful simulator
-        This App really helps me keep up with my bills
-          Helpful to check values throughout day
-        It helps me manage my bills
-         This helps me track every account and card I have
-         Helps me keep track of my spendings, great union 
-        Very helpful for checking balances 
-        This App really helps me keep up with my bills
-        
+        /*          
         Test k = new Test();
         k.KMeans();
         /*    Standfordnlp t = new Standfordnlp();

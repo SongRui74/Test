@@ -108,9 +108,9 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("正在建模并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
             Classifiertest cls = new Classifiertest();
-            
             try {
-                this.txtArea.append(cls.getSMOResult(table_name));
+                cls.SMO(table_name);
+                this.txtArea.append(cls.getSMOResult());
             } catch (Exception ex) {
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }

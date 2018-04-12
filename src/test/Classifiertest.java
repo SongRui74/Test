@@ -79,10 +79,10 @@ public class Classifiertest {
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
         
-    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         System.out.println(eval.toClassDetailsString()+"\n");
         System.out.println(eval.toMatrixString()+"\n");
-    */    
+    /*    
         //从数据库读入预测文件
         query.setUsername("song");
         query.setPassword("123456");
@@ -133,17 +133,15 @@ public class Classifiertest {
         saver.setInstances(d_Pre);  
         saver.setFile(new File("./data/pre_result.arff")); 
         saver.writeBatch();         
-        
+   */     
     }
     
     /**
      * 运行SMO算法并读取模型评价结果
-     * @param table_name 预测集表名
      * @return
      * @throws Exception 
      */
-    public String getSMOResult(String table_name) throws Exception{
-        this.SMO(table_name);
+    public String getSMOResult() throws Exception{
         String str = txtSMO.getText();
         return str;
     }
