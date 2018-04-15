@@ -93,7 +93,7 @@ public class Features {
         this.MarkWordFeature("add ");
         this.MarkWordFeature("could ");
         this.MarkWordFeature("improvement");
-        this.MarkWordFeature("lack ");
+        this.MarkWordFeature("lack");
         this.MarkWordFeature("miss");
         this.MarkWordFeature("need");        
         this.MarkWordFeature("_need");
@@ -112,7 +112,6 @@ public class Features {
         this.MarkWordFeature("lost");
         this.MarkWordFeature("_lost");
         this.MarkWordFeature("give");
-    //    this.MarkWordFeature("help");
         this.MarkWordFeature("again");
         this.MarkWordFeature("limit");
         //Demand-wrong
@@ -189,33 +188,31 @@ public class Features {
         this.MarkWordFeature("Terrible");
         this.MarkWordFeature("Horrible");
         this.MarkWordFeature("download");  
-        
         this.MarkWordFeature("easy to");
     */    //Specific
-        this.MarkWordFeature("easy to use");
+    //    this.MarkWordFeature("easy to use");
+    //    this.MarkWordFeature("_prefer");
+    //    this.MarkWordFeature("is easy to do");
+    //    this.MarkWordFeature("_is easy to do");
+    //    this.MarkWordFeature("_before");
+    //    this.MarkWordFeature("new version");
+    //    this.MarkWordFeature("user friendly");
+    //    this.MarkWordFeature("glad that");
+    //    this.MarkWordFeature("old");
+    //    this.MarkWordFeature("new");        
+    //    this.MarkWordFeature("Helpful to");
         this.MarkWordFeature("prefer");
-        this.MarkWordFeature("_prefer");
         this.MarkWordFeature("can ");
-    //    this.MarkWordFeature("make");
-    //    this.MarkWordFeature("made");
         this.MarkWordFeature("better");
         this.MarkWordFeature("prettier");
         this.MarkWordFeature("worse");
-        this.MarkWordFeature("old");
-        this.MarkWordFeature("new");
         this.MarkWordFeature("slow");
         this.MarkWordFeature("before");
-        this.MarkWordFeature("_before");
-        this.MarkWordFeature("new version");
-        this.MarkWordFeature("user friendly");
-        this.MarkWordFeature("glad that");
         this.MarkWordFeature("beautiful");
-        this.MarkWordFeature("Helpful to");
         this.MarkWordFeature("helps me");
-        this.MarkWordFeature("is easy to do");
         //Invalid
         this.MarkInvalidFeature("IsInvalid");
-        //Tree
+        
         //Overview
     //    this.MarkTreeFeature("VP..( NN..JJ | ..JJR | ..JJS ) | ..( NN $+ JJ | $+ JJR | $+ JJS )");
     //    this.MarkDepFeature("{tag:/VB.*/} > nsubj {tag:/NN.*/} = A  : {tag:/NN.*/} = A > amod {tag:/JJ.*/}");
@@ -225,48 +222,50 @@ public class Features {
         this.MarkTreeFeature("RB $+ JJ");
         this.MarkDepFeature("{tag:/JJ./} > advmod {tag:RB}"); 
         this.MarkTreeFeature("NN..( DT $++ NN )"); 
-    */    //Specific
-    //    this.MarkTreeFeature("JJ..( CC..JJ )");
-     //   this.MarkTreeFeature("JJ .. ( TO $++ VP )");
+    */   
+        //Specific
         this.MarkTreeFeature("NP ( << VBG | << NN ) $++ (VP << @/JJ.?/) : NP !<< app");
-    //kequ    this.MarkTreeFeature("VBG ( .. VBZ | ..VBP | ..VBD ) .. JJ");
         this.MarkDepFeature("{tag:VBG} >> ccomp {tag:/JJ.*/} = A : {tag:/JJ.*/} = A > cop {tag:/VB.*/}");
-    //    this.MarkDepFeature("{tag:/JJ.*/} = A > cop {tag:/VB.*/}");
         this.MarkDepFeature("{tag:/NN.*/} << nsubj {tag:/JJ.*/} : !{word:app} << nsubj {tag:/JJ.*/}");
         this.MarkDepFeature("{tag:/NN.*/} >> amod {tag:/JJ.*/} : !{word:app} >> amod {tag:/JJ.*/}");
         this.MarkTreeFeature("( NP < PRP ) $+ ( VP < ( ADJP < (JJ $+ PP | $+ SBAR)))");
         this.MarkTreeFeature("VB < use & $+ NP");
-    //    this.MarkTreeFeature("for .. VBG | ..@/NN.?/");
-        this.MarkDepFeature("{word:use} > dobj {tag:/NN.*/} ");
-    //    this.MarkDepFeature("{tag:JJ} > nmod {tag:/NN.*/} | > advcl {tag:VBG}");
-    //    this.MarkDepFeature("{word:for} < mark {tag:VBG} | < case {tag:/NN.*/}");
+        this.MarkDepFeature("{word:use} > dobj {tag:/NN.*/}");
         this.MarkDepFeature("{word:can} < aux {tag:VB}");
         this.MarkTreeFeature("MD < can & $+ VP");
         this.MarkTreeFeature("(VBP < love | < like) .. (NP !<< app)");
         this.MarkTreeFeature("(VB < love | < like) .. (NP !<< app)");
         this.MarkDepFeature("{word:love} > dobj {tag:/NN.*/} & !> dobj {word:app} | < case {tag:/NN.*/}");
         this.MarkDepFeature("{word:like} > dobj {tag:/NN.*/} & !> dobj {word:app} | < case {tag:/NN.*/}");
-        this.MarkTreeFeature("JJ $++ (NN !<< app)");
+        this.MarkTreeFeature("JJ $++ (@/NN.?/ !<< app)");
         this.MarkTreeFeature("NP < ( JJ $+ @/NN.?/) : @/NN.?/ !<< app");
         this.MarkDepFeature("{tag:JJ} < amod {tag:/NN.*/} & !< amod {word:app}");
         this.MarkDepFeature("{tag:/VB.*/} < ccomp {word:helps} | < ccomp {word:help}");
         this.MarkTreeFeature("VBZ < helps $+ S");
         this.MarkTreeFeature("VB < help $+ S");
+        this.MarkTreeFeature("JJ < helpful & $+ S");
+        this.MarkTreeFeature("JJ < helpful & $+ PP");
         this.MarkTreeFeature("NP (<< new | (<<new & [<< VBG | << NN]) ) $++ (VP << @/JJ.?/)");
         this.MarkDepFeature("{word:new} < amod {tag:/NN.*/}=A : {tag:/NN.*/}=A < nsubj {tag:/JJ.*/}");
         this.MarkDepFeature("{word:new} < nsubj {tag:/VB.*/}=A : {tag:/VB.*/}=A > ccomp {tag:/JJ.*/}");
         this.MarkTreeFeature("NP (<< old | (<<old & [<< VBG | << NN]) ) $++ (VP << @/JJ.?/)");
         this.MarkDepFeature("{word:old} < amod {tag:/NN.*/}=A : {tag:/NN.*/}=A < nsubj {tag:/JJ.*/}");
         this.MarkDepFeature("{word:old} < nsubj {tag:/VB.*/}=A : {tag:/VB.*/}=A > ccomp {tag:/JJ.*/}");
-    //    this.MarkTreeFeature("JJ < easy $+ (S << to & << VP ) : !do : !use");
         this.MarkDepFeature("{word:easy} >> xcomp {tag:/VB.*/} & !>> xcomp {word:do} & !>> xcomp {word:use}");
+        //部分特征加强
+        this.MarkTreeFeature("(@/NN.?/ !<< app) $-- JJ");
+        this.MarkDepFeature("{tag:JJ} !< amod {word:app} & < amod {tag:/NN.*/}");
+        this.MarkDepFeature("{tag:/VB.*/} < ccomp {word:help} | < ccomp {word:helps}");
+        this.MarkTreeFeature("(VBZ < helps) $+ S");
+        this.MarkTreeFeature("(VB < help) $+ S");
+        this.MarkTreeFeature("(JJ < helpful) $+ S");
+        this.MarkTreeFeature("(JJ < helpful) $+ PP");
+        this.MarkDepFeature("{word:easy} >> xcomp {tag:/VB.*/} & !>> xcomp {word:use} & !>> xcomp {word:do}");
+        this.MarkDepFeature("!{word:app} << nsubj {tag:/JJ.*/} : {tag:/NN.*/} << nsubj {tag:/JJ.*/}");
+        this.MarkDepFeature("!{word:app} >> amod {tag:/JJ.*/} : {tag:/NN.*/} >> amod {tag:/JJ.*/}");
         //Demand
         this.MarkTreeFeature("NP $+ (VP < ( RB [ $- MD | $- VBZ] ) & << VB)");
-        this.MarkTreeFeature("( NP < PRP ) $+ ( VP << (VBG $+ SBAR))");
         this.MarkDepFeature("{word:no} < neg {tag:NN}");
-        /*
-        
-        */
     }
     
     /**
@@ -286,6 +285,13 @@ public class Features {
         SQL s = new SQL();
         s.CreateTrain();
         table_name = "train";
+        treemap = s.RecordTreeMap(table_name);//解析语法树 
+        this.MarkALLFeature();
+    }
+    
+    public void RemarkPreAll(){
+        SQL s = new SQL();
+        table_name = "pre3";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }

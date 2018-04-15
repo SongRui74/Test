@@ -79,10 +79,10 @@ public class Classifiertest {
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
         
-        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         System.out.println(eval.toClassDetailsString()+"\n");
         System.out.println(eval.toMatrixString()+"\n");
-    /*    
+    */    
         //从数据库读入预测文件
         query.setUsername("song");
         query.setPassword("123456");
@@ -133,7 +133,7 @@ public class Classifiertest {
         saver.setInstances(d_Pre);  
         saver.setFile(new File("./data/pre_result.arff")); 
         saver.writeBatch();         
-   */     
+        
     }
     
     /**

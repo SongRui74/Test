@@ -32,8 +32,9 @@ public class Test {
     public static void main(String[] args) throws Exception{
         
         Features f = new Features();
-        f.RemarkTrainAll();
-        MyPanel myPanel = new MyPanel();
+    //    f.RemarkTrainAll();
+        f.RemarkPreAll();
+    /*    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
@@ -46,13 +47,13 @@ public class Test {
         
          */
     /*    Standfordnlp s = new Standfordnlp();
-        String str = "Easy to use app";
+        String str = "  Helpful to check values throughout day";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "easy .. (S << to & << VP ) : !do : !use";
+        String re = "JJ < helpful & $+ PP";
         String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
         
         Tregex t = new Tregex();
