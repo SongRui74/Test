@@ -96,12 +96,16 @@ public class MyPanel extends JFrame implements ActionListener
         }
         if(e.getSource() == this.button_submit)
         {
-            this.txtArea.setText("正在创建预测集并标记文本特征...\n");
+            this.txtArea.setText("正在创建预测集...\n");
             txtArea.paintImmediately(txtArea.getBounds());            
-            int num = Integer.parseInt(n);            
-            Features fea = new Features();
+            int num = Integer.parseInt(n);   
+            SQL s = new SQL();
+            s.CreatePre(num);
+        /*    Features fea = new Features();
             fea.RemarkAll(num);
             this.txtArea.append("该预测集特征标记完成！\n");
+                */
+            this.txtArea.append("该预测集创建完成！\n");
         }
         if(e.getSource() == this.button_SMO)
         {
@@ -120,7 +124,11 @@ public class MyPanel extends JFrame implements ActionListener
             txtArea.paintImmediately(txtArea.getBounds());
             cls.RecordClassifyResult(table_name);
             this.txtArea.append("数据库分类结果存储完成！\n");
-            txtArea.paintImmediately(txtArea.getBounds());            
+            txtArea.paintImmediately(txtArea.getBounds());   
+            Features fea = new Features();
+            fea.MarkAllInfo();
+            this.txtArea.append("类别关键信息提取完成！\n");
+            txtArea.paintImmediately(txtArea.getBounds()); 
         }
         if(e.getSource() == this.button_clear)
         {

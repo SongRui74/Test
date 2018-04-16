@@ -66,7 +66,7 @@ public class SQL {
             rs=stmt.executeQuery(sql);
             
             while(rs.next()){   
-                String content = rs.getString("Review_Content");
+                String content = rs.getString("info");
                 list.add(content);
             }
             
@@ -150,6 +150,46 @@ public class SQL {
     }
     
     /**
+     * 提取具体评价类的评论特征信息
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param str 匹配关系式
+     */
+    public void ExtractSpecificInfo(String table_name,String col,Map treemap,String str){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();  
+            rs=stmt.executeQuery("SELECT * FROM "+table_name+" where classes = 'Specific'");  
+                
+            Tregex regex = new Tregex();
+            String info ="";
+            //循环标记
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
+                Tree t = (Tree) treemap.get(content);
+                //获取关键信息
+                info = regex.Tregexinfo(t, str);  
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,info);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
      * 标记文本属性特征（句法树类）
      * @param table_name 表名
      * @param col 列名
@@ -194,7 +234,7 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+        
     /**
      * 标记文本属性特征（依存关系类）
      * @param table_name 表名
@@ -434,7 +474,7 @@ public class SQL {
                     break;
                 }
             }
-            String sql = "select top("+num+")* into "+ table_name +" from testdata order by newid()";
+            String sql = "select top("+num+")* into "+ table_name +" from pre1 by newid()";
             stmt3.executeUpdate(sql);
             //备份表
             sql = "select * into "+ cpy +" from " + table_name;

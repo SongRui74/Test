@@ -31,9 +31,11 @@ public class Test {
          
     public static void main(String[] args) throws Exception{
         
+        //还差pre9
         Features f = new Features();
     //    f.RemarkTrainAll();
         f.RemarkPreAll();
+     //   f.MarkAllInfo();
     /*    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         /*    SQL s = new SQL();
@@ -53,12 +55,12 @@ public class Test {
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "JJ < helpful & $+ PP";
-        String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
+        String re = "S $- (JJ < helpful)";
+    //    String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
         
         Tregex t = new Tregex();
-        t.Tregextest2(tree,re);      
-        boolean c = t.SemgrexIsMatch(tree, sm);
+        System.out.println(t.Tregexinfo(tree,re) );     
+    /*    boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
         /*          
         Test k = new Test();

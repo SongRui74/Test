@@ -18,6 +18,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;  
 import edu.stanford.nlp.trees.tregex.TregexPattern;  
 import edu.stanford.nlp.util.logging.Redwood;
+import java.util.List;
 /**
  *
  * @author dell-pc
@@ -111,39 +112,19 @@ public class Tregex {
             return true;
     }
     
-    public void Tregextest(){
-        Tree t = Tree.valueOf("(ROOT(NP(NP (DT An) (NNP NP))(PP (IN over)(NP(NP (DT an) (NNP NN))(SBAR(WHNP (WDT that))(S(VP (VBZ is)(PP (IN over)(NP (NN dog))))))))(. .)))");  
-        String s = "NP < NN | < NNS";  
-        Tree argTree =Tree.valueOf("(NN arg0)");  
+    public String Tregexinfo(Tree t,String s){
         //输出匹配的内容  
         TregexPattern p = TregexPattern.compile(s);  
         TregexMatcher m = p.matcher(t);  
-         
-        while (m.find()) {  
-            System.out.println("源树型结构！\n");  
-            t.pennPrint();//打印原树形  
-            System.out.println("匹配的部分：");  
-            m.getMatch().pennPrint();//打印匹配后的树型  
-            m.getMatch().removeChild(0);//剔除匹配后的树叶  
-            System.out.println("剔除匹配后的子叶：");  
-            m.getMatch().pennPrint();  
-            System.out.println("增加匹配后的树:");  
-            m.getMatch().addChild(argTree);//增加匹配后的树，完成替换  
-              //m.getMatch().pennPrint();  
-            t.pennPrint();  
-              //System.out.println(" \n");  
-           // m.getMatch().pennPrint();  
-            String le=m.getMatch().toString();  
-           // System.out.println(le);//替换后匹配的东西  
-        //TsurgeonPattern surgery = Tsurgeon.parseOperation("ok");  
-        //.processPattern(p, surgery, t).pennPrint();  
-        //Tsurgeon.processPattern(m.getMatch(), p, t);  
-        //TsurgeonPattern surgery = Tsurgeon.parseOperation("");  
-        //m.getMatch().removeChild(0);  
-        //m.getMatch().addChild(argTree);  
-        //m.getNode(le);  
-           //System.out.println("OK");  
-        }  
+        String str = ""; 
+        if(m.find()) {   
+            m.getMatch().pennPrint();//打印匹配后的树型
+            List l = m.getMatch().getLeaves();
+            for(int i = 0; i < l.size(); i++){
+                str += l.get(i).toString() + " ";
+            }
+        } 
+        return str;
     } 
     
     public void Tregextest2(Tree tree,String st){

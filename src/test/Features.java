@@ -15,7 +15,7 @@ import java.util.Map;
  * @author dell-pc
  */
 public class Features {
-    private static String table_name;
+    private static String table_name = "test100";
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
      /**
@@ -281,6 +281,27 @@ public class Features {
         this.MarkALLFeature();
     }
     
+    /**
+     * 记录具体评价类别的关键信息
+     * @param str 匹配关系式
+     */
+    public void MarkSpecificInfo(String str){
+        SQL s = new SQL();
+        s.ExtractSpecificInfo(table_name, "info", treemap, str);
+    }
+    
+    /**
+     * 记录类别的关键信息
+     */
+    public void MarkAllInfo(){
+        //添加列名
+        SQL s = new SQL();
+        table_name = "cpy_"+table_name;
+        s.AddColumn(table_name,"info","varchar(5000)");
+        treemap = s.RecordTreeMap(table_name);//解析语法树 
+        this.MarkSpecificInfo("S $- (JJ < helpful)");
+    }
+    
     public void RemarkTrainAll(){
         SQL s = new SQL();
         s.CreateTrain();
@@ -291,7 +312,7 @@ public class Features {
     
     public void RemarkPreAll(){
         SQL s = new SQL();
-        table_name = "pre3";
+        table_name = "pre8";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }
