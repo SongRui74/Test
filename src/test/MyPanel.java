@@ -22,7 +22,7 @@ public class MyPanel extends JFrame implements ActionListener
      * @param args the command line arguments
      */
     private JButton button_SMO;
-    private JButton button_clear;
+    private JButton button_save;
     private JButton button_pre_result;
     private JButton button_submit = new JButton("确定");
     private JTextField txtField = new JTextField(5);; //输入区
@@ -35,7 +35,7 @@ public class MyPanel extends JFrame implements ActionListener
     public static final int HEIGHT = 300;
     
     public String n; //预测集数据数目
-    public String table_name = "test100"; //预测集表名
+    public String table_name = "test10000"; //预测集表名
     
     public void settablename(String name){
         table_name = name;
@@ -52,7 +52,7 @@ public class MyPanel extends JFrame implements ActionListener
         js = new JScrollPane(txtArea);
         //设置按钮
         button_SMO = new JButton("SMO分类");
-        button_clear = new JButton("清空");
+        button_save = new JButton("保存");
         button_pre_result = new JButton("分类结果");
         
         //布局
@@ -70,7 +70,7 @@ public class MyPanel extends JFrame implements ActionListener
         add(out_label);
         add(js);
         add(button_SMO);
-        add(button_clear);
+        add(button_save);
         add(button_pre_result);
         
         setResizable(false);
@@ -78,7 +78,7 @@ public class MyPanel extends JFrame implements ActionListener
         
         //监听
         this.button_SMO.addActionListener(this);
-        this.button_clear.addActionListener(this);
+        this.button_save.addActionListener(this);
         this.button_pre_result.addActionListener(this);
         this.button_submit.addActionListener(this);
     }
@@ -88,8 +88,8 @@ public class MyPanel extends JFrame implements ActionListener
     {
         n = txtField.getText()+"";
         if(n.equals("")){
-            n = "100";
-            settablename("test100");
+            n = "10000";
+            settablename("test10000");
         }
         else{
             settablename("test" + n);
@@ -119,20 +119,16 @@ public class MyPanel extends JFrame implements ActionListener
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
             this.txtArea.append("该预测集分类完成！\n");
-            txtArea.paintImmediately(txtArea.getBounds());
+            txtArea.paintImmediately(txtArea.getBounds());               
+        }
+        if(e.getSource() == this.button_save)
+        {
+            Classifiertest cls = new Classifiertest();
             this.txtArea.append("正在存储分类结果...\n");
             txtArea.paintImmediately(txtArea.getBounds());
             cls.RecordClassifyResult(table_name);
             this.txtArea.append("数据库分类结果存储完成！\n");
-            txtArea.paintImmediately(txtArea.getBounds());   
-            Features fea = new Features();
-            fea.MarkAllInfo();
-            this.txtArea.append("类别关键信息提取完成！\n");
-            txtArea.paintImmediately(txtArea.getBounds()); 
-        }
-        if(e.getSource() == this.button_clear)
-        {
-            this.txtArea.setText(null);
+            txtArea.paintImmediately(txtArea.getBounds());
         }
         if(e.getSource() == this.button_pre_result)
         {

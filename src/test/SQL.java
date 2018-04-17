@@ -62,12 +62,15 @@ public class SQL {
             ResultSet rs;
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             tablename = "cpy_"+tablename;
+         //   tablename = "Specific";
             String sql = "select * from "+ tablename + " where classes = '" + classname + "'";
             rs=stmt.executeQuery(sql);
             
             while(rs.next()){   
+            //    String content = rs.getString("Review_Content");
                 String content = rs.getString("info");
-                list.add(content);
+                if(!content.equals(""))
+                    list.add(content);
             }
             
             rs.close();
@@ -156,7 +159,7 @@ public class SQL {
      * @param treemap 评论-句法树map
      * @param str 匹配关系式
      */
-    public void ExtractSpecificInfo(String table_name,String col,Map treemap,String str){
+    public void ExtractInfo(String table_name,String col,Map treemap,String str){
         try {             
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
@@ -164,21 +167,25 @@ public class SQL {
             ResultSet rs;
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
             Statement stmt2 = conn.createStatement();  
-            rs=stmt.executeQuery("SELECT * FROM "+table_name+" where classes = 'Specific'");  
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
                 
             Tregex regex = new Tregex();
             String info ="";
             //循环标记
-            while(rs.next()){                                            
-                /*文本特征判断*/
+            while(rs.next()){ 
                 String content = rs.getString("Review_Content");
                 content = content.toLowerCase();
                 Tree t = (Tree) treemap.get(content);
-                //获取关键信息
-                info = regex.Tregexinfo(t, str);  
-                /*写入数据库中*/
-                String sql = UpdateSql(rs,table_name,col,info);
-                stmt2.executeUpdate(sql);
+                
+                String infoflag = rs.getString("info");
+                if(infoflag.equals("")){
+                    //获取关键信息
+                    info = regex.Tregexinfo(t, str);  
+                    /*写入数据库中*/
+                    info = SqlSingleQuote(info);
+                    String sql = UpdateSql(rs,table_name,col,info);
+                    stmt2.executeUpdate(sql);
+                }
             }
             rs.close();
             stmt.close(); 
@@ -474,7 +481,7 @@ public class SQL {
                     break;
                 }
             }
-            String sql = "select top("+num+")* into "+ table_name +" from pre1 by newid()";
+            String sql = "select top("+num+")* into "+ table_name +" from predata order by newid()";
             stmt3.executeUpdate(sql);
             //备份表
             sql = "select * into "+ cpy +" from " + table_name;

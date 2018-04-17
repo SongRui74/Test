@@ -118,7 +118,8 @@ public class Tregex {
         TregexMatcher m = p.matcher(t);  
         String str = ""; 
         if(m.find()) {   
-            m.getMatch().pennPrint();//打印匹配后的树型
+            System.out.println("匹配成功");
+        //    m.getMatch().pennPrint();//打印匹配后的树型
             List l = m.getMatch().getLeaves();
             for(int i = 0; i < l.size(); i++){
                 str += l.get(i).toString() + " ";

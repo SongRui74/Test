@@ -285,9 +285,9 @@ public class Features {
      * 记录具体评价类别的关键信息
      * @param str 匹配关系式
      */
-    public void MarkSpecificInfo(String str){
+    public void MarkInfo(String str){
         SQL s = new SQL();
-        s.ExtractSpecificInfo(table_name, "info", treemap, str);
+        s.ExtractInfo(table_name, "info", treemap, str);
     }
     
     /**
@@ -296,10 +296,13 @@ public class Features {
     public void MarkAllInfo(){
         //添加列名
         SQL s = new SQL();
-        table_name = "cpy_"+table_name;
-        s.AddColumn(table_name,"info","varchar(5000)");
+        table_name = "Specific";
+    //    table_name = "cpy_"+table_name;
+    //    s.AddColumn(table_name,"info","varchar(5000)");
         treemap = s.RecordTreeMap(table_name);//解析语法树 
-        this.MarkSpecificInfo("S $- (JJ < helpful)");
+        this.MarkInfo("S $- (JJ < helpful)");
+        this.MarkInfo("S > (PP $- (JJ < helpful))");
+        this.MarkInfo("NP > (VP << love)");
     }
     
     public void RemarkTrainAll(){
@@ -312,7 +315,7 @@ public class Features {
     
     public void RemarkPreAll(){
         SQL s = new SQL();
-        table_name = "pre8";
+        table_name = "pre";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }
