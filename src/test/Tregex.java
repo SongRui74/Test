@@ -117,12 +117,13 @@ public class Tregex {
         TregexPattern p = TregexPattern.compile(s);  
         TregexMatcher m = p.matcher(t);  
         String str = ""; 
-        if(m.find()) {   
-            System.out.println("匹配成功");
+        while(m.find()) {   
         //    m.getMatch().pennPrint();//打印匹配后的树型
             List l = m.getMatch().getLeaves();
-            for(int i = 0; i < l.size(); i++){
-                str += l.get(i).toString() + " ";
+            if(l.size() != 1){
+                for(int i = 0; i < l.size(); i++){
+                    str += l.get(i).toString() + " ";
+                }
             }
         } 
         return str;

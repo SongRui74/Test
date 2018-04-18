@@ -379,6 +379,23 @@ public class SQL {
     }   
     
     /**
+     * 标记ID
+     * @param table_name 表名
+     */
+    public void RemarkID(String table_name){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt = conn.createStatement();     
+            stmt.executeQuery("alter table "+table_name+" add ID int identity(1,1)"); 
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
      * 标记评论类别
      * @param table_name 表名
      * @param content 评论内容

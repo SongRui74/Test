@@ -46,7 +46,7 @@ public class MyPanel extends JFrame implements ActionListener
        
     public void MainPanel(){
         //设置文本框和标签
-        in_label = new JLabel("请输入预测数据集的评论数量（0-243484）");
+        in_label = new JLabel("请输入预测数据集的评论数量（0-10,000）");
         txtArea = new JTextArea(10,40);
         out_label = new JLabel("该算法训练模型评估结果");
         js = new JScrollPane(txtArea);

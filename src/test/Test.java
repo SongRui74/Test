@@ -33,7 +33,7 @@ public class Test {
         
     /*    Features f = new Features();
         f.MarkAllInfo();
-    */    MyPanel myPanel = new MyPanel();
+    /*    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
@@ -45,14 +45,14 @@ public class Test {
         s.RemarkNumberofWords(table_name, col);//标记单词数
         
          */
-    /*    Standfordnlp s = new Standfordnlp();
-        String str = "New app is terrible ";
+        Standfordnlp s = new Standfordnlp();
+        String str = "I love the games service";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "NP << new | << old : JJ,,new";
+        String re = "";
     //    String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
         
         Tregex t = new Tregex();

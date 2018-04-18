@@ -300,9 +300,11 @@ public class Features {
     //    table_name = "cpy_"+table_name;
     //    s.AddColumn(table_name,"info","varchar(5000)");
         treemap = s.RecordTreeMap(table_name);//解析语法树 
-        this.MarkInfo("S $- (JJ < helpful)");
         this.MarkInfo("S > (PP $- (JJ < helpful))");
+        this.MarkInfo("S $- (JJ < helpful)");
         this.MarkInfo("NP > (VP << love)");
+        this.MarkInfo("VP $- (TO ,,(JJ < easy))");
+        this.MarkInfo("NP $- (VP << helps)");
     }
     
     public void RemarkTrainAll(){
