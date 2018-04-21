@@ -31,10 +31,18 @@ public class Test {
          
     public static void main(String[] args) throws Exception{
         
-    /*    Features f = new Features();
+        Features f = new Features();
         f.MarkAllInfo();
+        //Just will not sync between iPhone and my other iPad 
+        //It's not force closing anymore, it's just really slow
+       // It's not working 
+        // What's not to like
+        //App does not properly work with MB Financial mortgage accounts 
+        //Sometimes doesn't update in background properly, but very useful 
+        // Fix it & I will give it 5 stars again
     /*    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
+        
         /*    SQL s = new SQL();
         s.SqltoShort(table_name);//批量将长文本化为单句
         s.DealNullData(table_name);//删除无英文字母的无效评论
@@ -45,18 +53,18 @@ public class Test {
         s.RemarkNumberofWords(table_name, col);//标记单词数
         
          */
-        Standfordnlp s = new Standfordnlp();
-        String str = "I love the games service";
+    /*    Standfordnlp s = new Standfordnlp();
+        String str = "please someone inform developers to fix this app ";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "";
+        String re = "VP < (VB < fix)";
     //    String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
         
         Tregex t = new Tregex();
-        System.out.println(t.Tregexinfo(tree,re) );     
+        System.out.println(t.Tregexinfo(tree,re));     
     /*    boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
         /*          

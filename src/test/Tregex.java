@@ -117,14 +117,21 @@ public class Tregex {
         TregexPattern p = TregexPattern.compile(s);  
         TregexMatcher m = p.matcher(t);  
         String str = ""; 
-        while(m.find()) {   
+        if(m.find()) {   
         //    m.getMatch().pennPrint();//打印匹配后的树型
             List l = m.getMatch().getLeaves();
             if(l.size() != 1){
                 for(int i = 0; i < l.size(); i++){
-                    str += l.get(i).toString() + " ";
+                    String word = l.get(i).toString();
+                    if((word.equals("ca")||word.equals("does")||word.equals("did")||word.equals("wo")||word.equals("has"))
+                            && l.get(i+1).toString().equals("n't")){
+                        str += l.get(i).toString();
+                        continue;
+                    }
+                    if(!word.contains("the"))
+                        str += l.get(i).toString() + " ";
                 }
-            }
+            } 
         } 
         return str;
     } 

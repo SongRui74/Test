@@ -24,9 +24,9 @@ public class MyPanel extends JFrame implements ActionListener
     private JButton button_SMO;
     private JButton button_save;
     private JButton button_pre_result;
-    private JButton button_submit = new JButton("确定");
-    private JTextField txtField = new JTextField(5);; //输入区
-    private JLabel in_label; //输出label
+//    private final JButton button_submit = new JButton("确定");
+//    private final JTextField txtField = new JTextField(5);; //输入区
+//    private JLabel in_label; //输出label
     private JTextArea txtArea; //输出区
     private JLabel out_label; //输出label
     private JScrollPane js; //滚动条
@@ -34,8 +34,8 @@ public class MyPanel extends JFrame implements ActionListener
     public static final int WIDTH = 500;
     public static final int HEIGHT = 300;
     
-    public String n; //预测集数据数目
-    public String table_name = "test10000"; //预测集表名
+//    public String n; //预测集数据数目
+/*    public String table_name = "test10000"; //预测集表名
     
     public void settablename(String name){
         table_name = name;
@@ -43,10 +43,10 @@ public class MyPanel extends JFrame implements ActionListener
     public String gettablename(){
         return table_name;
     }
-       
+   */    
     public void MainPanel(){
         //设置文本框和标签
-        in_label = new JLabel("请输入预测数据集的评论数量（0-10,000）");
+    //    in_label = new JLabel("请输入预测数据集的评论数量（0-10,000）");
         txtArea = new JTextArea(10,40);
         out_label = new JLabel("该算法训练模型评估结果");
         js = new JScrollPane(txtArea);
@@ -64,9 +64,9 @@ public class MyPanel extends JFrame implements ActionListener
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         setLayout(new FlowLayout());
-        add(in_label);
-        add(txtField);
-        add(button_submit);
+    //    add(in_label);
+    //    add(txtField);
+    //    add(button_submit);
         add(out_label);
         add(js);
         add(button_SMO);
@@ -80,13 +80,13 @@ public class MyPanel extends JFrame implements ActionListener
         this.button_SMO.addActionListener(this);
         this.button_save.addActionListener(this);
         this.button_pre_result.addActionListener(this);
-        this.button_submit.addActionListener(this);
+    //    this.button_submit.addActionListener(this);
     }
     
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        n = txtField.getText()+"";
+    /*    n = txtField.getText()+"";
         if(n.equals("")){
             n = "10000";
             settablename("test10000");
@@ -101,19 +101,19 @@ public class MyPanel extends JFrame implements ActionListener
             int num = Integer.parseInt(n);   
             SQL s = new SQL();
             s.CreatePre(num);
-        /*    Features fea = new Features();
-            fea.RemarkAll(num);
-            this.txtArea.append("该预测集特征标记完成！\n");
-                */
+        //    Features fea = new Features();
+        //    fea.RemarkAll(num);
+        //    this.txtArea.append("该预测集特征标记完成！\n");
+                
             this.txtArea.append("该预测集创建完成！\n");
-        }
+        }*/
         if(e.getSource() == this.button_SMO)
         {
             this.txtArea.append("正在建模并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
             Classifiertest cls = new Classifiertest();
             try {
-                cls.SMO(table_name);
+                cls.SMO();
                 this.txtArea.append(cls.getSMOResult());
             } catch (Exception ex) {
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -126,7 +126,7 @@ public class MyPanel extends JFrame implements ActionListener
             Classifiertest cls = new Classifiertest();
             this.txtArea.append("正在存储分类结果...\n");
             txtArea.paintImmediately(txtArea.getBounds());
-            cls.RecordClassifyResult(table_name);
+            cls.RecordClassifyResult();
             this.txtArea.append("数据库分类结果存储完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());
         }

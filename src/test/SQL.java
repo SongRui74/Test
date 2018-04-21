@@ -51,7 +51,7 @@ public class SQL {
      * @return 评论内容
      */
     public List<String> GetContentwithClass(String classname){
-        MyPanel p = new MyPanel();
+        Classifiertest p = new Classifiertest();
         String name = p.gettablename();
         this.settablename(name);
         
@@ -61,8 +61,8 @@ public class SQL {
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
             ResultSet rs;
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-            tablename = "cpy_"+tablename;
-         //   tablename = "Specific";
+         //   tablename = "cpy_"+tablename;
+            tablename = "Demand";
             String sql = "select * from "+ tablename + " where classes = '" + classname + "'";
             rs=stmt.executeQuery(sql);
             
@@ -70,7 +70,8 @@ public class SQL {
             //    String content = rs.getString("Review_Content");
                 String content = rs.getString("info");
                 if(!content.equals(""))
-                    list.add(content);
+                    if(content.contains(" "))
+                        list.add(content);
             }
             
             rs.close();

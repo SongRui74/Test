@@ -33,13 +33,19 @@ public class Classifiertest {
     public JTextArea txtJ48 = new JTextArea();
     public JTextArea txtSMO = new JTextArea();
     
+    public String table_name = "test10000";
     
+    public void settablename(String name){
+        table_name = name;
+    }
+    public String gettablename(){
+        return table_name;
+    }
     /**
      * SMO算法训练模型并分类
-     * @param table_name 预测集表名
      * @throws Exception 
      */
-    public void SMO(String table_name) throws Exception{
+    public void SMO() throws Exception{
         //从数据库读取训练集
         InstanceQuery query = new InstanceQuery();
         query.setUsername("song");
@@ -78,11 +84,7 @@ public class Classifiertest {
         txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
-        
-    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
-        System.out.println(eval.toClassDetailsString()+"\n");
-        System.out.println(eval.toMatrixString()+"\n");
-    */    
+            
         //从数据库读入预测文件
         query.setUsername("song");
         query.setPassword("123456");
@@ -150,7 +152,7 @@ public class Classifiertest {
      * 统计分类结果
      * @return 各类别的数目（Overview,Invalid,Demand,Specific）
      */
-        public int[] StatisticsResult(){
+    public int[] StatisticsResult(){
         //用于统计每个类别的个数
         int[] distribution = {0,0,0,0,0};
         try {
@@ -185,7 +187,7 @@ public class Classifiertest {
      * 存储分类结果
      * @param table_name 预测集表名
      */
-        public void RecordClassifyResult(String table_name){
+    public void RecordClassifyResult(){
         try {
             //读取预测集评论信息文件
             File inputFile = new File("./data/pre_info.arff");

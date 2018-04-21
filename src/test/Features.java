@@ -272,7 +272,7 @@ public class Features {
      * 创建预测集并标记所有文本特征
      * @param num  预测集数量
      */
-    public void RemarkAll(int num){
+/*    public void RemarkAll(int num){
         SQL s = new SQL();
         s.CreatePre(num);
         String n = Integer.toString(num);
@@ -280,7 +280,7 @@ public class Features {
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }
-    
+*/    
     /**
      * 记录具体评价类别的关键信息
      * @param str 匹配关系式
@@ -296,17 +296,31 @@ public class Features {
     public void MarkAllInfo(){
         //添加列名
         SQL s = new SQL();
-        table_name = "Specific";
-    //    table_name = "cpy_"+table_name;
-    //    s.AddColumn(table_name,"info","varchar(5000)");
+        table_name = "Demand";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
+        //Specific
+        /*
+        this.MarkInfo("VP $- (TO ,,(JJ < easy))");
         this.MarkInfo("S > (PP $- (JJ < helpful))");
         this.MarkInfo("S $- (JJ < helpful)");
-        this.MarkInfo("NP > (VP << love)");
-        this.MarkInfo("VP $- (TO ,,(JJ < easy))");
+        this.MarkInfo("VP,,helps");
+        this.MarkInfo("NP,,helpful");
         this.MarkInfo("NP $- (VP << helps)");
+        this.MarkInfo("NP > (VP << love)");
+        this.MarkInfo("S [<<new | <<old] & <<JJ");
+        this.MarkInfo("ADJP << JJR & <<before");
+        this.MarkInfo("ADJP < (JJ $+ (PP << to))");
+        */
+        //Demand
+        this.MarkInfo("VP < (VBD $+ RB)");
+        this.MarkInfo("VP < (VBZ $+ RB)");
+        this.MarkInfo("VP < (MD $+ RB)");
+        this.MarkInfo("VP < (VB < please $+ (NP << fix))");
+        this.MarkInfo("VP < (VB < fix)");
+        
     }
     
+    //标记训练集特征
     public void RemarkTrainAll(){
         SQL s = new SQL();
         s.CreateTrain();
@@ -315,6 +329,9 @@ public class Features {
         this.MarkALLFeature();
     }
     
+    /**
+     * 标记预测集特征
+     */
     public void RemarkPreAll(){
         SQL s = new SQL();
         table_name = "pre";
