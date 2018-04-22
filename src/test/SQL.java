@@ -177,11 +177,28 @@ public class SQL {
                 String content = rs.getString("Review_Content");
                 content = content.toLowerCase();
                 Tree t = (Tree) treemap.get(content);
-                
                 String infoflag = rs.getString("info");
                 if(infoflag.equals("")){
                     //获取关键信息
-                    info = regex.Tregexinfo(t, str);  
+                    info = regex.Tregexinfo(t, str); 
+                    if(content.contains("wish") && !info.equals("")){
+                        info = "wish " + info; 
+                    } 
+                    else if(content.contains("add ") && !info.equals("")){
+                        info = "add " + info; 
+                    }
+                    else if(content.contains("want ") && content.contains("back") && !info.equals("")){
+                        info = "want " + info + " back"; 
+                    }
+                    else if(content.contains("easy to") && !info.equals("")){
+                        info = "easy to " + info; 
+                    }
+                    else if(content.contains("love") && !info.equals("")){
+                        info = "love " + info; 
+                    }
+                    else if((content.contains("helps ") || content.contains("helpful ")) && !info.equals("")){
+                        info = "helpful: " + info; 
+                    }
                     /*写入数据库中*/
                     info = SqlSingleQuote(info);
                     String sql = UpdateSql(rs,table_name,col,info);
@@ -197,6 +214,101 @@ public class SQL {
         }
     }
 
+    /**
+     * 提取具体评价类的评论特征信息
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param str 匹配字符串
+     */
+    public void ExtractWordInfo(String table_name,String col,Map treemap,String str){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();  
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            String info ="";
+            //循环标记
+            while(rs.next()){ 
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();                
+                String infoflag = rs.getString("info");
+                if(infoflag.equals("")){
+                    if(str.equals("fix") && content.contains(str)){
+                        info = "please fix";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("please update") && content.contains(str)){
+                        info = "please update";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("update") && content.contains(str) && content.contains("please") ){
+                        info = "please update";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("crash") && content.contains(str) && content.contains("open") ){
+                        info = "crash at open";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("crash") && content.contains(str) && content.contains("login") ){
+                        info = "crash at login";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("crash") && content.contains(str)){
+                        info = "the app crashes";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("need") && content.contains(str) && content.contains("touch id")){
+                        info = "needs touch id";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("need") && content.contains(str) && content.contains("update")){
+                        info = "needs update";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("version") && content.contains(str)){
+                        info = "please remove/provide version";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("bug") && content.contains(str) && !content.contains("no ")){
+                        info = "lots of bugs";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                }
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     /**
      * 标记文本属性特征（句法树类）
      * @param table_name 表名

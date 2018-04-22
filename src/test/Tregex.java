@@ -120,18 +120,19 @@ public class Tregex {
         if(m.find()) {   
         //    m.getMatch().pennPrint();//打印匹配后的树型
             List l = m.getMatch().getLeaves();
-            if(l.size() != 1){
-                for(int i = 0; i < l.size(); i++){
-                    String word = l.get(i).toString();
-                    if((word.equals("ca")||word.equals("does")||word.equals("did")||word.equals("wo")||word.equals("has"))
-                            && l.get(i+1).toString().equals("n't")){
-                        str += l.get(i).toString();
-                        continue;
-                    }
-                    if(!word.contains("the"))
-                        str += l.get(i).toString() + " ";
+            for(int i = 0; i < l.size(); i++){
+                String word = l.get(i).toString();
+                if(word.equals("'s")){
+                    word = "is";
                 }
-            } 
+                if((word.equals("ca")||word.equals("does")||word.equals("did")||word.equals("wo")||word.equals("has"))
+                        && l.get(i+1).toString().equals("n't")){
+                    str += word;
+                    continue;
+                }
+                if(!word.equals("the"))
+                        str += word + " ";
+            }
         } 
         return str;
     } 

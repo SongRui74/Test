@@ -282,12 +282,15 @@ public class Features {
     }
 */    
     /**
-     * 记录具体评价类别的关键信息
+     * 记录类别的关键信息
      * @param str 匹配关系式
      */
     public void MarkInfo(String str){
         SQL s = new SQL();
-        s.ExtractInfo(table_name, "info", treemap, str);
+        if(str.contains("<") || str.contains(",,"))
+            s.ExtractInfo(table_name, "info", treemap, str);
+        else
+            s.ExtractWordInfo(table_name, "info", treemap, str);
     }
     
     /**
@@ -296,10 +299,10 @@ public class Features {
     public void MarkAllInfo(){
         //添加列名
         SQL s = new SQL();
-        table_name = "Demand";
+    /*    table_name = "Specific";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         //Specific
-        /*
+        
         this.MarkInfo("VP $- (TO ,,(JJ < easy))");
         this.MarkInfo("S > (PP $- (JJ < helpful))");
         this.MarkInfo("S $- (JJ < helpful)");
@@ -310,13 +313,37 @@ public class Features {
         this.MarkInfo("S [<<new | <<old] & <<JJ");
         this.MarkInfo("ADJP << JJR & <<before");
         this.MarkInfo("ADJP < (JJ $+ (PP << to))");
-        */
+    */    
         //Demand
-        this.MarkInfo("VP < (VBD $+ RB)");
-        this.MarkInfo("VP < (VBZ $+ RB)");
-        this.MarkInfo("VP < (MD $+ RB)");
-        this.MarkInfo("VP < (VB < please $+ (NP << fix))");
-        this.MarkInfo("VP < (VB < fix)");
+        table_name = "Demand";
+        treemap = s.RecordTreeMap(table_name);//解析语法树   
+        
+    /*    this.MarkInfo("VP < (VBD $+ (RB $+ VP))");
+        this.MarkInfo("VP < (VBZ $+ (RB $+ VP))");
+        this.MarkInfo("VP < (MD $+ (RB $+ VP))");
+        this.MarkInfo("VP < (VBZ $+ (RB $+ ADJP))");
+        this.MarkInfo("ADJP < (RB $+ VBG)");
+        this.MarkInfo("VP < (MD $+ RB ..VP)");
+        this.MarkInfo("fix");
+        this.MarkInfo("SINV << not");
+        this.MarkInfo("need");
+        this.MarkInfo("VP,,(VB < wish $+ (NP << it))");
+        this.MarkInfo("S,,wish");
+        this.MarkInfo("VP,,wish");
+        this.MarkInfo("please update");
+        this.MarkInfo("update");
+        this.MarkInfo("crash");
+        this.MarkInfo("NP < ((NP !<< app) $+ (ADJP << not))");
+        this.MarkInfo("VP < (RB $+ VBG)");
+        this.MarkInfo("S < (RB $+ VBG | $+ (VP < VBG))");
+        this.MarkInfo("NP $- (VB < add)");
+        this.MarkInfo("NP ,, (VB < add)");
+        this.MarkInfo("VP $- (VB < add)");
+        this.MarkInfo("version");
+        this.MarkInfo("NP $- (VB < want)");
+        this.MarkInfo("bug");
+        */
+        
         
     }
     
