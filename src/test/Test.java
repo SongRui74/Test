@@ -29,13 +29,15 @@ public class Test {
         km.ResultOut(table_name);
     }
          
+    @SuppressWarnings("empty-statement")
     public static void main(String[] args) throws Exception{
         
     /*    Features f = new Features();
         f.MarkAllInfo();
     */
-        
-        MyPanel myPanel = new MyPanel();
+        Panel a = new Panel();
+        a.myPanel();
+    /*    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         
     /*    Standfordnlp s = new Standfordnlp();
