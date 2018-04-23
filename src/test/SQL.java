@@ -61,8 +61,8 @@ public class SQL {
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
             ResultSet rs;
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-         //   tablename = "cpy_"+tablename;
-            tablename = "Demand";
+            tablename = "cpy_"+tablename;
+        //    tablename = "Demand";
             String sql = "select * from "+ tablename + " where classes = '" + classname + "'";
             rs=stmt.executeQuery(sql);
             
@@ -181,6 +181,7 @@ public class SQL {
                 if(infoflag.equals("")){
                     //获取关键信息
                     info = regex.Tregexinfo(t, str); 
+                    //Demand
                     if(content.contains("wish") && !info.equals("")){
                         info = "wish " + info; 
                     } 
@@ -190,6 +191,7 @@ public class SQL {
                     else if(content.contains("want ") && content.contains("back") && !info.equals("")){
                         info = "want " + info + " back"; 
                     }
+                    //Specific
                     else if(content.contains("easy to") && !info.equals("")){
                         info = "easy to " + info; 
                     }
@@ -198,6 +200,13 @@ public class SQL {
                     }
                     else if((content.contains("helps ") || content.contains("helpful ")) && !info.equals("")){
                         info = "helpful: " + info; 
+                    }
+                    //Demand
+                    else if(content.contains("never") && content.contains("problem") && !info.equals("")){
+                        info = ""; 
+                    }
+                    else if(content.contains("can't") && !info.equals("")){
+                        info = "can't " + info; 
                     }
                     /*写入数据库中*/
                     info = SqlSingleQuote(info);
@@ -294,6 +303,12 @@ public class SQL {
                     }
                     if(str.equals("bug") && content.contains(str) && !content.contains("no ")){
                         info = "lots of bugs";
+                        String sql = UpdateSql(rs,table_name,col,info);
+                        stmt2.executeUpdate(sql);
+                        continue;
+                    }
+                    if(str.equals("fail") && content.contains(str)){
+                        info = "fail";
                         String sql = UpdateSql(rs,table_name,col,info);
                         stmt2.executeUpdate(sql);
                         continue;

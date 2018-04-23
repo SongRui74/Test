@@ -31,20 +31,21 @@ public class Test {
          
     public static void main(String[] args) throws Exception{
         
-        Features f = new Features();
+    /*    Features f = new Features();
         f.MarkAllInfo();
+    */
         
-    /*    MyPanel myPanel = new MyPanel();
+        MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
-    */    
+        
     /*    Standfordnlp s = new Standfordnlp();
-        String str = "  I want my money back";
+        String str = "No way to register payments, stupid omission ";
         str = str.toLowerCase();
         Tree tree = s.FeedbacktoTree(str);
         tree.pennPrint();
         List list = s.FeedbacktoDep(str);
         System.out.println(list.toString());
-        String re = "NP $- (VB < want)";
+        String re = "NP < (DT < no)";
     //    String sm = "{word:easy} >> xcomp {tag:/VB./} & !>> xcomp {word:do} & !>> xcomp {word:use}";
         Tregex t = new Tregex();
         System.out.println(t.Tregexinfo(tree,re));     

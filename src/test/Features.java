@@ -299,7 +299,7 @@ public class Features {
     public void MarkAllInfo(){
         //添加列名
         SQL s = new SQL();
-    /*    table_name = "Specific";
+        table_name = "Specific";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         //Specific
         
@@ -313,12 +313,12 @@ public class Features {
         this.MarkInfo("S [<<new | <<old] & <<JJ");
         this.MarkInfo("ADJP << JJR & <<before");
         this.MarkInfo("ADJP < (JJ $+ (PP << to))");
-    */    
+        
         //Demand
         table_name = "Demand";
         treemap = s.RecordTreeMap(table_name);//解析语法树   
         
-    /*    this.MarkInfo("VP < (VBD $+ (RB $+ VP))");
+        this.MarkInfo("VP < (VBD $+ (RB $+ VP))");
         this.MarkInfo("VP < (VBZ $+ (RB $+ VP))");
         this.MarkInfo("VP < (MD $+ (RB $+ VP))");
         this.MarkInfo("VP < (VBZ $+ (RB $+ ADJP))");
@@ -342,8 +342,11 @@ public class Features {
         this.MarkInfo("version");
         this.MarkInfo("NP $- (VB < want)");
         this.MarkInfo("bug");
-        */
-        
+        this.MarkInfo("NP < (NN < problem)");
+        this.MarkInfo("NP,,(MD $+ RB)");
+        this.MarkInfo("ADJP < JJ & << to & << log");
+        this.MarkInfo("fail");
+        this.MarkInfo("NP < (DT < no)");  
         
     }
     
