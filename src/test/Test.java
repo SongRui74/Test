@@ -5,11 +5,6 @@
  */
 package test;
 
-import edu.stanford.nlp.trees.Tree;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @author dell-pc
@@ -35,9 +30,9 @@ public class Test {
     /*    Features f = new Features();
         f.MarkAllInfo();
     */
-        Panel a = new Panel();
+    /*    Panel a = new Panel();
         a.myPanel();
-    /*    MyPanel myPanel = new MyPanel();
+    */    MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         
     /*    Standfordnlp s = new Standfordnlp();

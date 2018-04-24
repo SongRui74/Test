@@ -141,6 +141,9 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
             //调用结果子面板
             PrePanel prePanel = new PrePanel();
+            //gephi结果
+            Panel a = new Panel();
+            a.myPanel();
         }
     }    
 }      

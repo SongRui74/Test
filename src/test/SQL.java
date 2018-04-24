@@ -594,6 +594,52 @@ public class SQL {
     }
     
     /**
+     * 创建Gephi预测集
+     * @param num gephi预测集数据数量
+     */
+    public void CreateGephiTest(int num){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement(); 
+            Statement stmt3 = conn.createStatement(); 
+            Statement stmt4 = conn.createStatement();
+            rs=stmt.executeQuery("select * from sys.tables");  
+            //预测集表名
+            String table_name = "gephi" + num;            
+            while(rs.next()){                                            
+                /*获取数据库中表的名称*/
+                String name = rs.getString("name");          
+                /*判断是否存在表，若存在则删除*/
+                if(name.equals(table_name)){
+                    String sql = "Drop table " + table_name;
+                    stmt2.executeUpdate(sql);
+                    break;
+                }
+            }
+            String sql = "select * into "+ table_name +" from predata order by newid()";
+            stmt3.executeUpdate(sql);
+            
+            num = 10000-num;
+            sql = "delete from "+ table_name +" where ID in ( select top("+num+") ID from "+ table_name +"  where ID < 10000 order by newid())";
+            stmt4.executeUpdate(sql);
+            
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            stmt3.close();
+            stmt4.close();
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    /**
      * 创建预测集
      * @param num 预测集数据数量
      */
