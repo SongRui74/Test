@@ -42,6 +42,50 @@ public class Classifiertest {
         return table_name;
     }
     /**
+     * SMO算法评估
+     * @throws Exception 
+     */
+    public void SMOEval() throws Exception{
+        //从数据库读取训练集
+        InstanceQuery query = new InstanceQuery();
+        query.setUsername("song");
+        query.setPassword("123456");
+        query.setQuery("select * from train");
+        Instances traindata = query.retrieveInstances(); 
+        //数据预处理
+        //1.remove无用的文本特征
+        String[] re_option = new String[2];
+        re_option[0] = "-R";
+        re_option[1] = "1-5,7"; //移除评论作者，标题，内容，词汇数目等属性
+        Remove remove = new Remove();
+        remove.setOptions(re_option);
+        remove.setInputFormat(traindata);
+        Instances newdata = Filter.useFilter(traindata, remove);        
+        //2.转化类型
+        NumericToNominal transtype = new NumericToNominal();
+        String[] ty_option = new String[2];
+        ty_option[0] = "-R";
+        ty_option[1] = "first-last";
+        transtype.setOptions(ty_option);        
+        transtype.setInputFormat(newdata);
+        newdata = Filter.useFilter(newdata, transtype); 
+               
+        //调用SMO算法
+        Classifier smo = new SMO();    
+        Instances d_Train = newdata;        
+        //设置分类属性所在行号（第一行为0号）
+        d_Train.setClassIndex(0);  
+        //训练模型
+        smo.buildClassifier(d_Train);  
+        Evaluation eval = new Evaluation(d_Train);
+        eval.evaluateModel(smo, d_Train);//测试&评价算法        
+        txtSMO.append("Classifier model:\tSMO\n");
+        txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        txtSMO.append(eval.toClassDetailsString()+"\n");
+        txtSMO.append(eval.toMatrixString()+"\n"); 
+            
+    }
+    /**
      * SMO算法训练模型并分类
      * @throws Exception 
      */
@@ -79,11 +123,7 @@ public class Classifiertest {
         //训练模型
         smo.buildClassifier(d_Train);  
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(smo, d_Train);//测试&评价算法        
-        txtSMO.append("Classifier model:\tSMO\n");
-        txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
-        txtSMO.append(eval.toClassDetailsString()+"\n");
-        txtSMO.append(eval.toMatrixString()+"\n"); 
+        eval.evaluateModel(smo, d_Train);//测试&评价算法  
             
         //从数据库读入预测文件
         query.setUsername("song");

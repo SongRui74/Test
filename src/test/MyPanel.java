@@ -21,9 +21,10 @@ public class MyPanel extends JFrame implements ActionListener
        /**
      * @param args the command line arguments
      */
-    private JButton button_SMO;
+    private JButton button_SMOCls;
     private JButton button_save;
     private JButton button_pre_result;
+    private JButton button_SMOEval;
 //    private final JButton button_submit = new JButton("确定");
 //    private final JTextField txtField = new JTextField(5);; //输入区
 //    private JLabel in_label; //输出label
@@ -51,7 +52,8 @@ public class MyPanel extends JFrame implements ActionListener
         out_label = new JLabel("该算法训练模型评估结果");
         js = new JScrollPane(txtArea);
         //设置按钮
-        button_SMO = new JButton("SMO分类");
+        button_SMOEval = new JButton("SMO评估");
+        button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
         button_pre_result = new JButton("分类结果");
         
@@ -69,7 +71,8 @@ public class MyPanel extends JFrame implements ActionListener
     //    add(button_submit);
         add(out_label);
         add(js);
-        add(button_SMO);
+        add(button_SMOEval);
+        add(button_SMOCls);
         add(button_save);
         add(button_pre_result);
         
@@ -77,7 +80,8 @@ public class MyPanel extends JFrame implements ActionListener
         setVisible(true);
         
         //监听
-        this.button_SMO.addActionListener(this);
+        this.button_SMOEval.addActionListener(this);
+        this.button_SMOCls.addActionListener(this);
         this.button_save.addActionListener(this);
         this.button_pre_result.addActionListener(this);
     //    this.button_submit.addActionListener(this);
@@ -107,9 +111,23 @@ public class MyPanel extends JFrame implements ActionListener
                 
             this.txtArea.append("该预测集创建完成！\n");
         }*/
-        if(e.getSource() == this.button_SMO)
+        if(e.getSource() == this.button_SMOEval)
         {
-            this.txtArea.append("正在建模并分类...\n");
+            this.txtArea.append("正在建模...\n");
+            txtArea.paintImmediately(txtArea.getBounds());
+            Classifiertest cls = new Classifiertest();
+            try {
+                cls.SMOEval();
+                this.txtArea.append(cls.getSMOResult());
+            } catch (Exception ex) {
+                Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.txtArea.append("该数据集集训练完成！\n");
+            txtArea.paintImmediately(txtArea.getBounds());               
+        }
+        if(e.getSource() == this.button_SMOCls)
+        {
+            this.txtArea.append("正在导入训练模型并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
             Classifiertest cls = new Classifiertest();
             try {

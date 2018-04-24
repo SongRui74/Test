@@ -125,7 +125,7 @@ public class Panel {
         appearanceController.transform(centralityRanking2);
     */    
         //布局 
-        AutoLayout autoLayout = new AutoLayout(50, TimeUnit.SECONDS);
+        AutoLayout autoLayout = new AutoLayout(33, TimeUnit.SECONDS);
         autoLayout.setGraphModel(graphModel);
         YifanHuLayout firstLayout = new YifanHuLayout(null, new StepDisplacement(1f));
         ForceAtlasLayout secondLayout = new ForceAtlasLayout(null);
@@ -135,9 +135,9 @@ public class Panel {
         autoLayout.addLayout(secondLayout, 0.5f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, repulsionProperty});
         autoLayout.execute();
         
-    /*  
+      
         //Run YifanHuLayout for 100 passes - The layout always takes the current visible view
-        YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
+    /*    YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
         layout.setGraphModel(graphModel);
         layout.resetPropertiesValues();
         layout.setOptimalDistance(200f);
@@ -165,7 +165,7 @@ public class Panel {
         JFrame frame = new JFrame("分类结果展示");
         frame.setLayout(new BorderLayout());
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(previewSketch, BorderLayout.CENTER);
 
         frame.setSize(1000, 700);
