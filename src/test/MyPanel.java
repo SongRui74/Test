@@ -9,6 +9,8 @@ package test;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -25,9 +27,8 @@ public class MyPanel extends JFrame implements ActionListener
     private JButton button_save;
     private JButton button_pre_result;
     private JButton button_SMOEval;
-//    private final JButton button_submit = new JButton("确定");
-//    private final JTextField txtField = new JTextField(5);; //输入区
-//    private JLabel in_label; //输出label
+    private JComboBox jcombo;
+    
     private JTextArea txtArea; //输出区
     private JLabel out_label; //输出label
     private JScrollPane js; //滚动条
@@ -35,19 +36,9 @@ public class MyPanel extends JFrame implements ActionListener
     public static final int WIDTH = 500;
     public static final int HEIGHT = 300;
     
-//    public String n; //预测集数据数目
-/*    public String table_name = "test10000"; //预测集表名
     
-    public void settablename(String name){
-        table_name = name;
-    }
-    public String gettablename(){
-        return table_name;
-    }
-   */    
     public void MainPanel(){
         //设置文本框和标签
-    //    in_label = new JLabel("请输入预测数据集的评论数量（0-10,000）");
         txtArea = new JTextArea(10,40);
         out_label = new JLabel("该算法训练模型评估结果");
         js = new JScrollPane(txtArea);
@@ -56,6 +47,10 @@ public class MyPanel extends JFrame implements ActionListener
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
         button_pre_result = new JButton("分类结果");
+        
+        //设置下拉列表
+        String [] c = {"查看结果"," ","结果概览","综合评价","具体评价","需求评价","无效评价"}; //定义字符串
+        jcombo = new JComboBox(c);   //实例化下拉列表
         
         //布局
         setTitle("Classifier");
@@ -66,25 +61,75 @@ public class MyPanel extends JFrame implements ActionListener
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         setLayout(new FlowLayout());
-    //    add(in_label);
-    //    add(txtField);
-    //    add(button_submit);
+    
         add(out_label);
         add(js);
         add(button_SMOEval);
         add(button_SMOCls);
         add(button_save);
         add(button_pre_result);
+        add(jcombo);
         
         setResizable(false);
         setVisible(true);
         
-        //监听
+        //按钮监听
         this.button_SMOEval.addActionListener(this);
         this.button_SMOCls.addActionListener(this);
         this.button_save.addActionListener(this);
         this.button_pre_result.addActionListener(this);
-    //    this.button_submit.addActionListener(this);
+        //    this.button_submit.addActionListener(this);
+        //下拉框监听
+        this.jcombo.addItemListener(new ItemListener()
+        {
+         @Override
+            public void itemStateChanged(ItemEvent e){
+                //选中
+                if (e.getStateChange() == ItemEvent.SELECTED){
+                //事件  
+                    
+                    String classname =(String) jcombo.getSelectedItem(); 
+                    if(classname.equals("查看结果")||classname.equals(" ")){
+                        ;
+                    }
+                    else if(classname.equals("结果概览")){
+                        Classifiertest cls = new Classifiertest();            
+                        int[] distr = cls.StatisticsResult();
+                        txtArea.append("==================预测集分类结果=====================\n");
+                        txtArea.append("Overview类别：\t" + distr[0] + "\n");
+                        txtArea.append("Invalid类别： \t" + distr[1] + "\n");
+                        txtArea.append("Demand类别： \t" + distr[2] + "\n");
+                        txtArea.append("Specific类别：\t" + distr[3] + "\n");
+                        //调用结果子面板
+                        PrePanel prePanel = new PrePanel();
+                    }
+                    else{
+                        txtArea.append("\n正在处理数据...\n");
+                        txtArea.paintImmediately(txtArea.getBounds());
+                        String classid = "";
+                        if(classname.equals("综合评价")){
+                            classid = "10001";
+                        }
+                        if(classname.equals("具体评价")){
+                            classid = "10002";
+                        }
+                        if(classname.equals("需求评价")){
+                            classid = "10003";
+                        }
+                        if(classname.equals("无效评价")){
+                            classid = "10004";
+                        }
+                        //gephi结果
+                        Panel a = new Panel();
+                        a.setClassid(classid);
+                        a.myPanel();
+                        txtArea.append("处理完成...\n");
+                        txtArea.paintImmediately(txtArea.getBounds());
+                    }
+                }
+            }
+        });
+    
     }
     
     @Override
@@ -159,9 +204,6 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
             //调用结果子面板
             PrePanel prePanel = new PrePanel();
-            //gephi结果
-            Panel a = new Panel();
-            a.myPanel();
         }
     }    
 }      

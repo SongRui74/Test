@@ -54,6 +54,30 @@ import org.openide.util.Lookup;
  * @author dell-pc
  */
 public class Panel {
+    
+    private String classid = "";
+    private String classname = "";
+    
+    public void setClassid(String cid){
+        classid = cid;
+    }
+    
+    public String getClassname(){
+        if(classid.equals("10001")){
+            classname = "综合评价";
+        }
+        if(classid.equals("10002")){
+            classname = "具体评价";
+        }
+        if(classid.equals("10003")){
+            classname = "需求评价";
+        }
+        if(classid.equals("10004")){
+            classname = "无效评价";
+        }
+        return classname;
+    }
+    
     public void myPanel(){
         //Init a project - and therefore a workspace
         ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
@@ -61,7 +85,6 @@ public class Panel {
         Workspace workspace = pc.getCurrentWorkspace();
         
         GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getGraphModel();
-        PreviewModel model = Lookup.getDefault().lookup(PreviewController.class).getModel();
         PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
         ImportController importController = Lookup.getDefault().lookup(ImportController.class);
         AppearanceController appearanceController = Lookup.getDefault().lookup(AppearanceController.class);
@@ -75,8 +98,8 @@ public class Panel {
         db.setHost("localhost");
         db.setUsername("song");
         db.setPasswd("123456");
-        db.setNodeQuery("SELECT ID AS id ,info as label ,classes FROM aaa");
-        db.setEdgeQuery("SELECT ID AS source, classid AS target, info as label ,classes FROM aaa");
+        db.setNodeQuery("SELECT ID AS id ,info as label ,classes FROM gephi where classid = '"+classid+"' or ID = '"+classid+"'");
+        db.setEdgeQuery("SELECT ID AS source, classid AS target, info as label,classes FROM gephi where  classid = '"+classid+"' or ID = '"+classid+"'");
         ImporterEdgeList edgeListImporter = new ImporterEdgeList();
         Container container = importController.importDatabase(db, edgeListImporter);
         container.getLoader().setAllowAutoNode(false);      //Don't create missing nodes
@@ -87,9 +110,9 @@ public class Panel {
                
         //See if graph is well imported
         DirectedGraph graph = graphModel.getDirectedGraph();
-        System.out.println("Nodes: " + graph.getNodeCount());
+    /*    System.out.println("Nodes: " + graph.getNodeCount());
         System.out.println("Edges: " + graph.getEdgeCount());
-        
+    */    
         //Rank节点颜色
     /*    Function degreeRanking = appearanceModel.getNodeFunction(graph, AppearanceModel.GraphFunction.NODE_DEGREE, RankingElementColorTransformer.class);
         RankingElementColorTransformer degreeTransformer = (RankingElementColorTransformer) degreeRanking.getTransformer();
@@ -104,6 +127,18 @@ public class Panel {
         Palette palette = PaletteManager.getInstance().generatePalette(partition.size());
         partition.setColors(palette.getColors());
         appearanceController.transform(func);
+        
+        //布局 Run YifanHuLayout for 100 passes - The layout always takes the current visible view
+        YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
+        layout.setGraphModel(graphModel);
+        layout.resetPropertiesValues();
+        layout.setOptimalDistance(200f);
+        layout.initAlgo();
+  
+        for (int i = 0; i < 100 && layout.canAlgo(); i++) {
+            layout.goAlgo();
+        }
+        layout.endAlgo();
         
         //Get Centrality
     /*    GraphDistance distance = new GraphDistance();
@@ -125,7 +160,7 @@ public class Panel {
         appearanceController.transform(centralityRanking2);
     */    
         //布局 
-        AutoLayout autoLayout = new AutoLayout(33, TimeUnit.SECONDS);
+    /*    AutoLayout autoLayout = new AutoLayout(33, TimeUnit.SECONDS);
         autoLayout.setGraphModel(graphModel);
         YifanHuLayout firstLayout = new YifanHuLayout(null, new StepDisplacement(1f));
         ForceAtlasLayout secondLayout = new ForceAtlasLayout(null);
@@ -134,19 +169,6 @@ public class Panel {
         autoLayout.addLayout(firstLayout, 0.5f);
         autoLayout.addLayout(secondLayout, 0.5f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, repulsionProperty});
         autoLayout.execute();
-        
-      
-        //Run YifanHuLayout for 100 passes - The layout always takes the current visible view
-    /*    YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
-        layout.setGraphModel(graphModel);
-        layout.resetPropertiesValues();
-        layout.setOptimalDistance(200f);
-        layout.initAlgo();
-  
-        for (int i = 0; i < 100 && layout.canAlgo(); i++) {
-            layout.goAlgo();
-        }
-        layout.endAlgo();
     */    
         //显示Preview configuration
         PreviewModel previewModel = previewController.getModel();
@@ -162,7 +184,7 @@ public class Panel {
         previewController.refreshPreview();
         	
         //Add the applet to a JFrame and display
-        JFrame frame = new JFrame("分类结果展示");
+        JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
 
     //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
