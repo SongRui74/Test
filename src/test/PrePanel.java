@@ -62,25 +62,25 @@ public class PrePanel extends JFrame{
         
         bO.addActionListener((ActionEvent e) -> {
             if(e.getSource() == bO){
-                ResultPanel resultPanel = new ResultPanel("Overview");
+            //    ResultPanel resultPanel = new ResultPanel("Overview");
             }
         });
         
         bI.addActionListener((ActionEvent e) -> {
             if(e.getSource() == bI){
-                ResultPanel resultPanel = new ResultPanel("Invalid");
+            //    ResultPanel resultPanel = new ResultPanel("Invalid");
             }
         });
         
         bD.addActionListener((ActionEvent e) -> {
             if(e.getSource() == bD){
-                ResultPanel resultPanel = new ResultPanel("Demand");
+            //    ResultPanel resultPanel = new ResultPanel("Demand");
             }
         });
         
         bS.addActionListener((ActionEvent e) -> {
             if(e.getSource() == bS){
-                ResultPanel resultPanel = new ResultPanel("Specific");
+            //    ResultPanel resultPanel = new ResultPanel("Specific");
             }
         });
 }

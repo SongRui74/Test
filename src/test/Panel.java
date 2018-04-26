@@ -18,9 +18,6 @@ import org.gephi.appearance.api.Function;
 import org.gephi.appearance.api.Partition;
 import org.gephi.appearance.api.PartitionFunction;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
-import org.gephi.appearance.plugin.RankingElementColorTransformer;
-import org.gephi.appearance.plugin.RankingLabelSizeTransformer;
-import org.gephi.appearance.plugin.RankingNodeSizeTransformer;
 import org.gephi.appearance.plugin.palette.Palette;
 import org.gephi.appearance.plugin.palette.PaletteManager;
 import org.gephi.graph.api.Column;
@@ -38,6 +35,8 @@ import org.gephi.layout.plugin.AutoLayout;
 import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
+import org.gephi.layout.plugin.labelAdjust.LabelAdjust;
+import org.gephi.layout.plugin.labelAdjust.LabelAdjustBuilder;
 import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
@@ -144,6 +143,7 @@ public class Panel {
     /*    GraphDistance distance = new GraphDistance();
         distance.setDirected(true);
         distance.execute(graphModel);
+        
         //Rank节点大小 Rank size by centrality
         Column centralityColumn = graphModel.getNodeTable().getColumn(GraphDistance.BETWEENNESS);
         Function centralityRanking = appearanceModel.getNodeFunction(graph, centralityColumn, RankingNodeSizeTransformer.class);
@@ -158,7 +158,7 @@ public class Panel {
         labelSizeTransformer.setMinSize(1);
         labelSizeTransformer.setMaxSize(2);
         appearanceController.transform(centralityRanking2);
-    */    
+        
         //布局 
     /*    AutoLayout autoLayout = new AutoLayout(33, TimeUnit.SECONDS);
         autoLayout.setGraphModel(graphModel);
@@ -177,20 +177,21 @@ public class Panel {
         previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
         previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
         previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
-    
-        //New Processing target, get the PApplet
+    	
         G2DTarget target = (G2DTarget) previewController.getRenderTarget(RenderTarget.G2D_TARGET); 
         final PreviewSketch previewSketch = new PreviewSketch(target);
         previewController.refreshPreview();
-        	
+        
         //Add the applet to a JFrame and display
         JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
-
     //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(previewSketch, BorderLayout.CENTER);
-
-        frame.setSize(1000, 700);
+        frame.setSize(1300, 700);
+        
+        ResultPanel p = new ResultPanel();
+        frame.add(p.infoPanel(this.getClassname()),BorderLayout.EAST);
+        frame.add(previewSketch);
+        
         
         //Wait for the frame to be visible before painting, or the result drawing will be strange
         frame.addComponentListener(new ComponentAdapter() {

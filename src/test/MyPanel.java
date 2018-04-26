@@ -25,7 +25,7 @@ public class MyPanel extends JFrame implements ActionListener
      */
     private JButton button_SMOCls;
     private JButton button_save;
-    private JButton button_pre_result;
+//    private JButton button_pre_result;
     private JButton button_SMOEval;
     private JComboBox jcombo;
     
@@ -46,7 +46,7 @@ public class MyPanel extends JFrame implements ActionListener
         button_SMOEval = new JButton("SMO评估");
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
-        button_pre_result = new JButton("分类结果");
+    //    button_pre_result = new JButton("分类结果");
         
         //设置下拉列表
         String [] c = {"查看结果"," ","结果概览","综合评价","具体评价","需求评价","无效评价"}; //定义字符串
@@ -67,7 +67,7 @@ public class MyPanel extends JFrame implements ActionListener
         add(button_SMOEval);
         add(button_SMOCls);
         add(button_save);
-        add(button_pre_result);
+    //    add(button_pre_result);
         add(jcombo);
         
         setResizable(false);
@@ -77,7 +77,7 @@ public class MyPanel extends JFrame implements ActionListener
         this.button_SMOEval.addActionListener(this);
         this.button_SMOCls.addActionListener(this);
         this.button_save.addActionListener(this);
-        this.button_pre_result.addActionListener(this);
+    //    this.button_pre_result.addActionListener(this);
         //    this.button_submit.addActionListener(this);
         //下拉框监听
         this.jcombo.addItemListener(new ItemListener()
@@ -123,7 +123,7 @@ public class MyPanel extends JFrame implements ActionListener
                         Panel a = new Panel();
                         a.setClassid(classid);
                         a.myPanel();
-                        txtArea.append("处理完成...\n");
+                        txtArea.append("处理完成!\n");
                         txtArea.paintImmediately(txtArea.getBounds());
                     }
                 }
@@ -193,7 +193,7 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("数据库分类结果存储完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());
         }
-        if(e.getSource() == this.button_pre_result)
+    /*    if(e.getSource() == this.button_pre_result)
         {
             Classifiertest cls = new Classifiertest();            
             int[] distr = cls.StatisticsResult();
@@ -204,6 +204,6 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
             //调用结果子面板
             PrePanel prePanel = new PrePanel();
-        }
-    }    
+        }*/
+    } 
 }      

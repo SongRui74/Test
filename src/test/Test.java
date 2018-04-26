@@ -32,8 +32,11 @@ public class Test {
     */
     /*    Panel a = new Panel();
         a.myPanel();
-    */    MyPanel myPanel = new MyPanel();
+    */
+        MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
+        
+    //    new ResultPanel("Specific");
         
     /*    Standfordnlp s = new Standfordnlp();
         String str = "No way to register payments, stupid omission ";

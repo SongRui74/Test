@@ -225,7 +225,6 @@ public class Classifiertest {
     
     /**
      * 存储分类结果
-     * @param table_name 预测集表名
      */
     public void RecordClassifyResult(){
         try {
