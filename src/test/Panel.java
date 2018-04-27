@@ -50,7 +50,6 @@ import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
-import test.plugins.preview.PreviewSketch;
 
 /**
  *
@@ -192,22 +191,17 @@ public class Panel {
         previewSketch.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-            //    if (previewController.sendMouseEvent(previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED))) {
-                    previewController.sendMouseEvent(previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED));
-                    System.out.println("aaa");
-                    PreviewMouseEvent event = previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED);
-                    for (Node node : Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace).getGraph().getNodes()) {
-                        if (clickingInNode(node, event)) {
-                            System.out.println("yeah");
-                            properties.putValue("display-label.node.id", node.getId());
-                            System.err.println("Node " + node.getLabel() + " clicked!");//System.out is ignored in Netbeans platform applications!!
-                            JOptionPane.showMessageDialog(null, "Node " + node.getLabel() + " clicked!");
-                            event.setConsumed(true);//So the renderer is executed and the graph repainted
-                            return;
-                        }
+                previewController.sendMouseEvent(previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED));                
+                PreviewMouseEvent event = previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED);
+                for (Node node : Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace).getGraph().getNodes()) {
+                    if (clickingInNode(node, event)) {
+                        properties.putValue("display-label.node.id", node.getId());
+                        JOptionPane.showMessageDialog(null, "关键信息：" + node.getLabel());
+                        event.setConsumed(true);//So the renderer is executed and the graph repainted
+                        return;
                     }
-                    previewSketch.refreshLoop.refreshSketch();
-              //  }
+                }
+                previewSketch.refreshLoop.refreshSketch();
                 
             }
             private boolean clickingInNode(Node node, PreviewMouseEvent event) {
@@ -219,11 +213,9 @@ public class Panel {
             }
         });
          
-        
-        //Add the applet to a JFrame and display
+        //JFrame and display
         JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
-    //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1300, 700);
         
         ResultPanel p = new ResultPanel();
