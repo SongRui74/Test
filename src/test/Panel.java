@@ -10,8 +10,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import org.gephi.appearance.api.AppearanceController;
 import org.gephi.appearance.api.AppearanceModel;
 import org.gephi.appearance.api.Function;
@@ -24,6 +27,7 @@ import org.gephi.graph.api.Column;
 import org.gephi.graph.api.DirectedGraph;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
+import org.gephi.graph.api.Node;
 import org.gephi.io.database.drivers.SQLServerDriver;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.EdgeDirectionDefault;
@@ -35,18 +39,18 @@ import org.gephi.layout.plugin.AutoLayout;
 import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
-import org.gephi.layout.plugin.labelAdjust.LabelAdjust;
-import org.gephi.layout.plugin.labelAdjust.LabelAdjustBuilder;
 import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
+import org.gephi.preview.api.PreviewMouseEvent;
+import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.RenderTarget;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
-import org.gephi.statistics.plugin.GraphDistance;
 import org.openide.util.Lookup;
+import test.plugins.preview.PreviewSketch;
 
 /**
  *
@@ -106,12 +110,13 @@ public class Panel {
 
         //Append imported data to GraphAPI
         importController.process(container, new DefaultProcessor(), workspace);
-               
+        
         //See if graph is well imported
         DirectedGraph graph = graphModel.getDirectedGraph();
-    /*    System.out.println("Nodes: " + graph.getNodeCount());
-        System.out.println("Edges: " + graph.getEdgeCount());
-    */    
+        
+    //    System.out.println("Nodes: " + graph.getNodeCount());
+    //    System.out.println("Edges: " + graph.getEdgeCount());
+        
         //Rank节点颜色
     /*    Function degreeRanking = appearanceModel.getNodeFunction(graph, AppearanceModel.GraphFunction.NODE_DEGREE, RankingElementColorTransformer.class);
         RankingElementColorTransformer degreeTransformer = (RankingElementColorTransformer) degreeRanking.getTransformer();
@@ -182,6 +187,39 @@ public class Panel {
         final PreviewSketch previewSketch = new PreviewSketch(target);
         previewController.refreshPreview();
         
+        //鼠标响应
+        PreviewProperties properties = new PreviewProperties();
+        previewSketch.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            //    if (previewController.sendMouseEvent(previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED))) {
+                    previewController.sendMouseEvent(previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED));
+                    System.out.println("aaa");
+                    PreviewMouseEvent event = previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED);
+                    for (Node node : Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace).getGraph().getNodes()) {
+                        if (clickingInNode(node, event)) {
+                            System.out.println("yeah");
+                            properties.putValue("display-label.node.id", node.getId());
+                            System.err.println("Node " + node.getLabel() + " clicked!");//System.out is ignored in Netbeans platform applications!!
+                            JOptionPane.showMessageDialog(null, "Node " + node.getLabel() + " clicked!");
+                            event.setConsumed(true);//So the renderer is executed and the graph repainted
+                            return;
+                        }
+                    }
+                    previewSketch.refreshLoop.refreshSketch();
+              //  }
+                
+            }
+            private boolean clickingInNode(Node node, PreviewMouseEvent event) {
+                float xdiff = node.x() - event.x;
+                float ydiff = -node.y() - event.y;//Note that y axis is inverse for node coordinates
+                float radius = node.size();
+
+                return xdiff * xdiff + ydiff * ydiff < radius * radius;
+            }
+        });
+         
+        
         //Add the applet to a JFrame and display
         JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
@@ -191,7 +229,6 @@ public class Panel {
         ResultPanel p = new ResultPanel();
         frame.add(p.infoPanel(this.getClassname()),BorderLayout.EAST);
         frame.add(previewSketch);
-        
         
         //Wait for the frame to be visible before painting, or the result drawing will be strange
         frame.addComponentListener(new ComponentAdapter() {

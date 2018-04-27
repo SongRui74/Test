@@ -4,8 +4,12 @@
  * and open the template in the editor.
  */
 
-package test;
+package test.plugins.preview;
 
+/**
+ *
+ * @author dell-pc
+ */
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,14 +21,16 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import org.gephi.graph.api.Node;
 import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewMouseEvent;
 import org.gephi.preview.api.Vector;
 import org.openide.util.Lookup;
+
 /**
  *
- * @author dell-pc
+ * @author mbastian
  */
 public class PreviewSketch extends JPanel implements MouseListener, MouseWheelListener, MouseMotionListener {
 
@@ -36,7 +42,7 @@ public class PreviewSketch extends JPanel implements MouseListener, MouseWheelLi
     private final Vector ref = new Vector();
     private final Vector lastMove = new Vector();
     //Utils
-    private final RefreshLoop refreshLoop = new RefreshLoop();
+    public final RefreshLoop refreshLoop = new RefreshLoop();
     private Timer wheelTimer;
     private boolean inited;
     private final boolean isRetina;
@@ -79,7 +85,7 @@ public class PreviewSketch extends JPanel implements MouseListener, MouseWheelLi
             refreshLoop.refreshSketch();
         }
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
         previewController.sendMouseEvent(buildPreviewMouseEvent(e, PreviewMouseEvent.Type.PRESSED));
@@ -164,7 +170,7 @@ public class PreviewSketch extends JPanel implements MouseListener, MouseWheelLi
         refreshLoop.refreshSketch();
     }
 
-    private Vector screenPositionToModelPosition(Vector screenPos) {
+    public Vector screenPositionToModelPosition(Vector screenPos) {
         Vector center = new Vector(getWidth() / 2f, getHeight() / 2f);
         Vector scaledCenter = Vector.mult(center, target.getScaling());
         Vector scaledTrans = Vector.sub(center, scaledCenter);
@@ -176,7 +182,7 @@ public class PreviewSketch extends JPanel implements MouseListener, MouseWheelLi
         return modelPos;
     }
 
-    private PreviewMouseEvent buildPreviewMouseEvent(MouseEvent evt, PreviewMouseEvent.Type type) {
+    public PreviewMouseEvent buildPreviewMouseEvent(MouseEvent evt, PreviewMouseEvent.Type type) {
         int mouseX = evt.getX();
         int mouseY = evt.getY();
         PreviewMouseEvent.Button button = PreviewMouseEvent.Button.LEFT;
@@ -193,7 +199,7 @@ public class PreviewSketch extends JPanel implements MouseListener, MouseWheelLi
         return new PreviewMouseEvent((int) pos.x, (int) pos.y, type, button, null);
     }
 
-    private class RefreshLoop {
+    public class RefreshLoop {
 
         private final long DELAY = 100;
         private final AtomicBoolean running = new AtomicBoolean();

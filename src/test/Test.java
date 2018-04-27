@@ -30,9 +30,6 @@ public class Test {
     /*    Features f = new Features();
         f.MarkAllInfo();
     */
-    /*    Panel a = new Panel();
-        a.myPanel();
-    */
         MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         
