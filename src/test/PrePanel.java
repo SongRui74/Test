@@ -34,8 +34,8 @@ public class PrePanel extends JFrame{
         setContentPane(pre_result);
         // 设置窗口标题、大小、退出键
         setTitle("分类结果");
-        setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
-            (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
+        setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH+400)/2,
+            (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT+250)/2 , WIDTH, HEIGHT);
         setLayout(null);
         bO = new JButton();
         add(bO);

@@ -33,8 +33,6 @@ public class Test {
         MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         
-    //    new ResultPanel("Specific");
-        
     /*    Standfordnlp s = new Standfordnlp();
         String str = "No way to register payments, stupid omission ";
         str = str.toLowerCase();
