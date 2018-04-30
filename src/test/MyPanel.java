@@ -46,7 +46,6 @@ public class MyPanel extends JFrame implements ActionListener
         button_SMOEval = new JButton("SMO评估");
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
-    //    button_pre_result = new JButton("分类结果");
         
         //设置下拉列表
         String [] c = {"查看结果"," ","结果概览","综合评价","具体评价","需求评价","无效评价"}; //定义字符串
@@ -67,7 +66,6 @@ public class MyPanel extends JFrame implements ActionListener
         add(button_SMOEval);
         add(button_SMOCls);
         add(button_save);
-    //    add(button_pre_result);
         add(jcombo);
         
         setResizable(false);
@@ -77,8 +75,7 @@ public class MyPanel extends JFrame implements ActionListener
         this.button_SMOEval.addActionListener(this);
         this.button_SMOCls.addActionListener(this);
         this.button_save.addActionListener(this);
-    //    this.button_pre_result.addActionListener(this);
-        //    this.button_submit.addActionListener(this);
+        
         //下拉框监听
         this.jcombo.addItemListener(new ItemListener()
         {
@@ -119,8 +116,8 @@ public class MyPanel extends JFrame implements ActionListener
                         if(classname.equals("无效评价")){
                             classid = "10004";
                         }
-                        //gephi结果
-                        Panel a = new Panel();
+                        //可视化结果
+                        PartPanel a = new PartPanel();
                         a.setClassid(classid);
                         a.myPanel();
                         txtArea.append("处理完成!\n");
@@ -135,27 +132,6 @@ public class MyPanel extends JFrame implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-    /*    n = txtField.getText()+"";
-        if(n.equals("")){
-            n = "10000";
-            settablename("test10000");
-        }
-        else{
-            settablename("test" + n);
-        }
-        if(e.getSource() == this.button_submit)
-        {
-            this.txtArea.setText("正在创建预测集...\n");
-            txtArea.paintImmediately(txtArea.getBounds());            
-            int num = Integer.parseInt(n);   
-            SQL s = new SQL();
-            s.CreatePre(num);
-        //    Features fea = new Features();
-        //    fea.RemarkAll(num);
-        //    this.txtArea.append("该预测集特征标记完成！\n");
-                
-            this.txtArea.append("该预测集创建完成！\n");
-        }*/
         if(e.getSource() == this.button_SMOEval)
         {
             this.txtArea.append("正在建模...\n");
@@ -193,17 +169,5 @@ public class MyPanel extends JFrame implements ActionListener
             this.txtArea.append("数据库分类结果存储完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());
         }
-    /*    if(e.getSource() == this.button_pre_result)
-        {
-            Classifiertest cls = new Classifiertest();            
-            int[] distr = cls.StatisticsResult();
-            this.txtArea.append("==================预测集分类结果=====================\n");
-            this.txtArea.append("Overview类别：\t" + distr[0] + "\n");
-            this.txtArea.append("Invalid类别： \t" + distr[1] + "\n");
-            this.txtArea.append("Demand类别： \t" + distr[2] + "\n");
-            this.txtArea.append("Specific类别：\t" + distr[3] + "\n");
-            //调用结果子面板
-            PrePanel prePanel = new PrePanel();
-        }*/
     } 
 }      

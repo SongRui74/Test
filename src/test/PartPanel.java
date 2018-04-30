@@ -8,6 +8,10 @@ package test;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -15,7 +19,11 @@ import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import org.gephi.appearance.api.AppearanceController;
 import org.gephi.appearance.api.AppearanceModel;
 import org.gephi.appearance.api.Function;
@@ -51,7 +59,7 @@ import org.gephi.project.api.Workspace;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
-
+//评论信息
 class Info{
     public String APP_ID = "";
     public String APP_Name_ = "";
@@ -66,12 +74,10 @@ class Info{
  *
  * @author dell-pc
  */
-public class Panel {
+public class PartPanel {
     
     private String classid = "";
     private String classname = "";
-    
-    
     
     public void setClassid(String cid){
         classid = cid;
@@ -161,9 +167,120 @@ public class Panel {
         final PreviewSketch previewSketch = new PreviewSketch(target);
         previewController.refreshPreview();
         
+        
         //评论数据详细信息显示
         SQL s = new SQL();
         Info info = new Info();
+        //详细信息界面
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new FlowLayout());
+        infoPanel.setPreferredSize(new Dimension(300,350)); 
+        infoPanel.setFont(new Font("楷体",1,10)); 
+        
+        JLabel partinfo = new JLabel("   该类别评论数/总评论数："+graph.getEdgeCount()+"/10000              ");
+        JLabel linfoid = new JLabel("   APP编号:");
+        JTextArea infoid = new JTextArea(1,16);
+        infoid.setText(info.APP_ID);
+        
+        JLabel linfoname = new JLabel("   APP名称:");
+        JTextArea infoname = new JTextArea(1,16);
+        infoname.setText(info.APP_Name_);
+        infoname.setPreferredSize(null);
+        
+        JLabel linfocate = new JLabel("   APP类别:");
+        JTextArea infocate = new JTextArea(1,16);
+        infocate.setText(info.APP_category);
+        
+        JLabel linfodes = new JLabel("   APP描述:");
+        JTextArea infodes = new JTextArea(5,16);
+        infodes.setText(info.APP_description);
+        infodes.setPreferredSize(null);
+        
+        JLabel linforer = new JLabel("   评论人姓名:");
+        JTextArea inforer = new JTextArea(1,16);
+        inforer.setText(info.Reviewer_Name);
+        
+        JLabel linforate = new JLabel("   评价分数（1-5）:");
+        JTextArea inforate = new JTextArea(1,16);
+        inforate.setText(" "+info.Rating);
+        
+        JLabel linfocont = new JLabel("   评论内容:");
+        JTextArea infocont = new JTextArea(2,16);
+        infocont.setText(info.Review_Content);
+        infocont.setPreferredSize(null);
+        
+        JLabel linfoinfo = new JLabel("   评论关键信息:");
+        JTextArea infoinfo = new JTextArea(2,16);
+        infoinfo.setText(info.info);
+        infoinfo.setPreferredSize(null);
+        
+        JScrollPane js1 = new JScrollPane(infoname);
+        js1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        js1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane js2 = new JScrollPane(infodes);
+        js2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        js2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane js3 = new JScrollPane(infocont);
+        js3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        js3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane js4 = new JScrollPane(infoinfo);
+        js4.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        js4.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
+        infoPanel.add(partinfo);
+        infoPanel.add(linfoid);
+        infoPanel.add(infoid);
+        infoPanel.add(linfoname);
+        infoPanel.add(js1);
+        infoPanel.add(linfocate);
+        infoPanel.add(infocate);
+        infoPanel.add(linfodes);
+        infoPanel.add(js2);
+        infoPanel.add(linforer);
+        infoPanel.add(inforer);
+        infoPanel.add(linforate);
+        infoPanel.add(inforate);
+        infoPanel.add(linfoid);
+        infoPanel.add(infoid);
+        infoPanel.add(linfocont);
+        infoPanel.add(js3);
+        infoPanel.add(linfoinfo);
+        infoPanel.add(js4);
+               
+        infoPanel.setVisible(true);
+    /*    JLabel partinfo1 = new JLabel(graph.getEdgeCount()+"/10000");
+        JLabel partinfo = new JLabel("   该类别评论数/总评论数：");
+        JLabel infoid = new JLabel("   APP编号:");
+        JLabel infoname = new JLabel("   APP名称:");
+        JLabel infocate = new JLabel("   APP类别:");
+        JLabel infodes = new JLabel("   APP描述:");
+        JLabel inforer = new JLabel("   评论人姓名:");
+        JLabel inforate = new JLabel("   评价分数（1-5）:");
+        JLabel infocont = new JLabel("   评论内容:");
+        JLabel infoinfo = new JLabel("   评论关键信息:");
+        
+        JLabel infoid1 = new JLabel();
+        JLabel infoname1 = new JLabel();
+        JLabel infocate1 = new JLabel();
+        JTextArea infodes1 = new JTextArea();
+        JLabel inforer1 = new JLabel();
+        JLabel inforate1 = new JLabel();
+        JLabel infocont1 = new JLabel();
+        JLabel infoinfo1 = new JLabel();
+        
+        infoPanel.add(partinfo);infoPanel.add(partinfo1);
+        infoPanel.add(infoid);infoPanel.add(infoid1);
+        infoPanel.add(infoname);infoPanel.add(infoname1);
+        infoPanel.add(infocate);infoPanel.add(infocate1);
+        infoPanel.add(infodes);infoPanel.add(infodes1);
+        infoPanel.add(inforer);infoPanel.add(inforer1);
+        infoPanel.add(inforate);infoPanel.add(inforate1);
+        infoPanel.add(infoid);infoPanel.add(infoid1);
+        infoPanel.add(infocont);infoPanel.add(infocont1);
+        infoPanel.add(infoinfo);infoPanel.add(infoinfo1);
+        infoPanel.setVisible(true);
+    */    
+        
         //鼠标响应
         PreviewProperties properties = new PreviewProperties();
         previewSketch.addMouseListener(new MouseAdapter() {
@@ -175,7 +292,6 @@ public class Panel {
                     if (clickingInNode(node, event)) {
                         properties.putValue("display-label.node.id", node.getId());
                         //显示信息
-                    //    int id = 5000;
                         String id = node.getId().toString();
                         try {
                             ResultSet rs = s.Showinfo(id);
@@ -188,6 +304,32 @@ public class Panel {
                             info.Rating = rs.getString("Rating");
                             info.Review_Content = rs.getString("Review_Content");
                             info.info = rs.getString("info");
+                            //刷新数据信息显示
+                        /*    infoid1.setText(info.APP_ID);
+                            infoname1.setText(info.APP_Name_);
+                            infocate1.setText(info.APP_category);
+                            infodes1.setText(info.APP_description);
+                            inforer1.setText(info.Reviewer_Name);
+                            inforate1.setText(info.Rating);
+                            infocont1.setText(info.Review_Content);
+                            infoinfo1.setText(info.info);*/
+                            
+                            infoid.setText(info.APP_ID);
+                            infoname.setText(info.APP_Name_);
+                            infocate.setText(info.APP_category);
+                            infodes.setText(info.APP_description);
+                            inforer.setText(info.Reviewer_Name);
+                            inforate.setText(" "+info.Rating);
+                            infocont.setText(info.Review_Content);
+                            infoinfo.setText(info.info);
+                        /*    infoid.setText(info.APP_ID);
+                            infoname.setText("   APP名称:"+info.APP_Name_);
+                            infocate.setText("   APP类别:"+info.APP_category);
+                            infodes.setText("   APP描述:"+info.APP_description);
+                            inforer.setText("   评论人姓名:"+info.Reviewer_Name);
+                            inforate.setText("   评价分数（1-5）:"+info.Rating);
+                            infocont.setText("   评论内容:"+info.Review_Content);
+                            infoinfo.setText("   评论关键信息:"+info.info);*/
                         } catch (ClassNotFoundException ex) {
                             Exceptions.printStackTrace(ex);
                         } catch (SQLException ex) {
@@ -209,15 +351,22 @@ public class Panel {
                 return xdiff * xdiff + ydiff * ydiff < radius * radius;
             }
         });
-         
-        //JFrame and display
+
+        
+        //信息列表主界面
+        JPanel result = new JPanel(new GridLayout(2,1));
+        result.setSize(300, 700);
+        ResultPanel p = new ResultPanel();
+        result.add(infoPanel); //加入节点信息界面
+        result.add(p.infoPanel(this.getClassname())); //加入关键信息列表界面
+        result.setVisible(true);
+        
+        //主界面展示JFrame and display
         JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
         frame.setSize(1300, 700);
-        
-        ResultPanel p = new ResultPanel();
-        frame.add(p.infoPanel(this.getClassname()),BorderLayout.EAST);
-        frame.add(previewSketch);
+        frame.add(result,BorderLayout.EAST);//右侧加入信息界面
+        frame.add(previewSketch);//左侧为数据可视化显示
         
         //Wait for the frame to be visible before painting, or the result drawing will be strange
         frame.addComponentListener(new ComponentAdapter() {
@@ -226,5 +375,7 @@ public class Panel {
             }
         });
         frame.setVisible(true);
+        
+        
     }
 }

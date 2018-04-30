@@ -6,12 +6,8 @@
 
 package test;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.util.List;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,10 +27,9 @@ public class ResultPanel {
     private JScrollPane js; //滚动条
           
     public JPanel infoPanel(String classname){        
-        // 设置窗口标题、大小、退出键
-    //    setTitle("评论关键信息");
-        JPanel a = new JPanel(new GridLayout(2,1));
-        a.setSize(100,700);       
+    //    JPanel a = new JPanel(new GridLayout(2,1));
+        JPanel a = new JPanel();
+        a.setPreferredSize(new Dimension(300,350));      
         // 设置窗口的内容
         String cname = "";
         if(classname.equals("综合评价")){
@@ -50,15 +45,15 @@ public class ResultPanel {
             cname = "Specific";
         }
         
-        out_label = new JLabel("关键信息");
-        out_label.setPreferredSize(new Dimension(10,20));        
-        txtArea = new JTextArea(35,20);
+    //    out_label = new JLabel("关键信息");
+    //    out_label.setPreferredSize(new Dimension(10,20));        
+        txtArea = new JTextArea(19,20);
         txtArea.setPreferredSize(null);
         js = new JScrollPane(txtArea);
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         
-        a.add(out_label,BorderLayout.NORTH);
+    //    a.add(out_label,BorderLayout.NORTH);
         a.add(js);
         a.setVisible(true);
         
