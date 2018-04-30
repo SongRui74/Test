@@ -7,6 +7,8 @@
 package test;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,9 +28,9 @@ public class ResultPanel {
     private JLabel out_label; //输出label
     private JScrollPane js; //滚动条
           
-    public JPanel infoPanel(String classname){        
-    //    JPanel a = new JPanel(new GridLayout(2,1));
+    public JPanel infoPanel(String classname){       
         JPanel a = new JPanel();
+        a.setLayout(new FlowLayout());
         a.setPreferredSize(new Dimension(300,350));      
         // 设置窗口的内容
         String cname = "";
@@ -44,16 +46,15 @@ public class ResultPanel {
         if(classname.equals("具体评价")){
             cname = "Specific";
         }
-        
-    //    out_label = new JLabel("关键信息");
-    //    out_label.setPreferredSize(new Dimension(10,20));        
-        txtArea = new JTextArea(19,20);
+        a.setFont(new Font("楷体",1,12));
+        out_label = new JLabel("该类别所有关键信息");        
+        txtArea = new JTextArea(17,20);
         txtArea.setPreferredSize(null);
         js = new JScrollPane(txtArea);
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         
-    //    a.add(out_label,BorderLayout.NORTH);
+        a.add(out_label);
         a.add(js);
         a.setVisible(true);
         

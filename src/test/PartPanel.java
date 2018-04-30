@@ -173,17 +173,18 @@ public class PartPanel {
         Info info = new Info();
         //详细信息界面
         JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new FlowLayout());
+        infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         infoPanel.setPreferredSize(new Dimension(300,350)); 
         infoPanel.setFont(new Font("楷体",1,10)); 
-        
+        JLabel title = new JLabel("                               评论详细信息");
         JLabel partinfo = new JLabel("   该类别评论数/总评论数："+graph.getEdgeCount()+"/10000              ");
         JLabel linfoid = new JLabel("   APP编号:");
         JTextArea infoid = new JTextArea(1,16);
         infoid.setText(info.APP_ID);
         
         JLabel linfoname = new JLabel("   APP名称:");
-        JTextArea infoname = new JTextArea(1,16);
+        JTextArea infoname = new JTextArea(2,16);
+        infoname.setLineWrap(true);
         infoname.setText(info.APP_Name_);
         infoname.setPreferredSize(null);
         
@@ -192,25 +193,28 @@ public class PartPanel {
         infocate.setText(info.APP_category);
         
         JLabel linfodes = new JLabel("   APP描述:");
-        JTextArea infodes = new JTextArea(5,16);
+        JTextArea infodes = new JTextArea(4,16);
+        infodes.setLineWrap(true);
         infodes.setText(info.APP_description);
         infodes.setPreferredSize(null);
         
         JLabel linforer = new JLabel("   评论人姓名:");
-        JTextArea inforer = new JTextArea(1,16);
+        JTextArea inforer = new JTextArea(1,15);
         inforer.setText(info.Reviewer_Name);
         
         JLabel linforate = new JLabel("   评价分数（1-5）:");
-        JTextArea inforate = new JTextArea(1,16);
+        JTextArea inforate = new JTextArea(1,12);
         inforate.setText(" "+info.Rating);
         
         JLabel linfocont = new JLabel("   评论内容:");
         JTextArea infocont = new JTextArea(2,16);
+        infocont.setLineWrap(true);
         infocont.setText(info.Review_Content);
         infocont.setPreferredSize(null);
         
-        JLabel linfoinfo = new JLabel("   评论关键信息:");
+        JLabel linfoinfo = new JLabel("   关键信息:");
         JTextArea infoinfo = new JTextArea(2,16);
+        infoinfo.setLineWrap(true);
         infoinfo.setText(info.info);
         infoinfo.setPreferredSize(null);
         
@@ -227,6 +231,7 @@ public class PartPanel {
         js4.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js4.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         
+        infoPanel.add(title);
         infoPanel.add(partinfo);
         infoPanel.add(linfoid);
         infoPanel.add(infoid);
@@ -248,38 +253,6 @@ public class PartPanel {
         infoPanel.add(js4);
                
         infoPanel.setVisible(true);
-    /*    JLabel partinfo1 = new JLabel(graph.getEdgeCount()+"/10000");
-        JLabel partinfo = new JLabel("   该类别评论数/总评论数：");
-        JLabel infoid = new JLabel("   APP编号:");
-        JLabel infoname = new JLabel("   APP名称:");
-        JLabel infocate = new JLabel("   APP类别:");
-        JLabel infodes = new JLabel("   APP描述:");
-        JLabel inforer = new JLabel("   评论人姓名:");
-        JLabel inforate = new JLabel("   评价分数（1-5）:");
-        JLabel infocont = new JLabel("   评论内容:");
-        JLabel infoinfo = new JLabel("   评论关键信息:");
-        
-        JLabel infoid1 = new JLabel();
-        JLabel infoname1 = new JLabel();
-        JLabel infocate1 = new JLabel();
-        JTextArea infodes1 = new JTextArea();
-        JLabel inforer1 = new JLabel();
-        JLabel inforate1 = new JLabel();
-        JLabel infocont1 = new JLabel();
-        JLabel infoinfo1 = new JLabel();
-        
-        infoPanel.add(partinfo);infoPanel.add(partinfo1);
-        infoPanel.add(infoid);infoPanel.add(infoid1);
-        infoPanel.add(infoname);infoPanel.add(infoname1);
-        infoPanel.add(infocate);infoPanel.add(infocate1);
-        infoPanel.add(infodes);infoPanel.add(infodes1);
-        infoPanel.add(inforer);infoPanel.add(inforer1);
-        infoPanel.add(inforate);infoPanel.add(inforate1);
-        infoPanel.add(infoid);infoPanel.add(infoid1);
-        infoPanel.add(infocont);infoPanel.add(infocont1);
-        infoPanel.add(infoinfo);infoPanel.add(infoinfo1);
-        infoPanel.setVisible(true);
-    */    
         
         //鼠标响应
         PreviewProperties properties = new PreviewProperties();
@@ -304,16 +277,7 @@ public class PartPanel {
                             info.Rating = rs.getString("Rating");
                             info.Review_Content = rs.getString("Review_Content");
                             info.info = rs.getString("info");
-                            //刷新数据信息显示
-                        /*    infoid1.setText(info.APP_ID);
-                            infoname1.setText(info.APP_Name_);
-                            infocate1.setText(info.APP_category);
-                            infodes1.setText(info.APP_description);
-                            inforer1.setText(info.Reviewer_Name);
-                            inforate1.setText(info.Rating);
-                            infocont1.setText(info.Review_Content);
-                            infoinfo1.setText(info.info);*/
-                            
+                            //刷新数据信息显示                            
                             infoid.setText(info.APP_ID);
                             infoname.setText(info.APP_Name_);
                             infocate.setText(info.APP_category);
@@ -322,14 +286,6 @@ public class PartPanel {
                             inforate.setText(" "+info.Rating);
                             infocont.setText(info.Review_Content);
                             infoinfo.setText(info.info);
-                        /*    infoid.setText(info.APP_ID);
-                            infoname.setText("   APP名称:"+info.APP_Name_);
-                            infocate.setText("   APP类别:"+info.APP_category);
-                            infodes.setText("   APP描述:"+info.APP_description);
-                            inforer.setText("   评论人姓名:"+info.Reviewer_Name);
-                            inforate.setText("   评价分数（1-5）:"+info.Rating);
-                            infocont.setText("   评论内容:"+info.Review_Content);
-                            infoinfo.setText("   评论关键信息:"+info.info);*/
                         } catch (ClassNotFoundException ex) {
                             Exceptions.printStackTrace(ex);
                         } catch (SQLException ex) {
