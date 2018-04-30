@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -45,6 +46,22 @@ public class SQL {
         return tablename;
     }
     
+    /**
+     * 显示一条评论的相关信息
+     * @param id 10，000条元组中的ID
+     * @return 
+     */
+    public ResultSet Showinfo(String id) throws ClassNotFoundException, SQLException{
+        Class.forName(driverName);
+        conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+           
+        Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+        ResultSet rs;
+        String sql = "select * from gephi,new_Apps where gephi.ID = '"+id+"' and gephi.APP_ID = new_Apps.APP_ID";
+        rs=stmt.executeQuery(sql);
+        
+        return rs;
+    }
     /**
      * 根据类名获取评论内容
      * @param classname 类名

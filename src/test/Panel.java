@@ -12,7 +12,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.concurrent.TimeUnit;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.gephi.appearance.api.AppearanceController;
@@ -35,10 +36,8 @@ import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.importer.plugin.database.EdgeListDatabaseImpl;
 import org.gephi.io.importer.plugin.database.ImporterEdgeList;
 import org.gephi.io.processor.plugin.DefaultProcessor;
-import org.gephi.layout.plugin.AutoLayout;
 import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
-import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
 import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
@@ -49,8 +48,20 @@ import org.gephi.preview.api.RenderTarget;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
+
+class Info{
+    public String APP_ID = "";
+    public String APP_Name_ = "";
+    public String APP_description = "";
+    public String APP_category = "";
+    public String Reviewer_Name = "";
+    public String Rating = "";
+    public String Review_Content = "";
+    public String info = "";
+}
 /**
  *
  * @author dell-pc
@@ -59,6 +70,8 @@ public class Panel {
     
     private String classid = "";
     private String classname = "";
+    
+    
     
     public void setClassid(String cid){
         classid = cid;
@@ -111,18 +124,11 @@ public class Panel {
         importController.process(container, new DefaultProcessor(), workspace);
         
         //See if graph is well imported
-        DirectedGraph graph = graphModel.getDirectedGraph();
-        
+        DirectedGraph graph = graphModel.getDirectedGraph();        
     //    System.out.println("Nodes: " + graph.getNodeCount());
     //    System.out.println("Edges: " + graph.getEdgeCount());
         
-        //Rank节点颜色
-    /*    Function degreeRanking = appearanceModel.getNodeFunction(graph, AppearanceModel.GraphFunction.NODE_DEGREE, RankingElementColorTransformer.class);
-        RankingElementColorTransformer degreeTransformer = (RankingElementColorTransformer) degreeRanking.getTransformer();
-        degreeTransformer.setColors(new Color[]{new Color(0xFEF0D9), new Color(0xB30000)});
-        degreeTransformer.setColorPositions(new float[]{0f, 1f});
-        appearanceController.transform(degreeRanking);
-    */    
+        
         //节点颜色 Partition with 'classes ' column, which is in the data
         Column column = graphModel.getNodeTable().getColumn("classes");
         Function func = appearanceModel.getNodeFunction(graph, column, PartitionElementColorTransformer.class);
@@ -143,37 +149,6 @@ public class Panel {
         }
         layout.endAlgo();
         
-        //Get Centrality
-    /*    GraphDistance distance = new GraphDistance();
-        distance.setDirected(true);
-        distance.execute(graphModel);
-        
-        //Rank节点大小 Rank size by centrality
-        Column centralityColumn = graphModel.getNodeTable().getColumn(GraphDistance.BETWEENNESS);
-        Function centralityRanking = appearanceModel.getNodeFunction(graph, centralityColumn, RankingNodeSizeTransformer.class);
-        RankingNodeSizeTransformer centralityTransformer = (RankingNodeSizeTransformer) centralityRanking.getTransformer();
-        centralityTransformer.setMinSize(3);
-        centralityTransformer.setMaxSize(10);
-        appearanceController.transform(centralityRanking);
-        
-    /*    //Rank label size - set a multiplier size
-        Function centralityRanking2 = appearanceModel.getNodeFunction(graph, centralityColumn, RankingLabelSizeTransformer.class);
-        RankingLabelSizeTransformer labelSizeTransformer = (RankingLabelSizeTransformer) centralityRanking2.getTransformer();
-        labelSizeTransformer.setMinSize(1);
-        labelSizeTransformer.setMaxSize(2);
-        appearanceController.transform(centralityRanking2);
-        
-        //布局 
-    /*    AutoLayout autoLayout = new AutoLayout(33, TimeUnit.SECONDS);
-        autoLayout.setGraphModel(graphModel);
-        YifanHuLayout firstLayout = new YifanHuLayout(null, new StepDisplacement(1f));
-        ForceAtlasLayout secondLayout = new ForceAtlasLayout(null);
-        AutoLayout.DynamicProperty adjustBySizeProperty = AutoLayout.createDynamicProperty("forceAtlas.adjustSizes.name", Boolean.TRUE, 0.1f);//True after 10% of layout time
-        AutoLayout.DynamicProperty repulsionProperty = AutoLayout.createDynamicProperty("forceAtlas.repulsionStrength.name", 500., 0f);//500 for the complete period
-        autoLayout.addLayout(firstLayout, 0.5f);
-        autoLayout.addLayout(secondLayout, 0.5f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, repulsionProperty});
-        autoLayout.execute();
-    */    
         //显示Preview configuration
         PreviewModel previewModel = previewController.getModel();
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
@@ -186,6 +161,9 @@ public class Panel {
         final PreviewSketch previewSketch = new PreviewSketch(target);
         previewController.refreshPreview();
         
+        //评论数据详细信息显示
+        SQL s = new SQL();
+        Info info = new Info();
         //鼠标响应
         PreviewProperties properties = new PreviewProperties();
         previewSketch.addMouseListener(new MouseAdapter() {
@@ -196,7 +174,26 @@ public class Panel {
                 for (Node node : Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace).getGraph().getNodes()) {
                     if (clickingInNode(node, event)) {
                         properties.putValue("display-label.node.id", node.getId());
-                        JOptionPane.showMessageDialog(null, "关键信息：" + node.getLabel());
+                        //显示信息
+                    //    int id = 5000;
+                        String id = node.getId().toString();
+                        try {
+                            ResultSet rs = s.Showinfo(id);
+                            rs.next();
+                            info.APP_ID = rs.getString("APP_ID");
+                            info.APP_Name_= rs.getString("APP_Name_");
+                            info.APP_category = rs.getString("APP_category");
+                            info.APP_description = rs.getString("APP_description");
+                            info.Reviewer_Name = rs.getString("Reviewer_Name");
+                            info.Rating = rs.getString("Rating");
+                            info.Review_Content = rs.getString("Review_Content");
+                            info.info = rs.getString("info");
+                        } catch (ClassNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (SQLException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                        JOptionPane.showMessageDialog(null, "关键内容：\n" + node.getLabel() +"\n原评论内容：\n"+info.Review_Content);
                         event.setConsumed(true);//So the renderer is executed and the graph repainted
                         return;
                     }
