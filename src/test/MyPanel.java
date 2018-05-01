@@ -39,8 +39,10 @@ public class MyPanel extends JFrame implements ActionListener
     
     public void MainPanel(){
         //设置文本框和标签
-        txtArea = new JTextArea(10,40);
-        out_label = new JLabel("该算法训练模型评估结果");
+        txtArea = new JTextArea(12,40);
+        out_label = new JLabel("训练模型评估结果");
+        out_label.setFont(new Font("宋体",1,19));
+        out_label.setForeground(Color.WHITE);
         js = new JScrollPane(txtArea);
         //设置按钮
         button_SMOEval = new JButton("SMO评估");
@@ -52,15 +54,23 @@ public class MyPanel extends JFrame implements ActionListener
         jcombo = new JComboBox(c);   //实例化下拉列表
         
         //布局
-        setTitle("Classifier");
+        setTitle("文本自动分类器");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //关闭退出进程
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
         
+        //背景
+        BackgroundPanel bgp = new BackgroundPanel();
+        setContentPane(bgp);
+        
         js.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         setLayout(new FlowLayout());
-    
+        
+        txtArea.setOpaque(false);
+        js.setOpaque(false);
+        js.getViewport().setOpaque(false);
+        
         add(out_label);
         add(js);
         add(button_SMOEval);
@@ -70,7 +80,7 @@ public class MyPanel extends JFrame implements ActionListener
         
         setResizable(false);
         setVisible(true);
-        
+   
         //按钮监听
         this.button_SMOEval.addActionListener(this);
         this.button_SMOCls.addActionListener(this);
@@ -128,7 +138,6 @@ public class MyPanel extends JFrame implements ActionListener
         });
     
     }
-    
     @Override
     public void actionPerformed(ActionEvent e)
     {
@@ -171,3 +180,17 @@ public class MyPanel extends JFrame implements ActionListener
         }
     } 
 }      
+class BackgroundPanel extends JPanel {  
+    @Override
+    public void paintComponent(Graphics g){
+        Graphics2D g2d = (Graphics2D) g;
+        ImageIcon icon = null;
+            try{
+            icon = new ImageIcon("D:\\aaMyPro\\MyPro\\Test\\img\\3.jpg");
+        } catch(Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    g2d.drawImage(icon.getImage(), 0, 0,this.getSize().width,this.getSize().height, this);
+    }  
+}

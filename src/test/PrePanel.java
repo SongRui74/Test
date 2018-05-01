@@ -23,11 +23,8 @@ public class PrePanel extends JFrame{
     public static final int WIDTH = 500;
     public static final int HEIGHT = 300;
     
-    private JButton bO,bI,bD,bS;
-          
+         
     public PrePanel(){
-        int CenterX = 491;
-        int CenterY = 273;
         
         // 设置窗口的内容面板
         Subpanel pre_result = new Subpanel(); 
@@ -37,52 +34,10 @@ public class PrePanel extends JFrame{
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH+400)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT+250)/2 , WIDTH, HEIGHT);
         setLayout(null);
-        bO = new JButton();
-        add(bO);
-        bO.setBackground(Color.blue);
-        bO.setBounds(CenterX/2+80, CenterY/8+100, 20, 10);
-        
-        bI = new JButton();
-        add(bI);
-        bI.setBackground(Color.red);
-        bI.setBounds(CenterX/2+80, CenterY/8+120, 20, 10);
-        
-        bD = new JButton();
-        add(bD);
-        bD.setBackground(Color.yellow);
-        bD.setBounds(CenterX/2+80, CenterY/8+140, 20, 10);
-        
-        bS = new JButton();
-        add(bS);
-        bS.setBackground(Color.green);
-        bS.setBounds(CenterX/2+80, CenterY/8+160, 20, 10);
         
         setResizable(false);
         setVisible(true);
-        
-        bO.addActionListener((ActionEvent e) -> {
-            if(e.getSource() == bO){
-            //    ResultPanel resultPanel = new ResultPanel("Overview");
-            }
-        });
-        
-        bI.addActionListener((ActionEvent e) -> {
-            if(e.getSource() == bI){
-            //    ResultPanel resultPanel = new ResultPanel("Invalid");
-            }
-        });
-        
-        bD.addActionListener((ActionEvent e) -> {
-            if(e.getSource() == bD){
-            //    ResultPanel resultPanel = new ResultPanel("Demand");
-            }
-        });
-        
-        bS.addActionListener((ActionEvent e) -> {
-            if(e.getSource() == bS){
-            //    ResultPanel resultPanel = new ResultPanel("Specific");
-            }
-        });
+       
 }
 
 class Subpanel extends JPanel{  
@@ -125,6 +80,15 @@ class Subpanel extends JPanel{
         g.drawString("无效评价", CenterX/2+110, CenterY/8+130); 
         g.drawString("需求评价", CenterX/2+110, CenterY/8+150); 
         g.drawString("具体评价", CenterX/2+110, CenterY/8+170); 
+        
+        g.setColor(Color.blue);
+        g.drawRect(CenterX/2+80, CenterY/8+100, 20, 10);
+        g.setColor(Color.red);
+        g.drawRect(CenterX/2+80, CenterY/8+120, 20, 10);
+        g.setColor(Color.yellow);
+        g.drawRect(CenterX/2+80, CenterY/8+140, 20, 10);
+        g.setColor(Color.green);
+        g.drawRect(CenterX/2+80, CenterY/8+120, 20, 10);
         
         }
     }  
