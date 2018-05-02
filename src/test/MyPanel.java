@@ -54,7 +54,7 @@ public class MyPanel extends JFrame implements ActionListener
         jcombo = new JComboBox(c);   //实例化下拉列表
         
         //布局
-        setTitle("文本自动分类器");
+        setTitle("评论自动分类器");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //关闭退出进程
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
