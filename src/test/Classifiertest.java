@@ -78,7 +78,8 @@ public class Classifiertest {
         //训练模型
         smo.buildClassifier(d_Train);  
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(smo, d_Train);//测试&评价算法        
+        eval.evaluateModel(smo, d_Train);//测试&评价算法  
+        txtSMO.append("\n训练模型评估结果\n");
         txtSMO.append("Classifier model:\tSMO\n");
         txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         txtSMO.append(eval.toClassDetailsString()+"\n");

@@ -11,13 +11,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -74,7 +78,7 @@ class Info{
  *
  * @author dell-pc
  */
-public class PartPanel {
+public class PartPanel extends JPanel{
     
     private String classid = "";
     private String classname = "";
@@ -172,51 +176,63 @@ public class PartPanel {
         SQL s = new SQL();
         Info info = new Info();
         //详细信息界面
-        JPanel infoPanel = new JPanel();
+        PartPanel infoPanel = new PartPanel();
+        infoPanel.setBackground(Color.WHITE);
         infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         infoPanel.setPreferredSize(new Dimension(300,350)); 
-        infoPanel.setFont(new Font("楷体",1,10)); 
+        infoPanel.setFont(new Font("宋体",1,10)); 
         JLabel title = new JLabel("                               评论详细信息");
         JLabel partinfo = new JLabel("   该类别评论数/总评论数："+graph.getEdgeCount()+"/10000              ");
+        
         JLabel linfoid = new JLabel("   APP编号:");
         JTextArea infoid = new JTextArea(1,16);
         infoid.setText(info.APP_ID);
+        infoid.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linfoname = new JLabel("   APP名称:");
         JTextArea infoname = new JTextArea(2,16);
         infoname.setLineWrap(true);
         infoname.setText(info.APP_Name_);
         infoname.setPreferredSize(null);
+        infoname.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linfocate = new JLabel("   APP类别:");
         JTextArea infocate = new JTextArea(1,16);
+        infocate.setLineWrap(true);
         infocate.setText(info.APP_category);
+        infocate.setPreferredSize(null);
+        infocate.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linfodes = new JLabel("   APP描述:");
-        JTextArea infodes = new JTextArea(4,16);
+        JTextArea infodes = new JTextArea(3,16);
         infodes.setLineWrap(true);
         infodes.setText(info.APP_description);
         infodes.setPreferredSize(null);
+        infodes.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linforer = new JLabel("   评论人姓名:");
         JTextArea inforer = new JTextArea(1,15);
         inforer.setText(info.Reviewer_Name);
+        inforer.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linforate = new JLabel("   评价分数（1-5）:");
         JTextArea inforate = new JTextArea(1,12);
         inforate.setText(" "+info.Rating);
+        inforate.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linfocont = new JLabel("   评论内容:");
         JTextArea infocont = new JTextArea(2,16);
         infocont.setLineWrap(true);
         infocont.setText(info.Review_Content);
         infocont.setPreferredSize(null);
+        infocont.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JLabel linfoinfo = new JLabel("   关键信息:");
         JTextArea infoinfo = new JTextArea(2,16);
         infoinfo.setLineWrap(true);
         infoinfo.setText(info.info);
         infoinfo.setPreferredSize(null);
+        infoinfo.setBorder(BorderFactory.createLineBorder(Color.BLACK,1));
         
         JScrollPane js1 = new JScrollPane(infoname);
         js1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -230,6 +246,9 @@ public class PartPanel {
         JScrollPane js4 = new JScrollPane(infoinfo);
         js4.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         js4.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane js5 = new JScrollPane(infocate);
+        js5.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        js5.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         infoPanel.add(title);
         infoPanel.add(partinfo);
@@ -238,15 +257,13 @@ public class PartPanel {
         infoPanel.add(linfoname);
         infoPanel.add(js1);
         infoPanel.add(linfocate);
-        infoPanel.add(infocate);
+        infoPanel.add(js5);
         infoPanel.add(linfodes);
         infoPanel.add(js2);
         infoPanel.add(linforer);
         infoPanel.add(inforer);
         infoPanel.add(linforate);
         infoPanel.add(inforate);
-        infoPanel.add(linfoid);
-        infoPanel.add(infoid);
         infoPanel.add(linfocont);
         infoPanel.add(js3);
         infoPanel.add(linfoinfo);
@@ -286,12 +303,10 @@ public class PartPanel {
                             inforate.setText(" "+info.Rating);
                             infocont.setText(info.Review_Content);
                             infoinfo.setText(info.info);
-                        } catch (ClassNotFoundException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (SQLException ex) {
+                        } catch (ClassNotFoundException | SQLException ex) {
                             Exceptions.printStackTrace(ex);
                         }
-                        JOptionPane.showMessageDialog(null, "关键内容：\n" + node.getLabel() +"\n原评论内容：\n"+info.Review_Content);
+                        JOptionPane.showMessageDialog(null, "关键内容：\n" + node.getLabel() +"\n原评论内容：\n"+info.Review_Content,"节点信息",JOptionPane.INFORMATION_MESSAGE);                       
                         event.setConsumed(true);//So the renderer is executed and the graph repainted
                         return;
                     }
@@ -308,15 +323,14 @@ public class PartPanel {
             }
         });
 
-        
-        //信息列表主界面
+        //右侧信息列表主界面
         JPanel result = new JPanel(new GridLayout(2,1));
         result.setSize(300, 700);
         ResultPanel p = new ResultPanel();
         result.add(infoPanel); //加入节点信息界面
         result.add(p.infoPanel(this.getClassname())); //加入关键信息列表界面
         result.setVisible(true);
-        
+     
         //主界面展示JFrame and display
         JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
         frame.setLayout(new BorderLayout());
@@ -326,12 +340,20 @@ public class PartPanel {
         
         //Wait for the frame to be visible before painting, or the result drawing will be strange
         frame.addComponentListener(new ComponentAdapter() {
+            @Override
             public void componentShown(ComponentEvent e) {
                 previewSketch.resetZoom();
             }
         });
         frame.setVisible(true);
-        
-        
     }
+    @Override
+    public void paintComponent(Graphics g) {  
+        super.paintComponent(g);  
+        //下面这行是为了背景图片可以跟随窗口自行调整大小，可以自己设置成固定大小
+        //背景
+        ImageIcon icon = new ImageIcon("D:\\aaMyPro\\MyPro\\Test\\img\\4.jpg");
+        Image img = icon.getImage(); 
+        g.drawImage(img, 0, 0,this.getWidth(), this.getHeight(), this);  
+    } 
 }

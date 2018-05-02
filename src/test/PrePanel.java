@@ -9,8 +9,6 @@ package test;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -82,13 +80,13 @@ class Subpanel extends JPanel{
         g.drawString("具体评价", CenterX/2+110, CenterY/8+170); 
         
         g.setColor(Color.blue);
-        g.drawRect(CenterX/2+80, CenterY/8+100, 20, 10);
+        g.fillRect(CenterX/2+80, CenterY/8+100, 20, 10);
         g.setColor(Color.red);
-        g.drawRect(CenterX/2+80, CenterY/8+120, 20, 10);
+        g.fillRect(CenterX/2+80, CenterY/8+120, 20, 10);
         g.setColor(Color.yellow);
-        g.drawRect(CenterX/2+80, CenterY/8+140, 20, 10);
+        g.fillRect(CenterX/2+80, CenterY/8+140, 20, 10);
         g.setColor(Color.green);
-        g.drawRect(CenterX/2+80, CenterY/8+120, 20, 10);
+        g.fillRect(CenterX/2+80, CenterY/8+160, 20, 10);
         
         }
     }  

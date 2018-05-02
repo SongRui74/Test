@@ -6,6 +6,7 @@
 
 package test;
 
+import com.sun.awt.AWTUtilities;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,7 +26,6 @@ public class MyPanel extends JFrame implements ActionListener
      */
     private JButton button_SMOCls;
     private JButton button_save;
-//    private JButton button_pre_result;
     private JButton button_SMOEval;
     private JComboBox jcombo;
     
@@ -40,12 +40,12 @@ public class MyPanel extends JFrame implements ActionListener
     public void MainPanel(){
         //设置文本框和标签
         txtArea = new JTextArea(12,40);
-        out_label = new JLabel("训练模型评估结果");
+        out_label = new JLabel("分类器详细信息");
         out_label.setFont(new Font("宋体",1,19));
         out_label.setForeground(Color.WHITE);
         js = new JScrollPane(txtArea);
         //设置按钮
-        button_SMOEval = new JButton("SMO评估");
+        button_SMOEval = new JButton("SMO建模");
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
         
@@ -67,9 +67,9 @@ public class MyPanel extends JFrame implements ActionListener
         js.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
         setLayout(new FlowLayout());
         
-        txtArea.setOpaque(false);
-        js.setOpaque(false);
-        js.getViewport().setOpaque(false);
+    //    txtArea.setOpaque(false);
+    //    js.setOpaque(false);
+    //    js.getViewport().setOpaque(false);
         
         add(out_label);
         add(js);
@@ -107,7 +107,7 @@ public class MyPanel extends JFrame implements ActionListener
                         txtArea.append("Invalid类别： \t" + distr[1] + "\n");
                         txtArea.append("Demand类别： \t" + distr[2] + "\n");
                         txtArea.append("Specific类别：\t" + distr[3] + "\n");
-                        //调用结果子面板
+                        //调用结果分布子面板
                         PrePanel prePanel = new PrePanel();
                     }
                     else{
@@ -185,12 +185,12 @@ class BackgroundPanel extends JPanel {
     public void paintComponent(Graphics g){
         Graphics2D g2d = (Graphics2D) g;
         ImageIcon icon = null;
-            try{
+        try{
             icon = new ImageIcon("D:\\aaMyPro\\MyPro\\Test\\img\\3.jpg");
         } catch(Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    g2d.drawImage(icon.getImage(), 0, 0,this.getSize().width,this.getSize().height, this);
+        g2d.drawImage(icon.getImage(), 0, 0,this.getSize().width,this.getSize().height, this);
     }  
 }
