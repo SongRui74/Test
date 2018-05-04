@@ -50,6 +50,7 @@ public class Standfordnlp {
     public Tree FeedbacktoTree(String str){  
         Tree tree = null;
         Properties props = new Properties();
+        props.setProperty("ner.useSUTime", "false");
     //    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
         props.put("annotators", "tokenize, ssplit,pos, lemma, ner, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
@@ -78,6 +79,7 @@ public class Standfordnlp {
      */
     public List FeedbacktoDep(String str){  
         Properties props = new Properties();
+        props.setProperty("ner.useSUTime", "false");
         //分词（tokenize）、分句（ssplit）、词性标注（pos）、词形还原（lemma）、命名实体识别（ner）、语法解析（parse）、情感分析（sentiment）、指代消解（coreference resolution）
     //    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
         props.put("annotators", "tokenize, ssplit,pos, lemma, ner, parse");

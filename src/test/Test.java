@@ -5,23 +5,27 @@
  */
 package test;
 
+import edu.stanford.nlp.trees.Tree;
+import java.util.List;
+
 /**
  *
  * @author dell-pc
  */
 public class Test {
     
-    private static String table_name;
+    private static String table_name ;
     
     /**
      * 对给定表的评论数据聚类
      */
     public void KMeans(){
         KMeansCluster km = new KMeansCluster();
-        km.ImportData(table_name);
-        km.ChooseCenter(table_name);
+        km.setTable_name(table_name);
+        km.ImportData();
+        km.ChooseCenter();
         km.Iteration();
-        km.ResultOut(table_name);
+        km.ResultOut();
     }
          
     @SuppressWarnings("empty-statement")
@@ -32,6 +36,10 @@ public class Test {
     */
         MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
+        
+    /*              
+        Test k = new Test();
+        k.KMeans();
         
     /*    Standfordnlp s = new Standfordnlp();
         String str = "No way to register payments, stupid omission ";
@@ -47,10 +55,7 @@ public class Test {
     /*    boolean c = t.SemgrexIsMatch(tree, sm);
         System.out.println(c);
         
-        /*          
-        Test k = new Test();
-        k.KMeans();
-        
+               
         /*    Standfordnlp t = new Standfordnlp();
         String s1 = "App don't work.";
         String s2 = "App can't open.";

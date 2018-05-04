@@ -59,6 +59,16 @@ public class KMeansCluster {
     private final String userPwd = "123456"; 
     private Connection conn;  
     
+    private String table_name;
+
+    public String getTable_name() {
+        return table_name;
+    }
+
+    public void setTable_name(String table_name) {
+        this.table_name = table_name;
+    }
+    
     private final Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
     private final Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
@@ -68,7 +78,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 0; //迭代停止时的新旧质心相似程度
+    double stopsim = 4; //迭代停止时的新旧质心相似程度
  
     point[][] pop;//种群
     int[] count;//种群规模
@@ -80,11 +90,10 @@ public class KMeansCluster {
    
     /**
      * 从某表中导入数据
-     * @param table_name 表名
      */
-    public void ImportData(String table_name){
+    public void ImportData(){
         try {
-            int num = s.GetDataNum(table_name);
+            int num = s.GetDataNum(this.getTable_name());
             data = new point[num];
             
             Class.forName(driverName);
@@ -115,18 +124,15 @@ public class KMeansCluster {
             rs.close();
             stmt.close();
             
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(KMeansCluster.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(KMeansCluster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     /**
      * 选择聚类中心
-     * @param table_name 表名
      */
-    public void ChooseCenter(String table_name){
-        int num = s.GetDataNum(table_name);//数据集数量
+    public void ChooseCenter(){
+        int num = s.GetDataNum(this.getTable_name());//数据集数量
         Scanner cin = new Scanner(System.in);
         System.out.print("请输入初始化聚类中心个数（随机产生）：");
         int center = cin.nextInt();
@@ -330,10 +336,9 @@ public class KMeansCluster {
     }
     /**
      * 输出聚类中心
-     * @param table_name
      */
-    public void ResultOut(String table_name){
-        int num = s.GetDataNum(table_name);
+    public void ResultOut(){
+        int num = s.GetDataNum(this.getTable_name());
         count = new int[old_center.length];        
         for(int i =0;i < old_center.length ; i++){
         //    System.out.println("聚类中心："+old_center[i].t);
