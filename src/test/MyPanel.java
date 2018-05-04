@@ -6,7 +6,6 @@
 
 package test;
 
-import com.sun.awt.AWTUtilities;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -113,22 +112,9 @@ public class MyPanel extends JFrame implements ActionListener
                     else{
                         txtArea.append("\n正在处理数据...\n");
                         txtArea.paintImmediately(txtArea.getBounds());
-                        String classid = "";
-                        if(classname.equals("综合评价")){
-                            classid = "10001";
-                        }
-                        if(classname.equals("具体评价")){
-                            classid = "10002";
-                        }
-                        if(classname.equals("需求评价")){
-                            classid = "10003";
-                        }
-                        if(classname.equals("无效评价")){
-                            classid = "10004";
-                        }
                         //可视化结果
                         PartPanel a = new PartPanel();
-                        a.setClassid(classid);
+                        a.setClassname(classname);
                         a.myPanel();
                         txtArea.append("处理完成!\n");
                         txtArea.paintImmediately(txtArea.getBounds());

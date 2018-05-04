@@ -20,6 +20,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -34,6 +36,7 @@ import org.gephi.appearance.api.Function;
 import org.gephi.appearance.api.Partition;
 import org.gephi.appearance.api.PartitionFunction;
 import org.gephi.appearance.plugin.PartitionElementColorTransformer;
+import org.gephi.appearance.plugin.RankingLabelSizeTransformer;
 import org.gephi.appearance.plugin.palette.Palette;
 import org.gephi.appearance.plugin.palette.PaletteManager;
 import org.gephi.graph.api.Column;
@@ -50,6 +53,7 @@ import org.gephi.io.importer.plugin.database.ImporterEdgeList;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
+import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
 import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
@@ -60,6 +64,7 @@ import org.gephi.preview.api.RenderTarget;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
+import org.gephi.statistics.plugin.GraphDistance;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
@@ -73,6 +78,7 @@ class Info{
     public String Rating = "";
     public String Review_Content = "";
     public String info = "";
+    public String topic = "";
 }
 /**
  *
@@ -80,25 +86,36 @@ class Info{
  */
 public class PartPanel extends JPanel{
     
-    private String classid = "";
-    private String classname = "";
+    private String enclassname = ""; //英文类别名 用于表查询
+    private String classname = ""; //中文类别名 用于名称显示
+    private int datacount = 0; //各类别的数量
     
-    public void setClassid(String cid){
-        classid = cid;
+    public void setClassname(String cname){
+        classname = cname;
     }
     
+    Classifiertest cls = new Classifiertest();
+    
     public String getClassname(){
-        if(classid.equals("10001")){
-            classname = "综合评价";
+        if(classname.equals("综合评价")){
+            enclassname = "Overview";
+            int[] distr = cls.StatisticsResult();
+            datacount = distr[0];
         }
-        if(classid.equals("10002")){
-            classname = "具体评价";
+        if(classname.equals("具体评价")){
+            enclassname = "Specific";
+            int[] distr = cls.StatisticsResult();
+            datacount = distr[3];
         }
-        if(classid.equals("10003")){
-            classname = "需求评价";
+        if(classname.equals("需求评价")){
+            enclassname = "Demand";
+            int[] distr = cls.StatisticsResult();
+            datacount = distr[2];
         }
-        if(classid.equals("10004")){
-            classname = "无效评价";
+        if(classname.equals("无效评价")){
+            enclassname = "Invalid";
+            int[] distr = cls.StatisticsResult();
+            datacount = distr[1];
         }
         return classname;
     }
@@ -115,7 +132,8 @@ public class PartPanel extends JPanel{
         AppearanceController appearanceController = Lookup.getDefault().lookup(AppearanceController.class);
         AppearanceModel appearanceModel = appearanceController.getModel();
          
-        //Import database
+        //连接数据库 Import database
+        this.getClassname();
         EdgeListDatabaseImpl db = new EdgeListDatabaseImpl();
         db.setSQLDriver(new SQLServerDriver());
         db.setPort(1433);
@@ -123,14 +141,18 @@ public class PartPanel extends JPanel{
         db.setHost("localhost");
         db.setUsername("song");
         db.setPasswd("123456");
-        db.setNodeQuery("SELECT ID AS id ,info as label ,classes FROM gephi where classid = '"+classid+"' or ID = '"+classid+"'");
-        db.setEdgeQuery("SELECT ID AS source, classid AS target, info as label,classes FROM gephi where  classid = '"+classid+"' or ID = '"+classid+"'");
+        db.setNodeQuery("SELECT ID AS id ,label as label ,topic FROM "+enclassname);
+        db.setEdgeQuery("SELECT ID AS source, classid AS target, label as label,topic FROM "+enclassname);
+    //    db.setNodeQuery("SELECT ID AS id ,info as label ,classes,topic FROM gephi where classid = '"+classid+"' or ID = '"+classid+"'");
+    //    db.setEdgeQuery("SELECT ID AS source, classid AS target, info as label,classes,topic FROM gephi where  classid = '"+classid+"' or ID = '"+classid+"'");
+        
+        //导入节点
         ImporterEdgeList edgeListImporter = new ImporterEdgeList();
         Container container = importController.importDatabase(db, edgeListImporter);
         container.getLoader().setAllowAutoNode(false);      //Don't create missing nodes
         container.getLoader().setEdgeDefault(EdgeDirectionDefault.UNDIRECTED);   //Force UNDIRECTED
 
-        //Append imported data to GraphAPI
+        //加入工作空间 Append imported data to GraphAPI
         importController.process(container, new DefaultProcessor(), workspace);
         
         //See if graph is well imported
@@ -138,26 +160,60 @@ public class PartPanel extends JPanel{
     //    System.out.println("Nodes: " + graph.getNodeCount());
     //    System.out.println("Edges: " + graph.getEdgeCount());
         
-        
         //节点颜色 Partition with 'classes ' column, which is in the data
-        Column column = graphModel.getNodeTable().getColumn("classes");
+        Column column = graphModel.getNodeTable().getColumn("topic");
         Function func = appearanceModel.getNodeFunction(graph, column, PartitionElementColorTransformer.class);
         Partition partition = ((PartitionFunction) func).getPartition();
         Palette palette = PaletteManager.getInstance().generatePalette(partition.size());
         partition.setColors(palette.getColors());
         appearanceController.transform(func);
+        //标签大小
+        GraphDistance distance = new GraphDistance();
+        distance.setDirected(true);
+        distance.execute(graphModel);
+        Column centralityColumn = graphModel.getNodeTable().getColumn(GraphDistance.BETWEENNESS);
+        Function centralityRanking2 = appearanceModel.getNodeFunction(graph, centralityColumn, RankingLabelSizeTransformer.class);
+        RankingLabelSizeTransformer labelSizeTransformer = (RankingLabelSizeTransformer) centralityRanking2.getTransformer();
+        labelSizeTransformer.setMinSize(3);
+        labelSizeTransformer.setMaxSize(3);
+        appearanceController.transform(centralityRanking2);
         
         //布局 Run YifanHuLayout for 100 passes - The layout always takes the current visible view
+        ForceAtlasLayout layout1 = new ForceAtlasLayout(null);
+        layout1.setGraphModel(graphModel);
+        layout1.resetPropertiesValues();
+        layout1.setInertia(0.1);
+        layout1.setMaxDisplacement(10.0);
+        layout1.setRepulsionStrength(200.0);
+        layout1.setFreezeStrength(10.0);
+        layout1.initAlgo();
+        for (int i = 0; i < 20 && layout1.canAlgo(); i++) {
+            layout1.goAlgo();
+        }
+        layout1.endAlgo();
+        
         YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
         layout.setGraphModel(graphModel);
         layout.resetPropertiesValues();
         layout.setOptimalDistance(200f);
         layout.initAlgo();
-  
         for (int i = 0; i < 100 && layout.canAlgo(); i++) {
             layout.goAlgo();
         }
         layout.endAlgo();
+        
+        ForceAtlasLayout layout2 = new ForceAtlasLayout(null);
+        layout2.setGraphModel(graphModel);
+        layout2.resetPropertiesValues();
+        layout2.setInertia(0.1);
+        layout2.setMaxDisplacement(10.0);
+        layout2.setRepulsionStrength(200.0);
+        layout2.setFreezeStrength(10.0);
+        layout2.initAlgo();
+        for (int i = 0; i < 20 && layout2.canAlgo(); i++) {
+            layout2.goAlgo();
+        }
+        layout2.endAlgo();
         
         //显示Preview configuration
         PreviewModel previewModel = previewController.getModel();
@@ -171,18 +227,17 @@ public class PartPanel extends JPanel{
         final PreviewSketch previewSketch = new PreviewSketch(target);
         previewController.refreshPreview();
         
-        
-        //评论数据详细信息显示
+        //一条评论数据详细信息显示
         SQL s = new SQL();
         Info info = new Info();
-        //详细信息界面
+        //一条评论详细信息界面
         PartPanel infoPanel = new PartPanel();
         infoPanel.setBackground(Color.WHITE);
         infoPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         infoPanel.setPreferredSize(new Dimension(300,350)); 
         infoPanel.setFont(new Font("宋体",1,10)); 
         JLabel title = new JLabel("                               评论详细信息");
-        JLabel partinfo = new JLabel("   该类别评论数/总评论数："+graph.getEdgeCount()+"/10000              ");
+        JLabel partinfo = new JLabel("   该类别评论数/总评论数："+datacount+"/10000              ");
         
         JLabel linfoid = new JLabel("   APP编号:");
         JTextArea infoid = new JTextArea(1,16);
@@ -272,7 +327,6 @@ public class PartPanel extends JPanel{
         infoPanel.setVisible(true);
         
         //鼠标响应
-        PreviewProperties properties = new PreviewProperties();
         previewSketch.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -280,11 +334,10 @@ public class PartPanel extends JPanel{
                 PreviewMouseEvent event = previewSketch.buildPreviewMouseEvent(e, PreviewMouseEvent.Type.CLICKED);
                 for (Node node : Lookup.getDefault().lookup(GraphController.class).getGraphModel(workspace).getGraph().getNodes()) {
                     if (clickingInNode(node, event)) {
-                        properties.putValue("display-label.node.id", node.getId());
                         //显示信息
                         String id = node.getId().toString();
                         try {
-                            ResultSet rs = s.Showinfo(id);
+                            ResultSet rs = s.Showinfo(id,enclassname);
                             rs.next();
                             info.APP_ID = rs.getString("APP_ID");
                             info.APP_Name_= rs.getString("APP_Name_");
@@ -294,7 +347,8 @@ public class PartPanel extends JPanel{
                             info.Rating = rs.getString("Rating");
                             info.Review_Content = rs.getString("Review_Content");
                             info.info = rs.getString("info");
-                            //刷新数据信息显示                            
+                            
+                            //刷新单数据节点信息显示                            
                             infoid.setText(info.APP_ID);
                             infoname.setText(info.APP_Name_);
                             infocate.setText(info.APP_category);
@@ -306,7 +360,7 @@ public class PartPanel extends JPanel{
                         } catch (ClassNotFoundException | SQLException ex) {
                             Exceptions.printStackTrace(ex);
                         }
-                        JOptionPane.showMessageDialog(null, "关键内容：\n" + node.getLabel() +"\n原评论内容：\n"+info.Review_Content,"节点信息",JOptionPane.INFORMATION_MESSAGE);                       
+                        JOptionPane.showMessageDialog(null, "关键内容：\n" + info.info +"\n原评论内容：\n"+info.Review_Content,"节点信息",JOptionPane.INFORMATION_MESSAGE);                       
                         event.setConsumed(true);//So the renderer is executed and the graph repainted
                         return;
                     }
@@ -328,11 +382,11 @@ public class PartPanel extends JPanel{
         result.setSize(300, 700);
         ResultPanel p = new ResultPanel();
         result.add(infoPanel); //加入节点信息界面
-        result.add(p.infoPanel(this.getClassname())); //加入关键信息列表界面
+        result.add(p.infoList(enclassname)); //加入关键信息列表界面
         result.setVisible(true);
      
         //主界面展示JFrame and display
-        JFrame frame = new JFrame(this.getClassname() +"类别结果展示");
+        JFrame frame = new JFrame(classname +"类别结果展示");
         frame.setLayout(new BorderLayout());
         frame.setSize(1300, 700);
         frame.add(result,BorderLayout.EAST);//右侧加入信息界面
@@ -350,7 +404,6 @@ public class PartPanel extends JPanel{
     @Override
     public void paintComponent(Graphics g) {  
         super.paintComponent(g);  
-        //下面这行是为了背景图片可以跟随窗口自行调整大小，可以自己设置成固定大小
         //背景
         ImageIcon icon = new ImageIcon("D:\\aaMyPro\\MyPro\\Test\\img\\4.jpg");
         Image img = icon.getImage(); 

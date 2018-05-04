@@ -49,15 +49,16 @@ public class SQL {
     /**
      * 显示一条评论的相关信息
      * @param id 10，000条元组中的ID
+     * @param table_name 表名
      * @return 
      */
-    public ResultSet Showinfo(String id) throws ClassNotFoundException, SQLException{
+    public ResultSet Showinfo(String id,String table_name) throws ClassNotFoundException, SQLException{
         Class.forName(driverName);
         conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
            
         Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
         ResultSet rs;
-        String sql = "select * from gephi,new_Apps where gephi.ID = '"+id+"' and gephi.APP_ID = new_Apps.APP_ID";
+        String sql = "select * from "+table_name+",new_Apps where "+table_name+".ID = '"+id+"' and "+table_name+".APP_ID = new_Apps.APP_ID";
         rs=stmt.executeQuery(sql);
         
         return rs;
@@ -68,23 +69,22 @@ public class SQL {
      * @return 评论内容
      */
     public List<String> GetContentwithClass(String classname){
-        Classifiertest p = new Classifiertest();
+    /*    Classifiertest p = new Classifiertest();
         String name = p.gettablename();
         this.settablename(name);
-        
+    */    
         List list = new ArrayList();
         try {
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
             ResultSet rs;
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-            tablename = "cpy_"+tablename;
+        //    tablename = "cpy_"+tablename;
         //    tablename = "Demand";
-            String sql = "select * from "+ tablename + " where classes = '" + classname + "'";
+            String sql = "select * from "+ classname;
             rs=stmt.executeQuery(sql);
             
             while(rs.next()){   
-            //    String content = rs.getString("Review_Content");
                 String content = rs.getString("info");
                 if(!content.equals(""))
                     if(content.contains(" "))
@@ -99,6 +99,40 @@ public class SQL {
         }
         return list;
     }
+    
+    /**
+     * 根据类名获取评论内容
+     * @param classname 类名
+     * @param topic 类别中的子类别名
+     * @return 评论内容
+     */
+    public List<String> GetContentwithClass(String classname,String topic){
+        List list = new ArrayList();
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            ResultSet rs;
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            
+            String sql = "select * from "+ classname + " where topic = '" + topic + "'";
+            rs=stmt.executeQuery(sql);
+            
+            while(rs.next()){   
+                String content = rs.getString("info");
+                if(!content.equals(""))
+                    if(content.contains(" "))
+                        list.add(content);
+            }
+            
+            rs.close();
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return list;
+    }
+    
     
     Standfordnlp nlp = new Standfordnlp();  
     /**
