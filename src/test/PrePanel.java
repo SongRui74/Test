@@ -7,8 +7,11 @@
 package test;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -28,7 +31,7 @@ public class PrePanel extends JFrame{
         Subpanel pre_result = new Subpanel(); 
         setContentPane(pre_result);
         // 设置窗口标题、大小、退出键
-        setTitle("分类结果");
+        setTitle("分类结果分布图");
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH+400)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT+250)/2 , WIDTH, HEIGHT);
         setLayout(null);
@@ -40,8 +43,14 @@ public class PrePanel extends JFrame{
 
 class Subpanel extends JPanel{  
     
-    protected void paintComponent(Graphics g){  
+    protected void paintComponent(Graphics g){ 
+        
         setBackground(Color.white);
+        //背景
+        super.paintComponent(g); 
+        ImageIcon icon = new ImageIcon("D:\\aaMyPro\\MyPro\\Test\\img\\2.jpg");
+        Image img = icon.getImage();
+        g.drawImage(img, 0, 0,this.getWidth(), this.getHeight(), this);
         
         Classifiertest cls = new Classifiertest();
         int[] distr = cls.StatisticsResult();
@@ -50,8 +59,7 @@ class Subpanel extends JPanel{
         CenterX = this.getWidth();  
         CenterY = this.getHeight();  
         r = this.getHeight()/3;  
-        super.paintComponent(g);  
-        
+         
         int a = 0;
         int b = distr[0]*360/distr[4];
         g.setColor(Color.blue);   
@@ -71,7 +79,14 @@ class Subpanel extends JPanel{
         b = distr[3]*360/distr[4];
         g.setColor(Color.green);   
         g.fillArc(CenterX/6, CenterY/6, 2*r, 2*r, a, b); 
-                
+            
+        //数量
+        g.setColor(Color.black);
+        g.setFont(new Font("宋体", Font.BOLD, 12));
+        g.drawString("84.88%", CenterX/2-100, CenterY/8); 
+        g.drawString("2.03%", CenterX/2+20, CenterY/8+110); 
+        g.drawString("10.28%", CenterX/2+10, CenterY/8+150); 
+        g.drawString("2.81%", CenterX/2-5, CenterY/8+185);
         //图例        
         g.setColor(Color.black);
         g.drawString("综合评价", CenterX/2+110, CenterY/8+110); 

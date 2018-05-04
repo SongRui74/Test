@@ -174,8 +174,8 @@ public class PartPanel extends JPanel{
         Column centralityColumn = graphModel.getNodeTable().getColumn(GraphDistance.BETWEENNESS);
         Function centralityRanking2 = appearanceModel.getNodeFunction(graph, centralityColumn, RankingLabelSizeTransformer.class);
         RankingLabelSizeTransformer labelSizeTransformer = (RankingLabelSizeTransformer) centralityRanking2.getTransformer();
-        labelSizeTransformer.setMinSize(3);
-        labelSizeTransformer.setMaxSize(3);
+        labelSizeTransformer.setMinSize(5);
+        labelSizeTransformer.setMaxSize(5);
         appearanceController.transform(centralityRanking2);
         
         //布局 Run YifanHuLayout for 100 passes - The layout always takes the current visible view
@@ -187,7 +187,7 @@ public class PartPanel extends JPanel{
         layout1.setRepulsionStrength(200.0);
         layout1.setFreezeStrength(10.0);
         layout1.initAlgo();
-        for (int i = 0; i < 20 && layout1.canAlgo(); i++) {
+        for (int i = 0; i < 25 && layout1.canAlgo(); i++) {
             layout1.goAlgo();
         }
         layout1.endAlgo();
@@ -197,24 +197,21 @@ public class PartPanel extends JPanel{
         layout.resetPropertiesValues();
         layout.setOptimalDistance(200f);
         layout.initAlgo();
-        for (int i = 0; i < 100 && layout.canAlgo(); i++) {
+        for (int i = 0; i < 80 && layout.canAlgo(); i++) {
             layout.goAlgo();
         }
         layout.endAlgo();
         
-        ForceAtlasLayout layout2 = new ForceAtlasLayout(null);
-        layout2.setGraphModel(graphModel);
-        layout2.resetPropertiesValues();
-        layout2.setInertia(0.1);
-        layout2.setMaxDisplacement(10.0);
-        layout2.setRepulsionStrength(200.0);
-        layout2.setFreezeStrength(10.0);
-        layout2.initAlgo();
-        for (int i = 0; i < 20 && layout2.canAlgo(); i++) {
-            layout2.goAlgo();
+        for (int i = 0; i < 15 && layout1.canAlgo(); i++) {
+            layout1.goAlgo();
         }
-        layout2.endAlgo();
+        layout1.endAlgo();
         
+        for (int i = 0; i < 80 && layout.canAlgo(); i++) {
+            layout.goAlgo();
+        }
+        layout.endAlgo();
+    
         //显示Preview configuration
         PreviewModel previewModel = previewController.getModel();
         previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);

@@ -102,10 +102,10 @@ public class MyPanel extends JFrame implements ActionListener
                         Classifiertest cls = new Classifiertest();            
                         int[] distr = cls.StatisticsResult();
                         txtArea.append("==================预测集分类结果=====================\n");
-                        txtArea.append("Overview类别：\t" + distr[0] + "\n");
-                        txtArea.append("Invalid类别： \t" + distr[1] + "\n");
-                        txtArea.append("Demand类别： \t" + distr[2] + "\n");
-                        txtArea.append("Specific类别：\t" + distr[3] + "\n");
+                        txtArea.append("综合评价类别：\t" + distr[0] + "\n");
+                        txtArea.append("无效评价类别： \t" + distr[1] + "\n");
+                        txtArea.append("需求评价类别： \t" + distr[2] + "\n");
+                        txtArea.append("具体评价类别：\t" + distr[3] + "\n");
                         //调用结果分布子面板
                         PrePanel prePanel = new PrePanel();
                     }
