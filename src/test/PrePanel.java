@@ -87,6 +87,7 @@ class Subpanel extends JPanel{
         g.drawString("2.03%", CenterX/2+20, CenterY/8+110); 
         g.drawString("10.28%", CenterX/2+10, CenterY/8+150); 
         g.drawString("2.81%", CenterX/2-5, CenterY/8+185);
+        g.drawString("用户评论总数目：10,000", CenterX/2+70, CenterY/8+20);
         //图例        
         g.setColor(Color.black);
         g.drawString("综合评价", CenterX/2+110, CenterY/8+110); 

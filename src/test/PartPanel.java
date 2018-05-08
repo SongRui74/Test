@@ -338,7 +338,11 @@ public class PartPanel extends JPanel{
                             rs.next();
                             info.APP_ID = rs.getString("APP_ID");
                             info.APP_Name_= rs.getString("APP_Name_");
-                            info.APP_category = rs.getString("APP_category");
+                            String temp = rs.getString("APP_category");
+                            temp = temp.replace("[","");
+                            temp = temp.replace("u","");
+                            temp = temp.replace("'","");
+                            info.APP_category = temp.replace("]","");
                             info.APP_description = rs.getString("APP_description");
                             info.Reviewer_Name = rs.getString("Reviewer_Name");
                             info.Rating = rs.getString("Rating");
