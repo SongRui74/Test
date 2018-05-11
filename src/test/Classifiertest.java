@@ -84,7 +84,10 @@ public class Classifiertest {
         txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
-            
+    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        System.out.println(eval.toClassDetailsString()+"\n");
+        System.out.println(eval.toMatrixString()+"\n");
+    */        
     }
     /**
      * SMO算法训练模型并分类
