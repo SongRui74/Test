@@ -44,7 +44,7 @@ public class MyPanel extends JFrame implements ActionListener
         out_label.setForeground(Color.WHITE);
         js = new JScrollPane(txtArea);
         //设置按钮
-        button_SMOEval = new JButton("SVM建模");
+        button_SMOEval = new JButton("SMO建模");
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
         
@@ -53,7 +53,7 @@ public class MyPanel extends JFrame implements ActionListener
         jcombo = new JComboBox(c);   //实例化下拉列表
         
         //布局
-        setTitle("评论自动分类器");
+        setTitle("用户需求挖掘系统");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //关闭退出进程
         setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - WIDTH)/2,
             (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT)/2 , WIDTH, HEIGHT);
@@ -138,29 +138,29 @@ public class MyPanel extends JFrame implements ActionListener
             } catch (Exception ex) {
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            this.txtArea.append("该数据集集训练完成！\n");
+            this.txtArea.append("该数据集集训练并测试完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());               
         }
         if(e.getSource() == this.button_SMOCls)
         {
             this.txtArea.append("正在导入训练模型并分类...\n");
             txtArea.paintImmediately(txtArea.getBounds());
-            Classifiertest cls = new Classifiertest();
+        /*    Classifiertest cls = new Classifiertest();
             try {
                 cls.SMO();
                 this.txtArea.append(cls.getSMOResult());
             } catch (Exception ex) {
                 Logger.getLogger(MyPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            this.txtArea.append("该预测集分类完成！\n");
+        */    this.txtArea.append("该预测集分类完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());               
         }
         if(e.getSource() == this.button_save)
         {
-            Classifiertest cls = new Classifiertest();
+        //    Classifiertest cls = new Classifiertest();
             this.txtArea.append("正在存储分类结果...\n");
             txtArea.paintImmediately(txtArea.getBounds());
-            cls.RecordClassifyResult();
+        //    cls.RecordClassifyResult();
             this.txtArea.append("数据库分类结果存储完成！\n");
             txtArea.paintImmediately(txtArea.getBounds());
         }
