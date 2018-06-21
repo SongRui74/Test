@@ -31,11 +31,16 @@ public class Test {
     @SuppressWarnings("empty-statement")
     public static void main(String[] args) throws Exception{
         
+    /*    MyPanel myPanel = new MyPanel();
+        myPanel.MainPanel();
+        
     /*    Features f = new Features();
         f.MarkAllInfo();
     */
-        MyPanel myPanel = new MyPanel();
-        myPanel.MainPanel();
+        MainPartExtractor t = new  MainPartExtractor();
+        String str = "the calender feature doesn't work,the app can't open";
+        t.NLP(str);
+        t.getmainpart2();
         
     /*              
         Test k = new Test();
