@@ -38,9 +38,12 @@ public class Test {
         f.MarkAllInfo();
     */
         MainPartExtractor t = new  MainPartExtractor();
-        String str = "the calender feature doesn't work,the app can't open";
+        String str = "Love the simplicity and at-a-glance updates ";
         t.NLP(str);
-        t.getmainpart2();
+        t.getmainpart();
+        
+        Pattern p = new Pattern();
+        p.MarkAllInfo();
         
     /*              
         Test k = new Test();

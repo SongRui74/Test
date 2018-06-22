@@ -15,7 +15,7 @@ import java.util.Map;
  * @author dell-pc
  */
 public class Features {
-    private static String table_name = "test100";
+    private static String table_name;
     private static Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
      /**
@@ -297,7 +297,6 @@ public class Features {
      * 记录类别的关键信息
      */
     public void MarkAllInfo(){
-        //添加列名
         SQL s = new SQL();
         table_name = "Specific";
         treemap = s.RecordTreeMap(table_name);//解析语法树 

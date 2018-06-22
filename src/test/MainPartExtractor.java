@@ -59,9 +59,33 @@ class MainPart {
 
 public class MainPartExtractor {
 
-    public Tree tree = null;
+    public Tree tree = null;    
     public List list = new ArrayList();
     public String center = null;
+
+    public Tree getTree() {
+        return tree;
+    }
+
+    public void setTree(Tree tree) {
+        this.tree = tree;
+    }
+
+    public List getList() {
+        return list;
+    }
+
+    public void setList(List list) {
+        this.list = list;
+    }
+
+    public String getCenter() {
+        return center;
+    }
+
+    public void setCenter(String center) {
+        this.center = center;
+    }
 
     /**
      * 利用Standfordnlp分析用户评论,得到语法树、依存关系列表、中心词
@@ -148,7 +172,7 @@ public class MainPartExtractor {
                 }
             }
         }
-        System.out.println(mainpart.mainpartinfo());
+        System.out.println("无逗号 "+mainpart.mainpartinfo());
         return mainpart.mainpartinfo();
     }
 

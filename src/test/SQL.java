@@ -205,6 +205,142 @@ public class SQL {
     }
     
     /**
+     * 记录评论解析后的中心词
+     * @param table_name 
+     * @return  评论-中心词Map
+     */
+    public Map<String,String> RecordCenterMap(String table_name){
+        Map<String,String> centermap = new HashMap();
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY); 
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                           
+            //循环记录
+            while(rs.next()){                                            
+                /*文本找到为中心词*/
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
+                String center = nlp.ContentCenter(content);
+                /*写入map中*/
+                centermap.put(content, center);                
+            }
+            rs.close();
+            stmt.close(); 
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return centermap;
+    }
+    
+    /**
+     * 标记语义依赖模式
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param str 匹配关系式
+     */
+    public void RemarkPattern(String table_name,String col,Map treemap,String str){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();       
+            
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            Tregex regex = new Tregex();
+            int num = 0;//记录评论中是否包含该特征
+            //循环标记
+            while(rs.next()){                                            
+                /*文本特征判断*/
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
+                Tree t = (Tree) treemap.get(content);
+                //若已经标记则继续循环
+                if(rs.getString("info").equals("1")){
+                    continue;
+                }
+                //若存在匹配到的表达式
+                if(regex.TregexIsMatch(t, str)){ 
+                    num = 1; //存在该特征记为1
+                }  
+                else{
+                    num = 0; 
+                }
+                /*写入数据库中*/
+                String sql = UpdateSql(rs,table_name,col,num);
+                stmt2.executeUpdate(sql);
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * 提取评论关键信息
+     * @param table_name 表名
+     * @param col 列名
+     * @param treemap 评论-句法树map
+     * @param listmap
+     * @param centermap
+     */
+    public void InfoExtractor(String table_name,String col,Map treemap,Map listmap,Map centermap){
+        try {             
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+            Statement stmt2 = conn.createStatement();  
+            rs=stmt.executeQuery("SELECT * FROM "+table_name);  
+                
+            String info ="";
+            MainPartExtractor maininfo = new MainPartExtractor();
+            //循环标记
+            while(rs.next()){ 
+                String content = rs.getString("Review_Content");
+                content = content.toLowerCase();
+                
+                maininfo.tree = (Tree) treemap.get(content);
+                maininfo.center = (String) centermap.get(content);
+                maininfo.list = (List) listmap.get(content);
+                
+                String infoflag = rs.getString("info");
+                if(infoflag.equals("1")){
+                    //获取关键信息
+                    if(content.contains(","))
+                        info = maininfo.getmainpart2();
+                    else
+                        info = maininfo.getmainpart();                    
+                    /*写入数据库中*/
+                    info = SqlSingleQuote(info);
+                    String sql = UpdateSql(rs,table_name,col,info);
+                    stmt2.executeUpdate(sql);
+                }
+            }
+            rs.close();
+            stmt.close(); 
+            stmt2.close();
+            conn.close();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
+    /**
      * 提取具体评价类的评论特征信息
      * @param table_name 表名
      * @param col 列名

@@ -98,6 +98,28 @@ public class Standfordnlp {
     }
     
     /**
+     * 利用Standfordnlp分析用户评论,得到中心词
+     * @param str 一条用户评论
+     * @return  返回依存关系list
+     */
+    public String ContentCenter(String str){  
+        String center = "";
+        Properties props = new Properties();
+        props.setProperty("ner.useSUTime", "false");
+        props.put("annotators", "tokenize, ssplit,pos, lemma, ner, parse");
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+        Annotation document = new Annotation(str);
+        pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        for(CoreMap sentence: sentences) {
+            SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+            center = dependencies.getFirstRoot().word();
+            break;
+        }
+        return center;
+    }
+    
+    /**
      * 获取单词对应的节点
      * @param tree 评论对应的语法树
      * @param word 单词 
