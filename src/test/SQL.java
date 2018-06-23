@@ -9,8 +9,10 @@ import edu.stanford.nlp.trees.Tree;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -1407,4 +1409,51 @@ public class SQL {
         //   System.out.println(sb);
         return sb.toString();
     }
+    
+    /**
+     * 数据库评论信息写入txt
+     *
+     * @param table_name 数据库表名
+     */
+    public void DBtoTXT(String table_name) throws FileNotFoundException {
+       try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+            rs = stmt.executeQuery("SELECT * FROM " + table_name);
+
+            //文件名称
+            File file = new File("D:\\aaMyPro\\MyCode\\"+table_name+".txt");
+            PrintStream ps = new PrintStream(new FileOutputStream(file));
+            
+            //统计评论信息数目
+            int num = this.GetDataNum(table_name);
+            //写入第一行
+            ps.println(num);// 往文件里写入字符串
+            //写入评论关键信息
+            while (rs.next()) {
+                //读评论关键信息
+                String info = rs.getString("info");
+                //拆分为单词字符串
+                String[] temp = info.split(" |,");
+                for(int i = 0 ; i < temp.length; i++){                
+                    if(temp[i].equals(""))
+                        continue;
+                    else
+                        ps.append(temp[i]+" ");//写入文件中
+                }
+                ps.append("\n");
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }

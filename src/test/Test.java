@@ -31,21 +31,17 @@ public class Test {
     @SuppressWarnings("empty-statement")
     public static void main(String[] args) throws Exception{
         
-    /*    MyPanel myPanel = new MyPanel();
+    /*    //主程序运行
+        MyPanel myPanel = new MyPanel();
         myPanel.MainPanel();
         
-    /*    Features f = new Features();
-        f.MarkAllInfo();
-    */
-    /*    MainPartExtractor t = new  MainPartExtractor();
-        String str = "App really needs Touch ID added ";
-        t.NLP(str);
-        t.getmainpart();
-    //    t.getmainpart2(str);
-    */   
+    /*    //提取关键信息
         Pattern p = new Pattern();
         p.MarkAllInfo();
-                
+    */            
+        SQL s = new SQL();
+        s.DBtoTXT("Specific4");
+        s.DBtoTXT("Demand4");
     /*              
         Test k = new Test();
         k.KMeans();
