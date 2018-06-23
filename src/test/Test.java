@@ -40,8 +40,11 @@ public class Test {
         p.MarkAllInfo();
     */            
         SQL s = new SQL();
-        s.DBtoTXT("Specific4");
-        s.DBtoTXT("Demand4");
+    //    s.DBtoTXT("Specific4");
+    //    s.DBtoTXT("Demand4");
+        
+        s.InfotoTXT("Specific4");
+        s.InfotoTXT("Demand4");
     /*              
         Test k = new Test();
         k.KMeans();
