@@ -42,13 +42,13 @@ public class Pattern {
      */
     public void MarkAllInfo(){
         SQL s = new SQL();
-        table_name = "Specific3";
+    /*    table_name = "Specific4";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         listmap = s.RecordDepMap(table_name);
         centermap = s.RecordCenterMap(table_name);
         //Specific
         //标记待提取的评论        
-    /*    this.MarkInfo("VP $- (TO ,,(JJ < easy))");
+        this.MarkInfo("VP $- (TO ,,(JJ < easy))");
         this.MarkInfo("S > (PP $- (JJ < helpful))");
         this.MarkInfo("S $- (JJ < helpful)");
         this.MarkInfo("VP,,helps");
@@ -67,9 +67,9 @@ public class Pattern {
         this.MarkInfoPlus("ADJP < (JJ $+ (PP << to))");
         //依存关系提取主干
         s.InfoExtractor(table_name, "info", treemap, listmap, centermap);
-    */    
+        
         //Demand
-        table_name = "Demand3";
+    */    table_name = "Demand3";
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         listmap = s.RecordDepMap(table_name);
         centermap = s.RecordCenterMap(table_name);  
@@ -86,7 +86,7 @@ public class Pattern {
         this.MarkInfo("VP,,(VB < wish $+ (NP << it))");
         this.MarkInfo("S,,wish");
         this.MarkInfo("VP,,wish");
-        this.MarkInfo("please update");
+    //    this.MarkInfo("please update");
         this.MarkInfo("update");
         this.MarkInfo("crash");
         this.MarkInfo("NP < ((NP !<< app) $+ (ADJP << not))");
@@ -101,10 +101,20 @@ public class Pattern {
         this.MarkInfo("NP < (NN < problem)");
         this.MarkInfo("NP,,(MD $+ RB)");
         this.MarkInfo("ADJP < JJ & << to & << log");
-        this.MarkInfo("fail");
+    //    this.MarkInfo("fail");
         this.MarkInfo("NP < (DT < no)");   
     
+        this.MarkInfoPlus("VP,,(VB < wish $+ (NP << it))");
+        this.MarkInfoPlus("S,,wish");
+        this.MarkInfoPlus("VP,,wish");
+        this.MarkInfoPlus("NP $- (VB < add)");
+        this.MarkInfoPlus("NP ,, (VB < add)");
+        this.MarkInfoPlus("VP $- (VB < add)");
+        this.MarkInfoPlus("fix");
+        this.MarkInfoPlus("update");
+        
         //依存关系提取主干
         s.InfoExtractor(table_name, "info", treemap, listmap, centermap);        
     }
+
 }

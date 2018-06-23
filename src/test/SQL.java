@@ -329,9 +329,9 @@ public class SQL {
                 maininfo.center = (String) centermap.get(content);
                 maininfo.list = (List) listmap.get(content);
 
-                System.out.println(maininfo.tree.pennString());
-                System.out.println(maininfo.list.toString());
-                System.out.println(maininfo.center);
+            //    System.out.println(maininfo.tree.pennString());
+            //    System.out.println(maininfo.list.toString());
+            //    System.out.println(maininfo.center);
 
                 String infoflag = rs.getString("info");
                 if (infoflag.equals("1")) {
@@ -349,7 +349,7 @@ public class SQL {
                 }else { //已有信息的保持原有内容
                     info = infoflag;
                 }
-                System.out.println("info:  " + info + "\n");
+            //    System.out.println("info:  " + info + "\n");
                 /*写入数据库中*/
                 info = SqlSingleQuote(info);
                 String sql = UpdateSql(rs, table_name, col, info);
@@ -399,6 +399,18 @@ public class SQL {
                     } 
                     else if (content.contains("helpful ") && !info.equals("")) {
                         info = "helpful " + info;
+                    }//Demand
+                    else if (content.contains("wish") && !info.equals("")) {
+                        info = "wish " + info;
+                    } 
+                    else if (content.contains("please fix") && !info.equals("")) {
+                        info = "please fix";
+                    } 
+                    else if (content.contains("please update") && !info.equals("")) {
+                        info = "please update";
+                    }
+                    else if (content.contains("add ") && !info.equals("")) {
+                        info = "add " + info;
                     }
                     else{
                         info = "1";

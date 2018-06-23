@@ -38,10 +38,11 @@ public class Test {
         f.MarkAllInfo();
     */
     /*    MainPartExtractor t = new  MainPartExtractor();
-        String str = "Love the simplicity and at-a-glance updates ";
+        String str = "App really needs Touch ID added ";
         t.NLP(str);
         t.getmainpart();
-    */    
+    //    t.getmainpart2(str);
+    */   
         Pattern p = new Pattern();
         p.MarkAllInfo();
                 

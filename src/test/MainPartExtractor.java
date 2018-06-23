@@ -108,10 +108,10 @@ public class MainPartExtractor {
             list = dependencies.edgeListSorted(); //依存关系list
             center = dependencies.getFirstRoot().word();
             
-            System.out.println("有逗号");
-            tree.pennPrint();
-            System.out.println(dependencies.toList());
-            System.out.println(center);
+        //    System.out.println("有逗号");
+        //    tree.pennPrint();
+        //    System.out.println(dependencies.toList());
+        //    System.out.println(center);
             break;
         }
     }
@@ -149,14 +149,24 @@ public class MainPartExtractor {
                             break;
                         case "xcomp":
                             mainpart.predicate = gov;
+                            if(mainpart.predicate.equals(mainpart.object))
+                                mainpart.predicate = "";
                             break;
                         case "aux":
                             mainpart.predicate = dep;
+                            mainpart.object = gov;
                             break;
                         case "neg":
                             if (dep.equals("n't")) {
                                 mainpart.predicate += dep;
                             }
+                            else if (dep.equals("not")) {
+                                mainpart.predicate += " "+dep;
+                            }
+                            break;   
+                        case "dep":
+                            mainpart.subject = gov;
+                            mainpart.object = dep;
                             break;
                         default:
                             break;
@@ -181,10 +191,11 @@ public class MainPartExtractor {
                     }
                 }
                 if (mainpart.object.equals(gov)) {
-                    switch (relation) {
+                    switch (relation) {  
                         case "compound":
                             mainpart.object = dep + " " + mainpart.object;
                             break;
+                        case "xcomp":
                         case "dobj":
                             mainpart.object = mainpart.object + " " + dep;
                             break;
@@ -195,21 +206,29 @@ public class MainPartExtractor {
             }
         }
         String maininfo = mainpart.mainpartinfo();
-        System.out.println("无逗号 " + mainpart.mainpartinfo());
+    //    System.out.println("无逗号 " + mainpart.mainpartinfo());
         return maininfo;
     }
 
     //含逗号的主干提取
     public String getmainpart2(String str) {
+        String pre = "";
+        String post = "";
         String[] temp = str.split(",");
+        //提取逗号前的半句
         this.NLP(temp[0]);
-        //逗号之前的半句
-        String pre = this.getmainpart();
+        pre = this.getmainpart();        
         //提取逗号后的半句
-        this.NLP(temp[1]);
-        String post = this.getmainpart();
-        String maininfo = pre + "," + post;
-        System.out.println(pre + "," + post);
+        if(temp.length > 1){
+            this.NLP(temp[1]);
+            post = this.getmainpart();
+        }
+        String maininfo = "";
+        if(pre.equals("  ") || post.equals("  "))
+            maininfo = pre + post;
+        else
+            maininfo = pre + "," + post;
+    //    System.out.println(maininfo);
         return maininfo;
     }
 
