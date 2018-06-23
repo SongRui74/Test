@@ -37,14 +37,14 @@ public class Test {
     /*    Features f = new Features();
         f.MarkAllInfo();
     */
-        MainPartExtractor t = new  MainPartExtractor();
+    /*    MainPartExtractor t = new  MainPartExtractor();
         String str = "Love the simplicity and at-a-glance updates ";
         t.NLP(str);
         t.getmainpart();
-        
+    */    
         Pattern p = new Pattern();
         p.MarkAllInfo();
-        
+                
     /*              
         Test k = new Test();
         k.KMeans();

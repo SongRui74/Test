@@ -21,15 +21,24 @@ public class Pattern {
     private static Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
     private static Map<String,String> centermap = new HashMap<>(); //存储评论对应的中心词
     /**
-     * 记录类别的关键信息
+     * 标记可以提取关键信息的评论
      * @param str 匹配关系式
      */
     public void MarkInfo(String str){
         SQL s = new SQL();
         s.RemarkPattern(table_name, "info", treemap, str);
     }
+    
     /**
-     * 记录类别的关键信息
+     * 完善记录类别的关键信息
+     * @param str 匹配关系式
+     */
+    public void MarkInfoPlus(String str){
+        SQL s = new SQL();
+        s.InfoExtractorPlus(table_name, "info", treemap, str);
+    }
+    /**
+     * 批量记录类别的关键信息
      */
     public void MarkAllInfo(){
         SQL s = new SQL();
@@ -38,8 +47,8 @@ public class Pattern {
         listmap = s.RecordDepMap(table_name);
         centermap = s.RecordCenterMap(table_name);
         //Specific
-        
-        this.MarkInfo("VP $- (TO ,,(JJ < easy))");
+        //标记待提取的评论        
+    /*    this.MarkInfo("VP $- (TO ,,(JJ < easy))");
         this.MarkInfo("S > (PP $- (JJ < helpful))");
         this.MarkInfo("S $- (JJ < helpful)");
         this.MarkInfo("VP,,helps");
@@ -50,9 +59,20 @@ public class Pattern {
         this.MarkInfo("ADJP << JJR & <<before");
         this.MarkInfo("ADJP < (JJ $+ (PP << to))");
         
-    /*    //Demand
+        //语义依赖模式提取
+        this.MarkInfoPlus("VP $- (TO ,,(JJ < easy))");
+        this.MarkInfoPlus("S > (PP $- (JJ < helpful))");
+        this.MarkInfoPlus("S $- (JJ < helpful)");
+        this.MarkInfoPlus("NP,,helpful");
+        this.MarkInfoPlus("ADJP < (JJ $+ (PP << to))");
+        //依存关系提取主干
+        s.InfoExtractor(table_name, "info", treemap, listmap, centermap);
+    */    
+        //Demand
         table_name = "Demand3";
-        treemap = s.RecordTreeMap(table_name);//解析语法树   
+        treemap = s.RecordTreeMap(table_name);//解析语法树 
+        listmap = s.RecordDepMap(table_name);
+        centermap = s.RecordCenterMap(table_name);  
         
         this.MarkInfo("VP < (VBD $+ (RB $+ VP))");
         this.MarkInfo("VP < (VBZ $+ (RB $+ VP))");
@@ -82,9 +102,9 @@ public class Pattern {
         this.MarkInfo("NP,,(MD $+ RB)");
         this.MarkInfo("ADJP < JJ & << to & << log");
         this.MarkInfo("fail");
-        this.MarkInfo("NP < (DT < no)");  
-    */    
+        this.MarkInfo("NP < (DT < no)");   
     
-        s.InfoExtractor(table_name, "info", treemap, listmap, centermap);
+        //依存关系提取主干
+        s.InfoExtractor(table_name, "info", treemap, listmap, centermap);        
     }
 }

@@ -10,6 +10,7 @@ package test;
  */
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefCoreAnnotations.CorefChainAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
@@ -23,6 +24,7 @@ import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ public class Standfordnlp {
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         Annotation document = new Annotation(str);
         pipeline.annotate(document);
-        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
         for(CoreMap sentence: sentences) {
         /*    for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 String word = token.get(TextAnnotation.class);
@@ -65,7 +67,7 @@ public class Standfordnlp {
                 String lemma = token.get(LemmaAnnotation.class);
              //   System.out.println(word+"\t"+pos+"\t"+lemma+"\t"+ne);
             }
-        */    tree = sentence.get(TreeAnnotation.class);
+        */    tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
         //    tree.pennPrint();
             break;
         }       

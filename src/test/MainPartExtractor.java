@@ -59,7 +59,7 @@ class MainPart {
 
 public class MainPartExtractor {
 
-    public Tree tree = null;    
+    public Tree tree = null;
     public List list = new ArrayList();
     public String center = null;
 
@@ -107,13 +107,13 @@ public class MainPartExtractor {
             SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
             list = dependencies.edgeListSorted(); //依存关系list
             center = dependencies.getFirstRoot().word();
-
+            
+            System.out.println("有逗号");
             tree.pennPrint();
             System.out.println(dependencies.toList());
             System.out.println(center);
             break;
         }
-        System.out.println(tree.firstChild().label().value());
     }
 
     //不含逗号的主干提取
@@ -141,9 +141,18 @@ public class MainPartExtractor {
                             mainpart.subject = dep;
                             mainpart.object = gov;
                             break;
-                        case "cop":
+                        case "ccomp":
+                        case "advcl":
+                        case "dobj":
+                            mainpart.predicate = gov;
+                            mainpart.object = dep;
+                            break;
+                        case "xcomp":
+                            mainpart.predicate = gov;
+                            break;
                         case "aux":
                             mainpart.predicate = dep;
+                            break;
                         case "neg":
                             if (dep.equals("n't")) {
                                 mainpart.predicate += dep;
@@ -154,7 +163,7 @@ public class MainPartExtractor {
                     }
                 }
             }
-            //补全主语 
+            //补全主语 宾语
             for (int i = 0; i < list.size(); i++) {
                 //解析每个依存关系的单词和关系名称
                 SemanticGraphEdge s = (SemanticGraphEdge) list.get(i);
@@ -163,6 +172,7 @@ public class MainPartExtractor {
                 String gov = s.getGovernor().word();
                 if (mainpart.subject.equals(gov)) {
                     switch (relation) {
+                        case "amod":
                         case "compound":
                             mainpart.subject = dep + " " + mainpart.subject;
                             break;
@@ -170,59 +180,37 @@ public class MainPartExtractor {
                             break;
                     }
                 }
-            }
-        }
-        System.out.println("无逗号 "+mainpart.mainpartinfo());
-        return mainpart.mainpartinfo();
-    }
-
-    //含逗号的主干提取
-    public String getmainpart2() {
-        //逗号之前的半句
-        String pre = this.getmainpart();
-        //提取逗号后的半句
-        MainPart mainpart = new MainPart();
-        for (int i = 0; i < list.size(); i++) {
-            //解析每个依存关系的单词和关系名称
-            SemanticGraphEdge s = (SemanticGraphEdge) list.get(i);
-            String relation = s.getRelation().toString();//评论dependent与governor关系
-            String dep = s.getDependent().word(); //评论dependent单词
-            String gov = s.getGovernor().word();
-            if (!center.equals(gov) && relation.equals("nsubj")) { //找到后半句主谓宾
-                mainpart.subject = dep;
-                mainpart.object = gov;
-            }
-            switch (relation) {
-                case "aux":
-                    mainpart.predicate = dep;
-                case "neg":
-                    if (dep.equals("n't")) {
-                        mainpart.predicate += dep;
+                if (mainpart.object.equals(gov)) {
+                    switch (relation) {
+                        case "compound":
+                            mainpart.object = dep + " " + mainpart.object;
+                            break;
+                        case "dobj":
+                            mainpart.object = mainpart.object + " " + dep;
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                default:
-                    break;
-            }
-        }
-        //补全主语    
-        for (int i = 0; i < list.size(); i++) {
-            //解析每个依存关系的单词和关系名称
-            SemanticGraphEdge s = (SemanticGraphEdge) list.get(i);
-            String relation = s.getRelation().toString();//评论dependent与governor关系
-            String dep = s.getDependent().word(); //评论dependent单词
-            String gov = s.getGovernor().word();
-            if (mainpart.subject.equals(gov)) {
-                switch (relation) {
-                    case "compound":
-                        mainpart.subject = dep + " " + mainpart.subject;
-                        break;
-                    default:
-                        break;
                 }
             }
         }
-        System.out.println(pre + ","+mainpart.mainpartinfo());
-        return pre + ","+mainpart.mainpartinfo();
+        String maininfo = mainpart.mainpartinfo();
+        System.out.println("无逗号 " + mainpart.mainpartinfo());
+        return maininfo;
+    }
+
+    //含逗号的主干提取
+    public String getmainpart2(String str) {
+        String[] temp = str.split(",");
+        this.NLP(temp[0]);
+        //逗号之前的半句
+        String pre = this.getmainpart();
+        //提取逗号后的半句
+        this.NLP(temp[1]);
+        String post = this.getmainpart();
+        String maininfo = pre + "," + post;
+        System.out.println(pre + "," + post);
+        return maininfo;
     }
 
 }
