@@ -425,7 +425,7 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    //可删除
     /**
      * 提取具体评价类的评论特征信息
      *
@@ -489,7 +489,7 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    //可删除
     /**
      * 提取具体评价类的评论特征信息
      *
@@ -867,8 +867,9 @@ public class SQL {
         }
     }
 
+    //可删除
     /**
-     * 创建Gephi预测集
+     * 创建Gephi预测集  
      *
      * @param num gephi预测集数据数量
      */
@@ -914,6 +915,7 @@ public class SQL {
 
     }
 
+    //可删除
     /**
      * 创建预测集
      *
@@ -967,6 +969,7 @@ public class SQL {
 
     }
 
+    //可删除
     /**
      * 创建训练集
      */
@@ -1456,7 +1459,7 @@ public class SQL {
      *
      * @param table_name 数据库表名
      */
-    public void InfotoTXT(String table_name) throws FileNotFoundException {
+    public void InfotoTXT(String table_name) throws FileNotFoundException, IOException {
         try {
             Class.forName(driverName);
             conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
@@ -1466,50 +1469,186 @@ public class SQL {
             rs = stmt.executeQuery("SELECT * FROM " + table_name);
 
             //文件名称
-            File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + "info.txt");
+        //    File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + "noinfo.txt");
+            File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + ".txt");
             PrintStream ps = new PrintStream(new FileOutputStream(file));
 
-            //统计评论信息数目
-            int count = 0;
-            while (rs.next()) {
-                //读评论关键信息
-                String info = rs.getString("info");
-                if (info.equals("no_info")) {
-                    count++;
-                }
-            }
-            int num = this.GetDataNum(table_name) - count;
+            //停用词表
+            Map<String,Integer> stop = this.Stopwords();
+//            //统计评论信息数目
+//            int count = 0;
+//            while (rs.next()) {
+//                //读评论关键信息
+//                String info = rs.getString("info");                
+//                if (info.equals("no_info")) {
+//                    count++;
+//                }
+//            }
+//            int num = this.GetDataNum(table_name) - count;
+            int num = this.GetDataNum(table_name);
             //写入第一行
             ps.println(num);// 往文件里写入字符串
 
             rs.first();
-            String info = rs.getString("info");
-            if (!info.equals("no_info")) {
+        //    String info = rs.getString("info");
+            String info = rs.getString("Review_Content");
+        //    if (!info.equals("no_info")) {
                 //拆分为单词字符串
                 String[] temp = info.split(" |,");
                 for (int i = 0; i < temp.length; i++) {
                     if (temp[i].equals("")) {
                         continue;
                     } else {
-                        ps.append(temp[i] + " ");//写入文件中
+                        if(stop.get(temp[i]) == null)
+                            ps.append(temp[i] + " ");//写入文件中
                     }
                 }
                 ps.append("\n");
-            }
+        //    }
             //写入评论关键信息
             while (rs.next()) {
                 //读评论关键信息
-                info = rs.getString("info");
-                if (!info.equals("no_info")) {
+            //    info = rs.getString("info");
+                info = rs.getString("Review_Content");
+            //    if (!info.equals("no_info")) {
                     //拆分为单词字符串
-                    String[] temp = info.split(" |,");
+                //    String temp = info.split(" |,");
+                    temp = info.split(" |,");
                     for (int i = 0; i < temp.length; i++) {
                         if (temp[i].equals("")) {
                             continue;
                         } else {
-                            ps.append(temp[i] + " ");//写入文件中
+                            if(stop.get(temp[i]) == null)
+                                ps.append(temp[i] + " ");//写入文件中
                         }
                     }
+                    ps.append("\n");
+             //   }
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Map Stopwords () throws FileNotFoundException, IOException{
+        File readfile = new File("D:\\aaMyPro\\MyCode\\stopwords.txt");
+        if (!readfile.exists() || readfile.isDirectory()) {
+            throw new FileNotFoundException();
+        }
+        BufferedReader br = new BufferedReader(new FileReader(readfile));
+        String temp = null;
+        temp = br.readLine();//按行读入  
+        Map<String,Integer> map = new HashMap();
+        while (temp != null) {
+            map.put(temp, 1);
+            temp = br.readLine();
+        }
+        return map;
+    }
+    
+    //备份表
+    public void Cpytable(String table) {
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);
+            
+            Statement stmt = conn.createStatement();
+            String sql = null;
+            sql = "select * into cpy_"+table+" from " + table;
+            stmt.executeUpdate(sql);   
+            
+            stmt.close();
+            conn.close();
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(SQL.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    //师姐的数据
+    public void InfoDB(String readpath, String table) throws IOException, ClassNotFoundException, SQLException {    //文件路径，数据库表名，属性个数
+        Class.forName(driverName);
+        conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+        Statement stmt = conn.createStatement();
+        String sql; //SQL语句      
+        //   System.out.println("Connection Successful!"); //如果连接成功 控制台输出Connection Successful!                 
+        File readfile = new File(readpath);
+        if (!readfile.exists() || readfile.isDirectory()) {
+            throw new FileNotFoundException();
+        }
+        BufferedReader br = new BufferedReader(new FileReader(readfile));
+        String temp = null;
+        temp = br.readLine();//按行读入 ,第一行为int，不存在引号等特殊字符
+        while (temp != null) {
+            if (temp.length() != 0) {
+                sql = "INSERT INTO " + table + " VALUES ('" + temp;
+                for (int i = 0; i < 7 - 1; i++) {       //按属性个数读取文件行数插入数值
+                    temp = br.readLine();
+                    if (!temp.contains("'"))//该行不存在单引号
+                    {
+                        temp = temp;
+                    } else {        //该行存在单引号
+                        temp = temp.replace("'", "''");  //将单引号替换成两个，便于在SQL语句中使用
+                    }
+                    sql += "','" + temp;
+                }
+                sql += "')";
+                //    System.out.println(sql);                 
+                stmt.executeUpdate(sql);   //执行SQL语句 
+                temp = br.readLine();  //继续读入
+            } else //遇到空行继续读入文本
+            {
+                temp = br.readLine();
+            }
+        }
+    }
+    
+    public void DBInfo(String table_name) throws FileNotFoundException {
+        try {
+            Class.forName(driverName);
+            conn = DriverManager.getConnection(dbURL, userName, userPwd);  //连接数据库
+            Statement stmt;
+            ResultSet rs;
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+            rs = stmt.executeQuery("select * from "+table_name+" left join Apps on "+table_name+".APP_ID = Apps.APP_ID");
+
+            //文件名称
+            File file = new File("D:\\aaMyPro\\"+table_name+"data.txt");
+            PrintStream ps = new PrintStream(new FileOutputStream(file));
+
+            Standfordnlp s = new Standfordnlp();
+        
+            //写入评论关键信息
+            while (rs.next()) {
+                //读评论关键信息
+                String info = rs.getString("info");
+                if(!info.equals("no_info")){
+                    String APP_ID = rs.getString("APP_ID");
+                    String APP_Name_ = rs.getString("APP_Name_");
+                    String APP_category = rs.getString("APP_category");
+                    String Reviewer_Name = rs.getString("Reviewer_Name");
+                    String Rating = rs.getString("Rating");
+                    String Review_Content = rs.getString("Review_Content");
+                    String sentiment = s.Sentiment(Review_Content);
+                
+                    ps.append(APP_ID);//写入文件中
+                    ps.append("\n");
+                    ps.append(APP_Name_);//写入文件中
+                    ps.append("\n");
+                    ps.append(APP_category);//写入文件中
+                    ps.append("\n");
+                    ps.append(Reviewer_Name);//写入文件中
+                    ps.append("\n");
+                    ps.append(Rating);//写入文件中
+                    ps.append("\n");
+                    ps.append(info);//写入文件中
+                    ps.append("\n");
+                    ps.append(sentiment);//写入文件中
+                    ps.append("\n");
                     ps.append("\n");
                 }
             }
@@ -1521,5 +1660,4 @@ public class SQL {
             Logger.getLogger(Standfordnlp.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }

@@ -281,6 +281,8 @@ public class Features {
         this.MarkALLFeature();
     }
 */    
+    
+    //可删除
     /**
      * 记录类别的关键信息
      * @param str 匹配关系式
@@ -293,6 +295,7 @@ public class Features {
             s.ExtractWordInfo(table_name, "info", treemap, str);
     }
     
+    //可删除
     /**
      * 记录类别的关键信息
      */
@@ -361,9 +364,10 @@ public class Features {
     /**
      * 标记预测集特征
      */
-    public void RemarkPreAll(){
+    public void RemarkPreAll(String str){
         SQL s = new SQL();
-        table_name = "pre";
+    //    table_name = "pre";
+        table_name = str;
         treemap = s.RecordTreeMap(table_name);//解析语法树 
         this.MarkALLFeature();
     }

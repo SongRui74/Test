@@ -23,6 +23,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
@@ -217,6 +218,8 @@ public class Standfordnlp {
      * @param tree2  评论二的语法树
      * @return 两条评论的相似度
      */
+    List reln1 = new ArrayList();//存放关系名称
+    List reln2 = new ArrayList();
     public List CalSimi(List list1, List list2,Tree tree1,Tree tree2){ 
                 
         List<String[]> simi = new ArrayList();  //存放依存关系相似度
@@ -230,7 +233,7 @@ public class Standfordnlp {
             String relation1 = s1.getRelation().toString();  //评论一dependent与governor关系
             String dep1 = s1.getDependent().word(); //评论一dependent单词
             String gov1 = s1.getGovernor().word();
-                        
+            reln1.add(relation1);
             String[] rela_value = {relation1,"0"};  //记录关系及数值，初始为0
             double temp = -99; //记录相同关系中的最大值，即匹配度最高的关系
             
@@ -243,8 +246,9 @@ public class Standfordnlp {
                 String relation2 = s2.getRelation().toString();
                 String dep2 = s2.getDependent().word();
                 String gov2 = s2.getGovernor().word();                
-                                
+                reln2.add(relation2);                
                 if(relation1.equals(relation2)){ //关系相同时
+                    rela_value[1] = "1";
                     if(deplem1.equals(deplem2)){ //dependency原形相同
                         if(govlem1.equals(govlem2)){ //governor原形相同
                             //分别获取LCA节点
@@ -256,17 +260,17 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){ //距离相同
-                                    rela_value[1] = "7";
+                                    rela_value[1] = "10";
                                 }
                                 else if(dist <= 5){ //距离相近，降低关系值
-                                    rela_value[1] = "6";
+                                    rela_value[1] = "8";
                                 }
                                 else{ //距离较远，降低关系值
-                                    rela_value[1] = "5";
+                                    rela_value[1] = "6";
                                 }
                             }
                             else{ //LCA不同
-                                rela_value[1] = "3";
+                                rela_value[1] = "5";
                             }
                         }
                         else if(govpos1.equals(govpos2)){ //governor原形不同，词性相同
@@ -279,21 +283,21 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    rela_value[1] = "6";
+                                    rela_value[1] = "9";
                                 }
                                 else if(dist <= 5){
-                                    rela_value[1] = "5";
+                                    rela_value[1] = "7";
                                 }
                                 else{
-                                    rela_value[1] = "4";
+                                    rela_value[1] = "5";
                                 }
                             }
                             else{
-                                rela_value[1] = "2";
+                                rela_value[1] = "4";
                             }
                         }
                         else{  //governor不同
-                            rela_value[1] = "0.5";
+                            rela_value[1] = "2";
                         }
                     } 
                     else if(govlem1.equals(govlem2)){ //governor原形相同
@@ -307,21 +311,21 @@ public class Standfordnlp {
                                 int path2 = this.Path(tree2, dep2, gov2);
                                 int dist = Math.abs(path1-path2); //计算两路径距离差
                                 if(dist == 0){
-                                    rela_value[1] = "6";
+                                    rela_value[1] = "9";
                                 }
                                 else if(dist <= 5){
-                                    rela_value[1] = "5";
+                                    rela_value[1] = "7";
                                 }
                                 else{
-                                    rela_value[1] = "4";
+                                    rela_value[1] = "5";
                                 }
                             }
                             else{
-                                rela_value[1] = "2";
+                                rela_value[1] = "4";
                             }
                         }
                         else{ //dependency不同
-                            rela_value[1] = "0.5";
+                            rela_value[1] = "2";
                         }
                     }
                     //仅两词词性相同
@@ -335,17 +339,17 @@ public class Standfordnlp {
                             int path2 = this.Path(tree2, dep2, gov2);
                             int dist = Math.abs(path1-path2); //计算两路径距离差
                             if(dist == 0){
-                                rela_value[1] = "5";
+                                rela_value[1] = "8";
                             }
                             else if(dist <= 5){
-                                rela_value[1] = "4";
+                                rela_value[1] = "6";
                             }
                             else{
-                                rela_value[1] = "3";
+                                rela_value[1] = "4";
                             }
                         }  
                         else{ //LCA不同
-                            rela_value[1] = "1";
+                            rela_value[1] = "3";
                         }
                     }
                 }
@@ -373,8 +377,8 @@ public class Standfordnlp {
      * @return 仅含数值的列表
      */
     public List SimiVector(List simi){
-        List<Double> vector = new ArrayList();
-        Map<String,Double> simi_value = new HashMap(); //存储数值        
+        List<String[]> vector = new ArrayList();
+        Map<String,Double> simi_value = new HashMap(); //存储数值         
         for(int i = 0; i < simi.size(); i++){
             String[] rela_value = (String[]) simi.get(i);
             String key = rela_value[0];
@@ -384,20 +388,123 @@ public class Standfordnlp {
             }
             else{
                 double temp = simi_value.get(key);
-                double new_val = 0.5*(value + temp);
+                double new_val = Math.max(value, temp);
                 simi_value.put(key, new_val);
             }
-        }
-        
+        }        
+        String reln = "";        
         for(String k : simi_value.keySet()){ 
-            double val = simi_value.get(k);
+            if(simi_value.get(k) == 0)
+                continue;
+            String[] val = {reln,"0"};
+            val[0] = k;
+            val[1] = simi_value.get(k).toString();
+//            System.out.println(val[0]);
+//            System.out.println(val[1]);
             vector.add(val);
         }        
-    /*    for(int a :vector){
-            System.out.println(a);
-        }
-        */
+               
         return vector;
+    }
+    
+    public List FinalVector(List v1,List v2){
+        List<Double> vector = new ArrayList();        
+        for(int i = 0;i < v1.size(); i++){
+            String[] a = (String[]) v1.get(i);
+//            System.out.println(a[0]);
+            for(int j = 0; j < v2.size(); j++){
+                String[] b = (String[]) v2.get(j);
+                if(a[0].equals(b[0])){
+                    double w = 0.5*(Double.parseDouble(a[1])+Double.parseDouble(b[1]));
+                    vector.add(w);
+                    break;
+                }
+                    
+            }
+        }        
+        return vector;
+    }
+    public double guiyihua(List vec){
+        double simi;
+        double sum = 0;
+        for(int i = 0;i< vec.size(); i++){
+            sum += (double)vec.get(i)*(double)vec.get(i);
+        }
+        simi = Math.sqrt(sum/(vec.size()*100));
+        return simi;
+    }
+    
+    //VSM
+    public double vsm(String str1,String str2){
+        double sim = 0;
+        
+        
+        return sim;
+    }
+    
+    public double fsim(double sim,List vec){
+        double fsim = sim;
+        if(vec.size() == 0){
+            fsim = 0;
+        }else{
+        reln1.addAll(reln2);
+        for (int i = 0; i < reln1.size() - 1; i++) {
+            for (int j = reln1.size() - 1; j > i; j--) {
+                if (reln1.get(j).equals(reln1.get(i))) {
+                    reln1.remove(j);
+                }
+            }
+        }
+//        for(int i=0;i<reln1.size();i++){
+//            System.out.print(reln1.get(i)+"\t");
+//        }
+        fsim = sim*vec.size()/reln1.size();}
+        return fsim;
+    }
+//    public List SimiVector(List simi){
+//        List<Double> vector = new ArrayList();
+//        Map<String,Double> simi_value = new HashMap(); //存储数值        
+//        for(int i = 0; i < simi.size(); i++){
+//            String[] rela_value = (String[]) simi.get(i);
+//            String key = rela_value[0];
+//            double value = Double.parseDouble(rela_value[1]);
+//            if(!simi_value.containsKey(key)){
+//                simi_value.put(key, value);
+//            }
+//            else{
+//                double temp = simi_value.get(key);
+//                double new_val = 0.5*(value + temp);
+//                simi_value.put(key, new_val);
+//            }
+//        }
+//        
+//        for(String k : simi_value.keySet()){ 
+//            double val = simi_value.get(k);
+//            vector.add(val);
+//        }        
+//    /*    for(int a :vector){
+//            System.out.println(a);
+//        }
+//        */
+//        return vector;
+//    }
+    
+    //情感分析
+    public String Sentiment(String str){  
+        String sentiment = null;
+        Properties props = new Properties();
+        props.setProperty("ner.useSUTime", "false");
+        //分词（tokenize）、分句（ssplit）、词性标注（pos）、词形还原（lemma）、命名实体识别（ner）、语法解析（parse）、情感分析（sentiment）、指代消解（coreference resolution）
+    //    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse,sentiment");
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+        Annotation document = new Annotation(str);
+        pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        for(CoreMap sentence: sentences) {
+            sentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
+        }
+        return sentiment;
     }
     
     /**

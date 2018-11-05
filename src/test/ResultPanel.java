@@ -33,7 +33,9 @@ public class ResultPanel extends JPanel{
     private JLabel out_label; //输出label
     private JScrollPane js; //滚动条
            
-    public JPanel infoList(String classname){    
+    public JPanel infoList(String classname){
+        
+        classname = "addinfo";
         setLayout(new FlowLayout());
         setPreferredSize(new Dimension(300,350));  
         setFont(new Font("宋体",1,12));

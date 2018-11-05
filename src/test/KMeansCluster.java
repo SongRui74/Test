@@ -7,6 +7,10 @@
 package test;
 
 import edu.stanford.nlp.trees.Tree;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -29,6 +33,15 @@ class point{
     public String r = null; //用户评论
     public String c = null; //类别
     public int flag = -1;  //标记
+    public int index = 0;
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
     
 /*    public String getT(){
         return t;
@@ -69,8 +82,8 @@ public class KMeansCluster {
         this.table_name = table_name;
     }
     
-    private final Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
-    private final Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
+//    private final Map<String,List> listmap = new HashMap<>(); //存储评论对应的依存关系
+//    private final Map<String,Tree> treemap = new HashMap<>(); //存储评论对应的语法树
     
     SQL s = new SQL();
     Standfordnlp nlp = new Standfordnlp();
@@ -78,7 +91,7 @@ public class KMeansCluster {
     point[] data;//数据集
     point[] old_center = null;//原始聚类中心
     point[] new_center = null;//新的聚类中心
-    double stopsim = 4; //迭代停止时的新旧质心相似程度
+    double stopsim = 0.5; //迭代停止时的新旧质心相似程度
  
     point[][] pop;//种群
     int[] count;//种群规模
@@ -112,12 +125,13 @@ public class KMeansCluster {
             //    data[i].setT(ast);
                 data[i].setC(classes);
                 data[i].setR(content);
+                data[i].setIndex(i);
                 //解析语法树和依存关系存入相应的map中
-                Tree temptree = nlp.FeedbacktoTree(content);
-                List templist = nlp.FeedbacktoDep(content);
-                
-                treemap.put(content, temptree);
-                listmap.put(content, templist);
+//                Tree temptree = nlp.FeedbacktoTree(content);
+//                List templist = nlp.FeedbacktoDep(content);
+//                
+//                treemap.put(content, temptree);
+//                listmap.put(content, templist);
                 
                 rs.next();
             }
@@ -235,6 +249,39 @@ public class KMeansCluster {
         }
     }
     
+    double[][] Matrix;//相似度矩阵
+    public void Readtxt() throws IOException{
+        File file = new File(".\\"+table_name+".txt");
+        int n = data.length;
+        Matrix = new double[n][n];
+          //读取出的数组
+        BufferedReader in = new BufferedReader(new FileReader(file));  //
+        String line;  //一行数据
+        int row = 0;
+        //逐行读取，并将每个数组放入到数组中
+        while ((line = in.readLine()) != null) {
+            String[] temp = line.split("\t");
+            for (int j = 0; j < temp.length; j++) {
+                Matrix[row][j] = Double.parseDouble(temp[j]);
+            }
+            row++;
+        }
+        in.close();
+    }
+    
+    public double Getsimi(int a, int b){
+        double simi = 0;
+        for(int i =0;i<data.length;i++){
+            if(i==a){
+                for(int j=0;j<data.length;j++){
+                    if(j==b){
+                        simi = Matrix[i][j];
+                    }
+                }
+            }
+        }
+        return simi;
+    }
     /**
      * 相似度计算，两棵树之间的距离函数
      * @param a 染色体a
@@ -242,25 +289,43 @@ public class KMeansCluster {
      * @return 两染色体所代表的树的相似度
      */    
     public Double Similarity(point a, point b){
-        double sim = 0;
-        String t1 = a.r; //获取两条评论内容
-        String t2 = b.r;
+        double fsimi = 0;      
         
-        Tree tree1 = treemap.get(t1);  //找到对应的树和依存关系
-        Tree tree2 = treemap.get(t2);
+        int i = a.getIndex();
+        int j = b.getIndex();
+        if(i == j){
+            fsimi = 0;
+        }else{        
+            fsimi = this.Getsimi(i, j);
+            
+            fsimi = fsimi*100;
+        }
         
-        List list1 = listmap.get(t1);
-        List list2 = listmap.get(t2);
-                
-        List simi = nlp.CalSimi(list1, list2,tree1,tree2); //获取依存关系及对应数值的相似度列表
-        List vec = nlp.SimiVector(simi);
+//        String t1 = a.r; //获取两条评论内容
+//        String t2 = b.r;
+//        Tree tree1 = treemap.get(t1);  //找到对应的树和依存关系
+//        Tree tree2 = treemap.get(t2);
+//        
+//        List list1 = listmap.get(t1);
+//        List list2 = listmap.get(t2);
+//        
+//        List a12 = nlp.CalSimi(list1, list2, tree1, tree2);
+//        List a21 = nlp.CalSimi(list2, list1, tree2, tree1);
+//        List v12 = nlp.SimiVector(a12);
+//        List v21 = nlp.SimiVector(a21);
+//        List v = nlp.FinalVector(v12, v21);
+//        double simi = nlp.guiyihua(v);
+//        fsimi = nlp.fsim(simi, v);
         
-        int sum = 0;
-        for(int i = 0; i < vec.size(); i++){
-            double val = (double) vec.get(i);
-            sum += val*val;
-        }        
-        sim = Math.sqrt(sum);
+//        List simi = nlp.CalSimi(list1, list2,tree1,tree2); //获取依存关系及对应数值的相似度列表
+//        List vec = nlp.SimiVector(simi);
+//        
+//        int sum = 0;
+//        for(int i = 0; i < vec.size(); i++){
+//            double val = (double) vec.get(i);
+//            sum += val*val;
+//        }        
+//        sim = Math.sqrt(sum);
     /*    String[] aa = t1.split("\\,");
         String[] bb = t2.split("\\,");
         int temp = 0;
@@ -280,7 +345,7 @@ public class KMeansCluster {
         int sum = aa.length + bb.length;
         sim = (float)same/sum;
         */
-        return sim;
+        return fsimi;
     }
     
     /**
@@ -315,7 +380,8 @@ public class KMeansCluster {
             }
             dist = this.Similarity(new_center[i],old_center[i]);
             System.out.println("第"+i+"个新旧质心相似度："+dist);
-            if(dist >= stopsim){   //每个质心都满足停止条件
+//            if(dist >= stopsim || new_center[i].equals(old_center[i])||clustercount > 99){   //每个质心都满足停止条件
+            if(clustercount > 4){   //每个质心都满足停止条件
                 stop = 0;
             }
             else{
@@ -343,36 +409,40 @@ public class KMeansCluster {
         for(int i =0;i < old_center.length ; i++){
         //    System.out.println("聚类中心："+old_center[i].t);
             System.out.println("聚类中心："+old_center[i].r);
-            int Demand = 0;
+            int BUG = 0;
             int Invalid = 0;
             int Overview = 0;
-            int Specific = 0;
+            int FE = 0;
+            int IM = 0;
             for (int j = 0; j < data.length; j++) {
                 if (data[j].flag == (i + 1)) {
                     count[i]++;
-                    if(data[j].getC().equals("Demand"))
-                        Demand++;
+                    if(data[j].getC().equals("BUG"))
+                        BUG++;
                     if(data[j].getC().equals("Invalid"))
                         Invalid++;
                     if(data[j].getC().equals("Overview"))
                         Overview++;
-                    if(data[j].getC().equals("Specific"))
-                        Specific++;
+                    if(data[j].getC().equals("FE"))
+                        FE++;
+                    if(data[j].getC().equals("IM"))
+                        IM++;
                 //    System.out.println(data[j].t);                    
                 }
             }
             float per = (float)100*count[i]/num;
-            float dem = (float)100*Demand/count[i];
+            float bug = (float)100*BUG/count[i];
             float inv = (float)100*Invalid/count[i];
             float ove = (float)100*Overview/count[i];
-            float spe = (float)100*Specific/count[i];
+            float fe = (float)100*FE/count[i];
+            float im = (float)100*IM/count[i];
             System.out.println("Cluster"+i+"：  "+ count[i] +"    所占比例： "+ per +"%"+
-                               "\n"+"Demand类别个数及比例："+Demand+"\t"+dem+"%\nInvalid类别个数及比例："+Invalid+"\t"+inv+
-                               "%\nOverview类别个数及比例："+Overview+"\t"+ove+"%\nSpecific类别个数及比例："+Specific+"\t"+spe+"%");
-            System.out.println("*******************Demand类具体用户评论*****************");
+                               "\n"+"BUG类别个数及比例："+BUG+"\t"+bug+"%\nInvalid类别个数及比例："+Invalid+"\t"+inv+
+                               "%\nOverview类别个数及比例："+Overview+"\t"+ove+"%\nFE类别个数及比例："+FE+"\t"+fe+"%\nIM类别个数及比例："+IM+"\t"+im+"%");
+            System.out.println("*******************BUG类具体用户评论*****************");
             for (int j = 0; j < data.length; j++) {
                 if (data[j].flag == (i + 1)) {
-                    if(data[j].getC().equals("Demand"))
+                    if(data[j].getC().equals("BUG"))
                         System.out.println(data[j].r);                    
                 }
             }
@@ -390,10 +460,17 @@ public class KMeansCluster {
                         System.out.println(data[j].r);                    
                 }
             }
-            System.out.println("*******************Specific类具体用户评论*****************");
+            System.out.println("*******************FE类具体用户评论*****************");
             for (int j = 0; j < data.length; j++) {
                 if (data[j].flag == (i + 1)) {
-                    if(data[j].getC().equals("Specific"))
+                    if(data[j].getC().equals("FE"))
+                        System.out.println(data[j].r);                    
+                }
+            }
+            System.out.println("*******************IM类具体用户评论*****************");
+            for (int j = 0; j < data.length; j++) {
+                if (data[j].flag == (i + 1)) {
+                    if(data[j].getC().equals("IM"))
                         System.out.println(data[j].r);                    
                 }
             }

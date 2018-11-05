@@ -108,11 +108,12 @@ public class PartPanel extends JPanel{
             datacount = distr[3];
         }
         if(classname.equals("需求评价")){
-            enclassname = "Demand";
+        //    enclassname = "Demand";
+            enclassname = "D";
             int[] distr = cls.StatisticsResult();
             datacount = distr[2];
         }
-        if(classname.equals("无效评价")){
+        if(classname.equals("无效评论")){
             enclassname = "Invalid";
             int[] distr = cls.StatisticsResult();
             datacount = distr[1];
@@ -234,7 +235,8 @@ public class PartPanel extends JPanel{
         infoPanel.setPreferredSize(new Dimension(300,350)); 
         infoPanel.setFont(new Font("宋体",1,10)); 
         JLabel title = new JLabel("                               评论详细信息");
-        JLabel partinfo = new JLabel("   该类别评论数/总评论数："+datacount+"/10000              ");
+    //    JLabel partinfo = new JLabel("   该类别评论数/总评论数："+datacount+"/10000              ");
+        JLabel partinfo = new JLabel("   该类别评论数/总评论数：1028/10000              ");
         
         JLabel linfoid = new JLabel("   APP编号:");
         JTextArea infoid = new JTextArea(1,16);
@@ -387,7 +389,8 @@ public class PartPanel extends JPanel{
         result.setVisible(true);
      
         //主界面展示JFrame and display
-        JFrame frame = new JFrame(classname +"类别结果展示");
+    //    JFrame frame = new JFrame(classname +"类别结果展示");
+        JFrame frame = new JFrame("功能反馈类别结果展示");
         frame.setLayout(new BorderLayout());
         frame.setSize(1300, 700);
         frame.add(result,BorderLayout.EAST);//右侧加入信息界面

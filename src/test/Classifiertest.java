@@ -9,6 +9,7 @@ package test;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Classifier; 
@@ -78,16 +79,17 @@ public class Classifiertest {
         //训练模型
         smo.buildClassifier(d_Train);  
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(smo, d_Train);//测试&评价算法  
+        eval.crossValidateModel(smo, newdata, 10, new Random(1));
+    //    eval.evaluateModel(smo, d_Train);//测试&评价算法  
         txtSMO.append("\n训练模型评估结果\n");
         txtSMO.append("Classifier model:\tSMO\n");
         txtSMO.append(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         txtSMO.append(eval.toClassDetailsString()+"\n");
         txtSMO.append(eval.toMatrixString()+"\n"); 
-    /*    System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
+        System.out.println(eval.toSummaryString("\n=== Summary ===\n",false)+"\n");
         System.out.println(eval.toClassDetailsString()+"\n");
         System.out.println(eval.toMatrixString()+"\n");
-    */        
+           
     }
     /**
      * SMO算法训练模型并分类
@@ -127,7 +129,8 @@ public class Classifiertest {
         //训练模型
         smo.buildClassifier(d_Train);  
         Evaluation eval = new Evaluation(d_Train);
-        eval.evaluateModel(smo, d_Train);//测试&评价算法  
+        eval.crossValidateModel(smo, newdata, 10, new Random(1));
+//        eval.evaluateModel(smo, d_Train);//测试&评价算法  
             
         //从数据库读入预测文件
         query.setUsername("song");
@@ -142,12 +145,12 @@ public class Classifiertest {
         //保存为arff文件（备份便于查找评论信息）
         ArffSaver saver = new ArffSaver();  
         saver.setInstances(predata);  
-        saver.setFile(new File("./data/pre_info.arff")); 
+        saver.setFile(new File("./data/"+table_name+"_info.arff")); 
         saver.writeBatch();  
         
         //打开保存好的arff文件，数据预处理（类型转化、删除无关特征、增加classes属性）
         //1.读入预测集
-        File inputFile = new File("./data/pre_info.arff");  
+        File inputFile = new File("./data/"+table_name+"_info.arff");  
         ArffLoader atf = new ArffLoader();   
         atf.setFile(inputFile);  
         Instances Pre = atf.getDataSet();         
@@ -177,7 +180,7 @@ public class Classifiertest {
         
         //将结果保存为arff文件（便于查找预测结果信息）
         saver.setInstances(d_Pre);  
-        saver.setFile(new File("./data/pre_result.arff")); 
+        saver.setFile(new File("./data/"+table_name+"_result.arff")); 
         saver.writeBatch();         
         
     }
@@ -201,12 +204,12 @@ public class Classifiertest {
         int[] distribution = {0,0,0,0,0};
         try {
             //读取预测集评论信息文件
-            File inputFile = new File("./data/pre_info.arff");
+            File inputFile = new File("./data/"+table_name+"_info.arff");
             ArffLoader atf = new ArffLoader();
             atf.setFile(inputFile);
             Instances pre_info = atf.getDataSet();
             //读取预测集结果文件
-            inputFile = new File("./data/pre_result.arff");
+            inputFile = new File("./data/"+table_name+"_result.arff");
             atf.setFile(inputFile);
             Instances pre_result = atf.getDataSet();
             for(int i = 0; i < pre_info.numInstances(); i++){                
@@ -233,12 +236,12 @@ public class Classifiertest {
     public void RecordClassifyResult(){
         try {
             //读取预测集评论信息文件
-            File inputFile = new File("./data/pre_info.arff");
+            File inputFile = new File("./data/"+table_name+"_info.arff");
             ArffLoader atf = new ArffLoader();
             atf.setFile(inputFile);
             Instances pre_info = atf.getDataSet();
             //读取预测集结果文件
-            inputFile = new File("./data/pre_result.arff");
+            inputFile = new File("./data/"+table_name+"_result.arff");
             atf.setFile(inputFile);
             Instances pre_result = atf.getDataSet();
             //在备份表输出相同索引的评论信息和分类结果

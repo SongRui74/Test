@@ -44,7 +44,7 @@ public class MyPanel extends JFrame implements ActionListener
         out_label.setForeground(Color.WHITE);
         js = new JScrollPane(txtArea);
         //设置按钮
-        button_SMOEval = new JButton("SMO建模");
+        button_SMOEval = new JButton("训练模型");
         button_SMOCls = new JButton("分类");
         button_save = new JButton("保存");
         
