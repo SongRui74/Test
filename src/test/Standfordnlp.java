@@ -28,11 +28,18 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 
 public class Standfordnlp {    
@@ -372,7 +379,7 @@ public class Standfordnlp {
     }
      
     /**
-     * 计算依存关系数值向量（重复的关系值均值？）
+     * 计算依存关系数值向量
      * @param simi 依存关系和对应数值列表
      * @return 仅含数值的列表
      */
@@ -424,6 +431,7 @@ public class Standfordnlp {
         }        
         return vector;
     }
+    //语义上的相似度
     public double guiyihua(List vec){
         double simi;
         double sum = 0;
@@ -434,31 +442,188 @@ public class Standfordnlp {
         return simi;
     }
     
-    //VSM
-    public double vsm(String str1,String str2){
-        double sim = 0;
+    //VSM(词)
+    //读入权值表    
+    Map<String,Double> wordmap = new HashMap();
+    public void wordweight () throws FileNotFoundException, IOException{
+        File readfile = new File(".\\wordweight.txt");
+        if (!readfile.exists() || readfile.isDirectory()) {
+            throw new FileNotFoundException();
+        }
+        BufferedReader br = new BufferedReader(new FileReader(readfile));
+        String temp = null;
+        temp = br.readLine();//按行读入  
+       // Map<String,Double> map = new HashMap();
+        while (temp != null) {
+            String[] t = temp.split(" ");
+            String word = t[0];
+            double weight = Double.parseDouble(t[1]);
+            wordmap.put(word, weight);
+            temp = br.readLine();
+        }
+    }
+    //一个句子转化为向量
+    public List wordvector(String str){
+        List<String[]> l = new ArrayList();
         
+        String[] temp = str.split(" |,");
+        for (int i = 0; i < temp.length; i++) {
+            String[] s = {null,null};
+            
+            if (temp[i].equals("")) {
+                continue;
+            } else {
+                s[0] = temp[i];
+                if (wordmap.get(temp[i]) == null) {
+                    s[1] = "0";
+                }else{
+                    s[1] = wordmap.get(temp[i]).toString();
+                }
+            }
+//            System.out.print(s[0]+"\t"+s[1]+"\n");
+            l.add(s);
+        }
+
+        return l;
+    }
+    //两个句子向量统一维数
+    public Double totalvector(List l1,List l2){
+        List<String[]> l = new ArrayList();
+        List<Double> newl1 = new ArrayList();
+        List<Double> newl2 = new ArrayList();
+        //合并为一个
+        l.addAll(l1);
+        l.addAll(l2); 
+        //去重
+        List<String> temp1 = new ArrayList();//保存词
+        List<String[]> temp2 = new ArrayList();//保存l去重后的
+        for (int i=0;i <l.size();i++) {
+            String[] s = l.get(i);
+            temp1.add(s[0]);
+        }
+        
+        Set set = new HashSet();
+        List<String> newList = new ArrayList<>();
+        for (String element : temp1) {
+            //set能添加进去就代表不是重复的元素
+            if (set.add(element)) {
+                newList.add(element);
+            }
+        }
+        temp1.clear();
+        temp1.addAll(newList);
+        
+        //存在重复单词删除对应位置的权值
+        if (temp1.size() != l.size()) {
+            int p = 0;
+            for (int i = 0; i < l.size(); i++) {
+                String[] s = l.get(i);
+                if (p < temp1.size()) {
+                    String s2 = temp1.get(p);
+                    if (s2.equals(s[0])) {
+                        temp2.add(s);
+                        p++;
+                    }
+                }
+            }
+        } else {
+            temp2.addAll(l);
+        }
+        
+        //分别计算新的l1和l2
+        int j = 0;
+        int k = 0;
+        for (int i = 0; i < temp2.size(); i++) {
+            String[] t = temp2.get(i);
+//            System.out.println(t[0] + "\t" + t[1] + "\n");
+            if (j < l1.size()) {
+                String[] t1 = (String[]) l1.get(j);
+                String t1_word = t1[0];
+                if (t1_word.equals(t[0])) {
+                    newl1.add(Double.parseDouble(t1[1]));
+                    j++;
+                } else {
+                    newl1.add(0.0);
+                }
+            }
+            if (k < l2.size()) {
+                String[] t2 = (String[]) l2.get(k);
+                String t2_word = t2[0];
+                if (t2_word.equals(t[0])) {
+                    k++;
+                    newl2.add(Double.parseDouble(t2[1]));
+                } else {
+                    newl2.add(0.0);
+                }
+            }
+           
+        }
+        //补全尾部
+        if (newl1.size() != temp2.size()) {
+            for (int q = 0; q < temp2.size() - j; q++) {
+                newl1.add(0.0);
+            }
+        }
+        if (newl2.size() != temp2.size()) {
+            for (int q = 0; q < temp2.size() - k; q++) {
+                newl2.add(0.0);
+            }
+        }
+//        System.out.println(newl1.toString());
+//        System.out.println(newl2.toString());
+        Double sim = 0.0;
+        if (newl1.isEmpty() || newl2.isEmpty()) {
+            sim = 0.0;
+        }else{
+            sim = this.wordsim(newl1, newl2);
+        }
         
         return sim;
     }
+    //向量计算结果
+    public double wordsim(List l1,List l2){
+        double sim = 0;
+        double a = 0;//分子
+        double b1 = 0;//分母
+        double b2 = 0;
+        
+        for(int i =0;i<l1.size();i++){
+            double w1 = (double) l1.get(i);
+            double w2 = (double) l2.get(i);
+            a += w1*w2;
+            b1 += w1*w1;
+            b2 += w2*w2;
+        }
+        if(Math.sqrt(b1*b2) == 0){
+            sim = 0;
+        }else{
+            sim = a/Math.sqrt(b1*b2);
+        }
+//        System.out.println(a);
+//        System.out.println(Math.sqrt(b1*b2));
+//        System.out.println(sim);
+        return sim;
+    }
     
+    //最终的相似度是词+语义
     public double fsim(double sim,List vec){
         double fsim = sim;
         if(vec.size() == 0){
             fsim = 0;
         }else{
-        reln1.addAll(reln2);
-        for (int i = 0; i < reln1.size() - 1; i++) {
-            for (int j = reln1.size() - 1; j > i; j--) {
-                if (reln1.get(j).equals(reln1.get(i))) {
-                    reln1.remove(j);
+            reln1.addAll(reln2);
+            for (int i = 0; i < reln1.size() - 1; i++) {
+                for (int j = reln1.size() - 1; j > i; j--) {
+                    if (reln1.get(j).equals(reln1.get(i))) {
+                        reln1.remove(j);
+                    }
                 }
             }
-        }
 //        for(int i=0;i<reln1.size();i++){
 //            System.out.print(reln1.get(i)+"\t");
 //        }
-        fsim = sim*vec.size()/reln1.size();}
+            fsim = sim * vec.size() / reln1.size();
+        }
         return fsim;
     }
 //    public List SimiVector(List simi){

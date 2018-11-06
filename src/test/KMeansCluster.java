@@ -148,8 +148,9 @@ public class KMeansCluster {
     public void ChooseCenter(){
         int num = s.GetDataNum(this.getTable_name());//数据集数量
         Scanner cin = new Scanner(System.in);
-        System.out.print("请输入初始化聚类中心个数（随机产生）：");
-        int center = cin.nextInt();
+//        System.out.print("请输入初始化聚类中心个数（随机产生）：");
+//        int center = cin.nextInt();
+        int center = 2;
         this.old_center = new point[center]; //存放聚类中心
         this.new_center = new point[center];
         
@@ -178,6 +179,7 @@ public class KMeansCluster {
         //    old_center[i].t = data[thistemp].t;
             old_center[i].r = data[thistemp].r;
             old_center[i].c = data[thistemp].c;
+            old_center[i].index = data[thistemp].index;
             old_center[i].flag = 0; //0表示聚类中心
         }
        
@@ -193,8 +195,8 @@ public class KMeansCluster {
      */
     public void Classified(){
         for(int i =0;i<data.length;i++){
-            double dist = 999;
-            int lable = -1;
+            double dist = -999;
+            int label = -1;
             for(int j = 0;j < old_center.length;j++){
             /*    if(old_center[j].t == null){ //种群为空导致质心为空
                     continue;
@@ -203,12 +205,12 @@ public class KMeansCluster {
                     continue;
                 }
                 double distance = Similarity(data[i],old_center[j]);
-                if(distance < dist){
+                if(distance > dist){
                     dist = distance;
-                    lable = j;
+                    label = j;
                 }
             }
-            data[i].flag = lable+1;
+            data[i].flag = label+1;
         }
     }
         
@@ -294,11 +296,11 @@ public class KMeansCluster {
         int i = a.getIndex();
         int j = b.getIndex();
         if(i == j){
-            fsimi = 0;
+            fsimi = 2.0;
         }else{        
             fsimi = this.Getsimi(i, j);
             
-            fsimi = fsimi*100;
+            fsimi = fsimi;
         }
         
 //        String t1 = a.r; //获取两条评论内容
@@ -380,8 +382,7 @@ public class KMeansCluster {
             }
             dist = this.Similarity(new_center[i],old_center[i]);
             System.out.println("第"+i+"个新旧质心相似度："+dist);
-//            if(dist >= stopsim || new_center[i].equals(old_center[i])||clustercount > 99){   //每个质心都满足停止条件
-            if(clustercount > 4){   //每个质心都满足停止条件
+            if(dist >= stopsim ||clustercount > 99){   //每个质心都满足停止条件
                 stop = 0;
             }
             else{

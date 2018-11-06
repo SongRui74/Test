@@ -58,22 +58,24 @@ public class Test {
     */
         //评论信息写入txt文件
 //        SQL s = new SQL();
-//        s.InfotoTXT("single5000");
-//        s.DBtoTXT("Specific4");
+//        s.InfotoTXT("train");
+//        s.InfotoTXT("single5000");//去停用词
+//        s.DBtoTXT("Specific4");//没去停用词
 //        s.DBtoTXT("Demand4");
 //        s.InfotoTXT("Specific4");
 //        s.InfotoTXT("Demand4");
-                  
-        Test k = new Test();
-        table_name = "b100";
-        k.KMeans();
+        
+    //聚类
+//        Test k = new Test();
+//        table_name = "a100";
+//        k.KMeans();
 
         //记录相似度矩阵
-//        SimMatrix s = new SimMatrix();
-//        s.setTable_name("a100");
-//        s.ImportData();
-//        s.calMatrix();
-//        s.Writetxt();
+        SimMatrix s = new SimMatrix();
+        s.setTable_name("a120");
+        s.ImportData();
+        s.calMatrix();
+        s.Writetxt();
 //        s.Readtxt();
        
 //        Standfordnlp s = new Standfordnlp();
@@ -90,11 +92,19 @@ public class Test {
 ////        boolean c = t.SemgrexIsMatch(tree, sm);
 ////        System.out.println(c);
         
-               
+     
 //        Standfordnlp t = new Standfordnlp();
-//        String s1 = "App don't work";
-//        String s2 = "App can't open";
+//        String s1 = "Good app";
+//        String s2 = "outstanding app";
 //        String s3 = "The app otherwise mostly works as promised";
+//        t.wordweight();
+//        List l1 = t.wordvector(s1);
+//        List l2 = t.wordvector(s2);
+//        t.totalvector(l1, l2);
+//        System.out.println(t.totalvector(l1, l2));
+        
+        //词向量 
+        //语义相似度
 //        List l1 = t.FeedbacktoDep(s1);
 //        List l2 = t.FeedbacktoDep(s2);
 //        List l3 = t.FeedbacktoDep(s3);

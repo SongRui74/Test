@@ -87,7 +87,7 @@ public class SimMatrix {
     }
     
     //计算相似度
-    public double sim(int i,int j){
+    public double sim(int i,int j) throws IOException{
         double fsimi = 0;
         String t1 = indexmap.get(i);; //获取两条评论内容
         String t2 = indexmap.get(j);
@@ -105,10 +105,15 @@ public class SimMatrix {
         double simi = nlp.guiyihua(v);
         fsimi = nlp.fsim(simi, v);
         
+        nlp.wordweight();
+        List l1 = nlp.wordvector(t1);
+        List l2 = nlp.wordvector(t2);
+        fsimi += nlp.totalvector(l1, l2);
+        
         return fsimi;
     }
     
-    public void calMatrix(){
+    public void calMatrix() throws IOException{
         int num = indexmap.size();
         Matrix = new double[num][num];
 
@@ -142,7 +147,7 @@ public class SimMatrix {
     }
     
     public void Writetxt() throws IOException{
-        File file = new File(".\\Matrix.txt");  //存放数组数据的文件
+        File file = new File(".\\"+table_name+".txt");  //存放数组数据的文件
         FileWriter out = new FileWriter(file);  //文件写入流
         int n = indexmap.size();
         //将数组中的数据写入到文件中。每行各数据之间TAB间隔
@@ -156,7 +161,7 @@ public class SimMatrix {
     }
     
     public void Readtxt() throws IOException{
-        File file = new File(".\\a100.txt");
+        File file = new File(".\\Matrix.txt");
     //    int n = indexmap.size();
         int n=100;
         double[][] arr2 = new double[n][n];  //读取出的数组
