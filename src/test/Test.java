@@ -58,25 +58,22 @@ public class Test {
     */
         //评论信息写入txt文件
 //        SQL s = new SQL();
-//        s.InfotoTXT("train");
-//        s.InfotoTXT("single5000");//去停用词
+//        s.InfotoTXT("train");//去停用词
 //        s.DBtoTXT("Specific4");//没去停用词
-//        s.DBtoTXT("Demand4");
-//        s.InfotoTXT("Specific4");
-//        s.InfotoTXT("Demand4");
         
-    //聚类
-//        Test k = new Test();
-//        table_name = "a100";
-//        k.KMeans();
-
         //记录相似度矩阵
         SimMatrix s = new SimMatrix();
-        s.setTable_name("a120");
+        s.setTable_name("RoR");
         s.ImportData();
         s.calMatrix();
         s.Writetxt();
+        s.Writedatatxt();
 //        s.Readtxt();
+
+        //聚类
+//        Test k = new Test();
+//        table_name = "RoR";
+//        k.KMeans();
        
 //        Standfordnlp s = new Standfordnlp();
 //        String str = "Calculator sometimes doesn't work either ";
@@ -171,44 +168,44 @@ public class Test {
 //        simc = Math.sqrt(sumc);
 //        
         
-    /*    System.out.println("评论a的依存关系列表：\n"+l1.toString());
-        System.out.println("评论b的依存关系列表：\n"+l2.toString());
-        System.out.println("评论a的语法树：");
-        t1.pennPrint();
-        System.out.println("评论b的语法树：");
-        t2.pennPrint();
-        System.out.println("\n评论a与b的相似度向量：");
-        System.out.println(t.SimiVector(a).toString());
-        System.out.println("评论a与b的相似度为：\t"+sim);
-        
-    /*    System.out.println("\n评论a的依存关系列表：\n"+l1.toString());
-        System.out.println("评论c的依存关系列表：\n"+l3.toString());
-        System.out.println("评论a的语法树：");
-        t1.pennPrint();
-        System.out.println("评论c的语法树：");
-        t3.pennPrint();
-        System.out.println("\n评论a与c的相似度向量：");
-        System.out.println(t.SimiVector(c).toString());
-        System.out.println("评论a与c的相似度为：\t"+simc);
+//        System.out.println("评论a的依存关系列表：\n"+l1.toString());
+//        System.out.println("评论b的依存关系列表：\n"+l2.toString());
+//        System.out.println("评论a的语法树：");
+//        t1.pennPrint();
+//        System.out.println("评论b的语法树：");
+//        t2.pennPrint();
+//        System.out.println("\n评论a与b的相似度向量：");
+//        System.out.println(t.SimiVector(a).toString());
+//        System.out.println("评论a与b的相似度为：\t"+sim);
+//        
+//        System.out.println("\n评论a的依存关系列表：\n"+l1.toString());
+//        System.out.println("评论c的依存关系列表：\n"+l3.toString());
+//        System.out.println("评论a的语法树：");
+//        t1.pennPrint();
+//        System.out.println("评论c的语法树：");
+//        t3.pennPrint();
+//        System.out.println("\n评论a与c的相似度向量：");
+//        System.out.println(t.SimiVector(c).toString());
+//        System.out.println("评论a与c的相似度为：\t"+simc);
         
         
 
-        /*    SQL s = new SQL();
-        s.SqltoShort(table_name);//批量将长文本化为单句
-        s.DealNullData(table_name);//删除无英文字母的无效评论
-        s.DelInvaSymbol(table_name);//删除文本无用的字符
-        String col = "num";
-        String type = "int";
-        s.AddColumn(table_name,col, type);//添加单词数目列
-        s.RemarkNumberofWords(table_name, col);//标记单词数
-         */
-        //    s.AppsToDB("D:\\aaMyPRo\\data\\apps.dat","Apps",5);
-        //    s.ReviewsToDB("D:\\aaMyPRo\\data\\reviews.dat","Reviews",5);
+//        SQL s = new SQL();
+//        s.SqltoShort(table_name);//批量将长文本化为单句
+//        s.DealNullData(table_name);//删除无英文字母的无效评论
+//        s.DelInvaSymbol(table_name);//删除文本无用的字符
+//        String col = "num";
+//        String type = "int";
+//        s.AddColumn(table_name,col, type);//添加单词数目列
+//        s.RemarkNumberofWords(table_name, col);//标记单词数
+        
+//            s.AppsToDB("E:\\Program\\data\\apps.dat","Apps",5);
+//            s.ReviewsToDB("E:\\Program\\data\\reviews.dat","Reviews",5);
         
         //    SQL s = new SQL();
     //    s.DBInfo("Specific4");
     //    s.DBInfo("Demand4");
-    //    s.InfoDB("D:\\aaMyPRo\\data\\Specific4data.txt", "data");
+    //    s.InfoDB("E:\\Program\\data\\Specific4data.txt", "data");
        
     }
 }

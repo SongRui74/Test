@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -34,7 +33,7 @@ public class SQL {
 
     private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
-    private final String userName = "song";
+    private final String userName = "sa";
     private final String userPwd = "123456";
     private Connection conn;
 
@@ -1423,7 +1422,7 @@ public class SQL {
             rs = stmt.executeQuery("SELECT * FROM " + table_name);
 
             //文件名称
-            File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + ".txt");
+            File file = new File(".\\data\\" + table_name + ".txt");
             PrintStream ps = new PrintStream(new FileOutputStream(file));
 
             //统计评论信息数目
@@ -1469,8 +1468,8 @@ public class SQL {
             rs = stmt.executeQuery("SELECT * FROM " + table_name);
 
             //文件名称
-        //    File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + "noinfo.txt");
-            File file = new File("D:\\aaMyPro\\MyCode\\" + table_name + ".txt");
+        //    File file = new File(".\\data\\" + table_name + "noinfo.txt");
+            File file = new File(".\\data\\" + table_name + ".txt");
             PrintStream ps = new PrintStream(new FileOutputStream(file));
 
             //停用词表
@@ -1535,7 +1534,7 @@ public class SQL {
     }
 
     public Map Stopwords () throws FileNotFoundException, IOException{
-        File readfile = new File("D:\\aaMyPro\\MyCode\\stopwords.txt");
+        File readfile = new File(".\\data\\stopwords.txt");
         if (!readfile.exists() || readfile.isDirectory()) {
             throw new FileNotFoundException();
         }
@@ -1617,7 +1616,7 @@ public class SQL {
             rs = stmt.executeQuery("select * from "+table_name+" left join Apps on "+table_name+".APP_ID = Apps.APP_ID");
 
             //文件名称
-            File file = new File("D:\\aaMyPro\\"+table_name+"data.txt");
+            File file = new File(".\\data\\"+table_name+"data.txt");
             PrintStream ps = new PrintStream(new FileOutputStream(file));
 
             Standfordnlp s = new Standfordnlp();

@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class SimMatrix {
     private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
-    private final String userName = "song"; 
+    private final String userName = "sa"; 
     private final String userPwd = "123456"; 
     private Connection conn;  
     private String table_name;
@@ -160,8 +160,21 @@ public class SimMatrix {
         out.close();
     }
     
+    public void Writedatatxt() throws IOException{
+        File file = new File(".\\"+table_name+"data.txt");  //存放数组数据的文件
+        FileWriter out = new FileWriter(file);  //文件写入流
+        int n = indexmap.size();
+        //将数组中的数据写入到文件中。每行各数据之间TAB间隔
+        for (int i = 0; i < n; i++) {
+            String str = indexmap.get(i);
+            out.write(str+"\r\n");
+        }
+        out.close();
+    }
+    
+    
     public void Readtxt() throws IOException{
-        File file = new File(".\\Matrix.txt");
+        File file = new File(".\\"+table_name+".txt");
     //    int n = indexmap.size();
         int n=100;
         double[][] arr2 = new double[n][n];  //读取出的数组

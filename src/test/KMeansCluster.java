@@ -68,7 +68,7 @@ class point{
 public class KMeansCluster {
     private final String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"; //加载JDBC驱动
     private final String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=mypro"; //连接服务器和数据库mypro
-    private final String userName = "song"; 
+    private final String userName = "sa"; 
     private final String userPwd = "123456"; 
     private Connection conn;  
     
@@ -117,6 +117,13 @@ public class KMeansCluster {
             
             rs=stmt.executeQuery("SELECT * FROM "+table_name);
             rs.first();//读取数据库第一行记录
+//            int j = 0;
+//            int fe = 0;
+//            int im = 0;
+//            int ov = 0;
+//            int bu = 0;
+//            int in = 0;
+//            this.old_center = new point[4]; //存放聚类中心
             for(int i = 0;i < num ;i++){   
                 data[i] = new point();// 对象创建
             //    String ast = rs.getString("ast");
@@ -126,6 +133,47 @@ public class KMeansCluster {
                 data[i].setC(classes);
                 data[i].setR(content);
                 data[i].setIndex(i);
+//                if(classes.equals("FE") && j < 5 && fe == 1){
+//                    old_center[j] = new point();
+//                    old_center[j].r = data[i].r;
+//                    old_center[j].c = data[i].c;
+//                    old_center[j].index = data[i].index;
+//                    old_center[j].flag = 0; //0表示聚类中心
+//                    fe = 1;
+//                    j++;
+//                }else if(classes.equals("IM") && j < 5 && im == 0){
+//                    old_center[j] = new point();
+//                    old_center[j].r = data[i].r;
+//                    old_center[j].c = data[i].c;
+//                    old_center[j].index = data[i].index;
+//                    old_center[j].flag = 0; //0表示聚类中心
+//                    im = 1;
+//                    j++;
+//                }else if(classes.equals("BUG") && j < 5 && bu == 0){
+//                    old_center[j] = new point();
+//                    old_center[j].r = data[i].r;
+//                    old_center[j].c = data[i].c;
+//                    old_center[j].index = data[i].index;
+//                    old_center[j].flag = 0; //0表示聚类中心
+//                    bu =1;
+//                    j++;
+//                }else if(classes.equals("Overview") && j < 5 && ov == 0){
+//                    old_center[j] = new point();
+//                    old_center[j].r = data[i].r;
+//                    old_center[j].c = data[i].c;
+//                    old_center[j].index = data[i].index;
+//                    old_center[j].flag = 0; //0表示聚类中心
+//                    ov =1;
+//                    j++;
+//                }else if(classes.equals("Invalid") && j < 5 && in == 0){
+//                    old_center[j] = new point();
+//                    old_center[j].r = data[i].r;
+//                    old_center[j].c = data[i].c;
+//                    old_center[j].index = data[i].index;
+//                    old_center[j].flag = 0; //0表示聚类中心
+//                    in = 1;
+//                    j++;
+//                }
                 //解析语法树和依存关系存入相应的map中
 //                Tree temptree = nlp.FeedbacktoTree(content);
 //                List templist = nlp.FeedbacktoDep(content);
@@ -148,9 +196,9 @@ public class KMeansCluster {
     public void ChooseCenter(){
         int num = s.GetDataNum(this.getTable_name());//数据集数量
         Scanner cin = new Scanner(System.in);
-//        System.out.print("请输入初始化聚类中心个数（随机产生）：");
-//        int center = cin.nextInt();
-        int center = 2;
+        System.out.print("请输入初始化聚类中心个数（随机产生）：");
+        int center = cin.nextInt();
+//        int center = 2;
         this.old_center = new point[center]; //存放聚类中心
         this.new_center = new point[center];
         
@@ -182,7 +230,7 @@ public class KMeansCluster {
             old_center[i].index = data[thistemp].index;
             old_center[i].flag = 0; //0表示聚类中心
         }
-       
+               
         System.out.println("初始聚类中心：");
         for (int i = 0; i < old_center.length; i++) {
         //    System.out.println(old_center[i].t);

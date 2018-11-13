@@ -49,7 +49,7 @@ public class Classifiertest {
     public void SMOEval() throws Exception{
         //从数据库读取训练集
         InstanceQuery query = new InstanceQuery();
-        query.setUsername("song");
+        query.setUsername("sa");
         query.setPassword("123456");
         query.setQuery("select * from train");
         Instances traindata = query.retrieveInstances(); 
